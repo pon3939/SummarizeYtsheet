@@ -1,0 +1,3 @@
+# SummarizeYtsheet
+
+ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ
