@@ -1,0 +1,1 @@
+/mnt/d/MyProgram/SummarizeYtsheet/requirements.txt

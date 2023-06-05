@@ -1,16 +1,21 @@
 {
-	// IntelliSense を使用して利用可能な属性を学べます。
-	// 既存の属性の説明をホバーして表示します。
-	// 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
-	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Python",
-			"type": "python",
-			"request": "launch",
-			"program": "main.py",
-			"console": "internalConsole",
-			"justMyCode": true
+			"type": "aws-sam",
+			"request": "direct-invoke",
+			"name": "getYtsheetData:lambda_function.lambda_handler (python3.8)",
+			"invokeTarget": {
+				"target": "code",
+				"projectRoot": "${workspaceFolder}/getYtsheetData",
+				"lambdaHandler": "lambda_function.lambda_handler"
+			},
+			"lambda": {
+				"runtime": "python3.8",
+				"payload": {
+					"path": "getYtsheetData/input.json"
+				},
+				"environmentVariables": {}
+			}
 		}
 	]
 }
