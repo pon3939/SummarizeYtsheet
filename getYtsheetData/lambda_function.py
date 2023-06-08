@@ -7,7 +7,7 @@ from requests import get
 """
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict, context):
     """
 
     メイン処理
