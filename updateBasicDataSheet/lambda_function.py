@@ -243,7 +243,9 @@ def updateSheet(players: "list[dict]"):
 
     # 合計行
     total = [None] * len(header)
-    total[header.index("死亡")] = totalDiedTimes
+    diedIndex = header.index("死亡")
+    total[diedIndex - 1] = "合計"
+    total[diedIndex] = totalDiedTimes
     updateData.append(total)
 
     # 更新
