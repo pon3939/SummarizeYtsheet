@@ -27,7 +27,7 @@ Dynamodb = None
 Sheet: worksheet = None
 
 # シート全体に適用するテキストの書式
-DefaultTextFormat = {
+DefaultTextFormat: dict = {
     "fontFamily": "Meiryo",
 }
 
@@ -312,9 +312,11 @@ def updateSheet(players: "list[dict]"):
 
         updateData.append(row)
 
-        # PC列のハイパーリンク
-        pcIndex = row.index(ytsheetJson["characterName"]) + 1
+        # 書式設定
         rowIndex = updateData.index(row) + 1
+
+        # PC列のハイパーリンク
+        pcIndex = header.index("PC") + 1
         pcTextFormat = DefaultTextFormat.copy()
         pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
@@ -326,8 +328,7 @@ def updateSheet(players: "list[dict]"):
 
         # ダイス平均4.5を超える場合は赤文字
         if diceAverage > 4.5:
-            diceAverageIndex = row.index(diceAverage) + 1
-            rowIndex = updateData.index(row) + 1
+            diceAverageIndex = header.index("ダイス平均") + 1
             diceAverageTextFormat = DefaultTextFormat.copy()
             diceAverageTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 1, "green": 0, "blue": 0}

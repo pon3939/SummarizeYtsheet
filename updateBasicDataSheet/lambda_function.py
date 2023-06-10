@@ -43,7 +43,7 @@ SelfGameMasterNames: "list[str]" = [
 DiedRegexp: str = "|".join(list(map(escape, ["「死亡」", "(死亡)"])))
 
 # シート全体に適用するテキストの書式
-DefaultTextFormat = {
+DefaultTextFormat: dict = {
     "fontFamily": "Meiryo",
 }
 
@@ -232,7 +232,7 @@ def updateSheet(players: "list[dict]"):
         updateData.append(row)
 
         # PC列のハイパーリンク
-        pcIndex = row.index(ytsheetJson["characterName"]) + 1
+        pcIndex = header.index("PC") + 1
         rowIndex = updateData.index(row) + 1
         pcTextFormat = DefaultTextFormat.copy()
         pcTextFormat["link"] = {"uri": player["url"]}

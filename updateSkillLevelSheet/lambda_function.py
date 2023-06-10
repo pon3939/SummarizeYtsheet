@@ -55,7 +55,7 @@ FumbleCountPrefixes: "list[str]" = list(
 )
 
 # シート全体に適用するテキストの書式
-DefaultTextFormat = {
+DefaultTextFormat: dict = {
     "fontFamily": "Meiryo",
 }
 
@@ -310,7 +310,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
         rowIndex = updateData.index(row) + 1
 
         # 経験点の文字色
-        expIndex = row.index(expTotal) + 1
+        expIndex = headers.index("経験点\nピンゾロ含む") + 1
         expTextFormat = DefaultTextFormat.copy()
         if expTotal >= maxExp:
             expTextFormat["foregroundColorStyle"] = {
@@ -334,8 +334,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
             )
 
         # PC列のハイパーリンク
-        pcIndex = row.index(ytsheetJson["characterName"]) + 1
-        rowIndex = updateData.index(row) + 1
+        pcIndex = headers.index("PC") + 1
         pcTextFormat = DefaultTextFormat.copy()
         pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
