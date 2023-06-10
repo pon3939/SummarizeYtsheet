@@ -18,3 +18,7 @@
 ## updateStatusSheet
 
 能力値シートを更新するよ
+
+## updateCombatSkillSheet
+
+能力値シートを更新するよ
