@@ -3,6 +3,23 @@
 		{
 			"type": "aws-sam",
 			"request": "direct-invoke",
+			"name": "updateSkillLevelSheet:lambda_function.lambda_handler (python3.8)",
+			"invokeTarget": {
+				"target": "code",
+				"projectRoot": "${workspaceFolder}/updateSkillLevelSheet",
+				"lambdaHandler": "lambda_function.lambda_handler"
+			},
+			"lambda": {
+				"runtime": "python3.8",
+				"payload": {
+					"path": "updateSkillLevelSheet/input.json"
+				},
+				"environmentVariables": {}
+			}
+		},
+		{
+			"type": "aws-sam",
+			"request": "direct-invoke",
 			"name": "updateBasicDataSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
