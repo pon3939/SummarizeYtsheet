@@ -10,3 +10,11 @@
 ## updateBasicDataSheet
 
 基本シートを更新するよ
+
+## updateSkillLeveSheet
+
+技能シートを更新するよ
+
+## updateStatusSheet
+
+能力値シートを更新するよ

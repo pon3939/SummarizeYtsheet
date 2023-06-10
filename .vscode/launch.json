@@ -3,6 +3,23 @@
 		{
 			"type": "aws-sam",
 			"request": "direct-invoke",
+			"name": "updateStatusSheet:lambda_function.lambda_handler (python3.8)",
+			"invokeTarget": {
+				"target": "code",
+				"projectRoot": "${workspaceFolder}/updateStatusSheet",
+				"lambdaHandler": "lambda_function.lambda_handler"
+			},
+			"lambda": {
+				"runtime": "python3.8",
+				"payload": {
+					"path": "updateStatusSheet/input.json"
+				},
+				"environmentVariables": {}
+			}
+		},
+		{
+			"type": "aws-sam",
+			"request": "direct-invoke",
 			"name": "updateSkillLevelSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
