@@ -27,7 +27,7 @@ Dynamodb = None
 Sheet: worksheet = None
 
 # 自分が開催したときのGM名
-selfGameMasterNames: "list[str]" = [
+SelfGameMasterNames: "list[str]" = [
     "俺",
     "私",
     "私だ",
@@ -39,7 +39,13 @@ selfGameMasterNames: "list[str]" = [
     "朕",
 ]
 
-diedRegexp: str = "|".join(list(map(escape, ["「死亡」", "(死亡)"])))
+# 死亡時の備考
+DiedRegexp: str = "|".join(list(map(escape, ["「死亡」", "(死亡)"])))
+
+# シート全体に適用するテキストの書式
+DefaultTextFormat = {
+    "fontFamily": "Meiryo",
+}
 
 
 def lambda_handler(event: dict, context):
@@ -123,15 +129,12 @@ def getPlayers():
 def updateSheet(players: "list[dict]"):
     """
 
-    初期化
+    シートを更新
 
     Args:
         spreadsheetId str: スプレッドシートのID
     """
     global Sheet
-
-    # クリア
-    Sheet.clear()
 
     updateData = []
 
@@ -170,14 +173,14 @@ def updateSheet(players: "list[dict]"):
 
             # 参加、GM回数を集計
             gm = ytsheetJson[f"history{i}Gm"]
-            if gm == player["player"] or gm in selfGameMasterNames:
+            if gm == player["player"] or gm in SelfGameMasterNames:
                 gmTimes += 1
             else:
                 playerTimes += 1
 
             # 死亡回数を集計
             note = ytsheetJson.get(f"history{i}Note", "")
-            if search(diedRegexp, note):
+            if search(DiedRegexp, note):
                 diedTimes += 1
 
         # 更新日時をスプレッドシートが理解できる形式に変換
@@ -231,10 +234,12 @@ def updateSheet(players: "list[dict]"):
         # PC列のハイパーリンク
         pcIndex = row.index(ytsheetJson["characterName"]) + 1
         rowIndex = updateData.index(row) + 1
+        pcTextFormat = DefaultTextFormat.copy()
+        pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
             {
                 "range": f"{utils.rowcol_to_a1(rowIndex, pcIndex)}",
-                "format": {"textFormat": {"link": {"uri": player["url"]}}},
+                "format": {"textFormat": pcTextFormat},
             }
         )
 
@@ -247,6 +252,9 @@ def updateSheet(players: "list[dict]"):
     total[diedIndex - 1] = "合計"
     total[diedIndex] = totalDiedTimes
     updateData.append(total)
+
+    # クリア
+    Sheet.clear()
 
     # 更新
     Sheet.update(updateData, value_input_option="USER_ENTERED")
