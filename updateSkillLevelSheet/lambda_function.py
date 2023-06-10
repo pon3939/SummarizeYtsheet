@@ -318,7 +318,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
             }
             formats.append(
                 {
-                    "range": f"{utils.rowcol_to_a1(rowIndex, expIndex)}",
+                    "range": utils.rowcol_to_a1(rowIndex, expIndex),
                     "format": {"textFormat": expTextFormat},
                 }
             )
@@ -328,7 +328,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
             }
             formats.append(
                 {
-                    "range": f"{utils.rowcol_to_a1(rowIndex, expIndex)}",
+                    "range": utils.rowcol_to_a1(rowIndex, expIndex),
                     "format": {"textFormat": expTextFormat},
                 }
             )
@@ -340,7 +340,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
         pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
             {
-                "range": f"{utils.rowcol_to_a1(rowIndex, pcIndex)}",
+                "range": utils.rowcol_to_a1(rowIndex, pcIndex),
                 "format": {"textFormat": pcTextFormat},
             }
         )

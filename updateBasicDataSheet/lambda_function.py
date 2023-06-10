@@ -238,7 +238,7 @@ def updateSheet(players: "list[dict]"):
         pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
             {
-                "range": f"{utils.rowcol_to_a1(rowIndex, pcIndex)}",
+                "range": utils.rowcol_to_a1(rowIndex, pcIndex),
                 "format": {"textFormat": pcTextFormat},
             }
         )
