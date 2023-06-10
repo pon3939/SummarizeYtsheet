@@ -1,7 +1,7 @@
 {
 	"SpreadsheetId": "hogehoge",
 	"LevelCap": {
-		"minimumExp": "37500",
-		"maxExp": "62000"
+		"MinimumExp": "37500",
+		"MaxExp": "62000"
 	}
 }
