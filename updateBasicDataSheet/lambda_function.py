@@ -187,8 +187,7 @@ def updateSheet(players: "list[dict]"):
         updatetime = player.get("updateTime")
         if updatetime is not None:
             # UTCをJSTに変換
-            utc = datetime.strptime(updatetime, "%Y-%m-%dT%H:%M:%S.%fZ")
-            utc = utc.replace(tzinfo=timezone("UTC"))
+            utc = datetime.fromisoformat(updatetime.replace("Z", "+00:00"))
             jst = utc.astimezone(timezone("Asia/Tokyo"))
             updatetime = jst.strftime("%Y/%m/%d %H:%M:%S")
 
