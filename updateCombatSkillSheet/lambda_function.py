@@ -20,7 +20,7 @@ GOOGLE_SERVIE_ACCOUNT_ID: int = 1
 # DBコネクション
 Dynamodb = None
 
-# 技能シート
+# 戦闘特技シート
 Sheet: worksheet = None
 
 # シート全体に適用するテキストの書式
