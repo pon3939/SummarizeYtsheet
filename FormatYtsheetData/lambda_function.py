@@ -149,17 +149,21 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
         formatedPlayer["race"] = ytsheetJson.get("race", "")
         formatedPlayer["age"] = ytsheetJson.get("age", "")
         formatedPlayer["gender"] = ytsheetJson.get("gender", "")
-        formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
+        formatedPlayer["birth"] = ytsheetJson.get("birth", "")
 
         # 数値
         formatedPlayer["level"] = int(ytsheetJson.get("level", "0"))
         formatedPlayer["exp"] = int(ytsheetJson.get("expTotal", "0"))
+        formatedPlayer["growthTimes"] = int(
+            ytsheetJson.get("historyGrowTotal", "0")
+        )
 
         # 特殊な変数
         # JSONに変換するため、Decimalをintに変換
         no += 1
         formatedPlayer["no"] = int(player.get("id", "-1"))
         formatedPlayer["faith"] = ytsheetJson.get("faith", "なし")
+        formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
 
         # 更新日時をスプレッドシートが理解できる形式に変換
         formatedPlayer["updateTime"] = None
@@ -177,6 +181,21 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
             formatedPlayer[skill["key"]] = int(
                 ytsheetJson.get(skill["key"], "0")
             )
+
+        # 各能力値
+        for statusKey in commonConstant.STATUS_KEYS:
+            status = {}
+            status["htb"] = int(ytsheetJson.get(statusKey["htb"], "0"))
+            status["baseStatus"] = int(
+                ytsheetJson.get(statusKey["baseStatus"], "0")
+            )
+            status["increasedStatus"] = int(
+                ytsheetJson.get(statusKey["increasedStatus"], "0")
+            )
+            status["additionalStatus"] = int(
+                ytsheetJson.get(statusKey["additionalStatus"], "0")
+            )
+            formatedPlayer[statusKey["key"]] = status
 
         # セッション履歴を集計
         formatedPlayer["gameMasterTimes"] = 0

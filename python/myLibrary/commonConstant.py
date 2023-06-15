@@ -28,3 +28,61 @@ SKILLS: "list[dict]" = [
     {"key": "lvDru", "name": "ドルイド"},
     {"key": "lvDem", "name": "デーモンルーラー"},
 ]
+
+# ゆとシートから取得したJSONのキーのうち、各能力値に関係するもの
+STATUS_KEYS: "list[dict]" = [
+    # 器用
+    {
+        "name": "器用",
+        "key": "dexterity",
+        "htb": "sttBaseTec",
+        "baseStatus": "sttBaseA",
+        "increasedStatus": "sttGrowA",
+        "additionalStatus": "sttAddA",
+    },
+    # 敏捷
+    {
+        "name": "敏捷",
+        "key": "agility",
+        "htb": "sttBaseTec",
+        "baseStatus": "sttBaseB",
+        "increasedStatus": "sttGrowB",
+        "additionalStatus": "sttAddB",
+    },
+    # 筋力
+    {
+        "name": "筋力",
+        "key": "strength",
+        "htb": "sttBasePhy",
+        "baseStatus": "sttBaseC",
+        "increasedStatus": "sttGrowC",
+        "additionalStatus": "sttAddC",
+    },
+    # 生命力
+    {
+        "name": "生命",
+        "key": "vitality",
+        "htb": "sttBasePhy",
+        "baseStatus": "sttBaseD",
+        "increasedStatus": "sttGrowD",
+        "additionalStatus": "sttAddD",
+    },
+    # 知力1
+    {
+        "name": "知力",
+        "key": "intelligence",
+        "htb": "sttBaseSpi",
+        "baseStatus": "sttBaseE",
+        "increasedStatus": "sttGrowE",
+        "additionalStatus": "sttAddE",
+    },
+    # 精神力
+    {
+        "name": "精神",
+        "key": "mental",
+        "htb": "sttBaseSpi",
+        "baseStatus": "sttBaseF",
+        "increasedStatus": "sttGrowF",
+        "additionalStatus": "sttAddF",
+    },
+]
