@@ -1,4 +1,5 @@
 {
-	"SpreadsheetId": "hogehoge",
+	"SpreadsheetId": "",
+	"GoogleServiceAccount": {},
 	"Players": []
 }

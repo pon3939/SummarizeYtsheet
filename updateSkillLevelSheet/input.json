@@ -1,8 +1,9 @@
 {
-	"SpreadsheetId": "hogehoge",
 	"LevelCap": {
-		"MinimumExp": "37500",
+		"MinimumExp": "49500",
 		"MaxExp": "62000"
 	},
+	"SpreadsheetId": "",
+	"GoogleServiceAccount": {},
 	"Players": []
 }

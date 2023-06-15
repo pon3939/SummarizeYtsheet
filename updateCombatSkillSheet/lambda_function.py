@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-from boto3 import resource
 from google.oauth2 import service_account
 from gspread import Client, Spreadsheet, authorize, utils, worksheet
 
@@ -36,37 +35,30 @@ def lambda_handler(event: dict, context):
 
     # 入力
     spreadsheetId: str = event["SpreadsheetId"]
+    googleServiceAccount: dict = event["GoogleServiceAccount"]
     players: list[dict] = event["Players"]
 
     # 初期化
-    init(spreadsheetId)
+    init(spreadsheetId, googleServiceAccount)
 
     # 更新
     updateSheet(players)
 
 
-def init(spreadsheetId: str):
+def init(spreadsheetId: str, googleServiceAccount: dict):
     """
 
     初期化
 
     Args:
         spreadsheetId str: スプレッドシートのID
+        googleServiceAccount str: スプレッドシートの認証情報
     """
     global Sheet
 
-    dynamodb = resource("dynamodb", region_name=AWS_REGION)
-
-    # DBからスプレッドシートのIDを取得
-    googleServiceAccounts = dynamodb.Table("GoogleServiceAccounts")
-    response: dict = googleServiceAccounts.get_item(
-        Key={"id": GOOGLE_SERVIE_ACCOUNT_ID}
-    )
-    googleServiceAccount: dict = response["Item"]
-
     # サービスアカウントでスプレッドシートにログイン
     credentials = service_account.Credentials.from_service_account_info(
-        googleServiceAccount["json"],
+        googleServiceAccount,
         scopes=["https://www.googleapis.com/auth/spreadsheets"],
     )
     client: Client = authorize(credentials)
