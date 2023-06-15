@@ -1,11 +1,18 @@
 # SummarizeYtsheet
 
-ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ。
-実行環境にはAWS Step Functionsを使用しているよ。
+ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ
+
+実行環境にはAWS Step Functionsを使用しているよ
 
 ## getYtsheetData
 
 ゆとシートからデータを取得するよ
+
+## FormatYtsheetData
+
+ゆとシートから取得したデータをフォーマットするよ
+
+AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要なデータのみ集計しているよ
 
 ## updateBasicDataSheet
 

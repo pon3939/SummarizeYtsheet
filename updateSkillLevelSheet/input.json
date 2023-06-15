@@ -3,5 +3,6 @@
 	"LevelCap": {
 		"MinimumExp": "37500",
 		"MaxExp": "62000"
-	}
+	},
+	"Players": []
 }
