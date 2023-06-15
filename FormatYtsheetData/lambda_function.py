@@ -150,6 +150,33 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
         formatedPlayer["age"] = ytsheetJson.get("age", "")
         formatedPlayer["gender"] = ytsheetJson.get("gender", "")
         formatedPlayer["birth"] = ytsheetJson.get("birth", "")
+        formatedPlayer["combatFeatsLv1"] = ytsheetJson.get(
+            "combatFeatsLv1", ""
+        )
+        formatedPlayer["combatFeatsLv3"] = ytsheetJson.get(
+            "combatFeatsLv3", ""
+        )
+        formatedPlayer["combatFeatsLv5"] = ytsheetJson.get(
+            "combatFeatsLv5", ""
+        )
+        formatedPlayer["combatFeatsLv7"] = ytsheetJson.get(
+            "combatFeatsLv7", ""
+        )
+        formatedPlayer["combatFeatsLv9"] = ytsheetJson.get(
+            "combatFeatsLv9", ""
+        )
+        formatedPlayer["combatFeatsLv11"] = ytsheetJson.get(
+            "combatFeatsLv11", ""
+        )
+        formatedPlayer["combatFeatsLv13"] = ytsheetJson.get(
+            "combatFeatsLv13", ""
+        )
+        formatedPlayer["combatFeatsLv15"] = ytsheetJson.get(
+            "combatFeatsLv15", ""
+        )
+        formatedPlayer["combatFeatsLv1bat"] = ytsheetJson.get(
+            "combatFeatsLv1bat", ""
+        )
 
         # 数値
         formatedPlayer["level"] = int(ytsheetJson.get("level", "0"))
@@ -164,6 +191,11 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
         formatedPlayer["no"] = int(player.get("id", "-1"))
         formatedPlayer["faith"] = ytsheetJson.get("faith", "なし")
         formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
+
+        # 自動取得
+        formatedPlayer["autoCombatFeats"] = ytsheetJson.get(
+            "combatFeatsAuto", ""
+        ).split(",")
 
         # 更新日時をスプレッドシートが理解できる形式に変換
         formatedPlayer["updateTime"] = None
