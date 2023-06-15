@@ -1,27 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-from google.oauth2 import service_account
-from gspread import Client, Spreadsheet, authorize, utils, worksheet
-from myLibrary import commonConstant
+from gspread import Worksheet, utils
+from myLibrary import commonConstant, commonFunction
 
 """
 技能シートを更新
 """
-
-# AWSのリージョン
-AWS_REGION: str = "ap-northeast-1"
-
-# GoogleServiceAccountsテーブルのid
-GOOGLE_SERVIE_ACCOUNT_ID: int = 1
-
-# 技能シート
-Sheet: worksheet = None
-
-# シート全体に適用するテキストの書式
-DefaultTextFormat: dict = {
-    "fontFamily": "Meiryo",
-}
 
 
 def lambda_handler(event: dict, context):
@@ -42,47 +27,28 @@ def lambda_handler(event: dict, context):
     maxExp: int = int(levelCap["MaxExp"])
     minimumExp: int = int(levelCap["MinimumExp"])
 
-    # 初期化
-    init(spreadsheetId, googleServiceAccount)
+    # スプレッドシートを開く
+    worksheet: Worksheet = commonFunction.openSpreadsheet(
+        googleServiceAccount, spreadsheetId, "技能"
+    )
 
     # 更新
-    updateSheet(players, maxExp, minimumExp)
+    updateSheet(worksheet, players, maxExp, minimumExp)
 
 
-def init(spreadsheetId: str, googleServiceAccount: dict):
-    """
-
-    初期化
-
-    Args:
-        spreadsheetId str: スプレッドシートのID
-        googleServiceAccount str: スプレッドシートの認証情報
-    """
-    global Sheet
-
-    # サービスアカウントでスプレッドシートにログイン
-    credentials = service_account.Credentials.from_service_account_info(
-        googleServiceAccount,
-        scopes=["https://www.googleapis.com/auth/spreadsheets"],
-    )
-    client: Client = authorize(credentials)
-
-    # 技能シートを開く
-    book: Spreadsheet = client.open_by_key(spreadsheetId)
-    Sheet = book.worksheet("技能")
-
-
-def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
+def updateSheet(
+    worksheet: Worksheet, players: "list[dict]", maxExp: int, minimumExp: int
+):
     """
 
     シートを更新
 
     Args:
+        worksheet Worksheet: シート
         players list[dict]: プレイヤー情報
         maxExp int: 経験点の上限
         minimumExp int: 経験点の下限
     """
-    global Sheet
 
     updateData: list[list] = []
 
@@ -152,7 +118,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
 
         # 経験点の文字色
         expIndex: int = headers.index("経験点\nピンゾロ含む") + 1
-        expTextFormat: dict = DefaultTextFormat.copy()
+        expTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
         if player["exp"] >= maxExp:
             expTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 1, "green": 0, "blue": 0}
@@ -176,7 +142,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
 
         # PC列のハイパーリンク
         pcIndex: int = headers.index("PC") + 1
-        pcTextFormat: dict = DefaultTextFormat.copy()
+        pcTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
         pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
             {
@@ -190,22 +156,18 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
     updateData.append(total)
 
     # クリア
-    Sheet.clear()
+    worksheet.clear()
 
     # 更新
-    Sheet.update(updateData, value_input_option="USER_ENTERED")
+    worksheet.update(updateData, value_input_option="USER_ENTERED")
 
     # 書式設定
     # 全体
     startA1: str = utils.rowcol_to_a1(1, 1)
     endA1: str = utils.rowcol_to_a1(len(updateData), len(headers))
-    Sheet.format(
+    worksheet.format(
         f"{startA1}:{endA1}",
-        {
-            "textFormat": {
-                "fontFamily": "Meiryo",
-            },
-        },
+        commonConstant.DEFAULT_FORMAT,
     )
 
     # ヘッダー
@@ -214,7 +176,7 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"horizontalAlignment": "CENTER"},
+            "format": commonConstant.HEADER_DEFAULT_FORMAT,
         }
     )
 
@@ -229,10 +191,10 @@ def updateSheet(players: "list[dict]", maxExp: int, minimumExp: int):
     )
 
     # 部分的なフォーマットを設定
-    Sheet.batch_format(formats)
+    worksheet.batch_format(formats)
 
     # 行列の固定
-    Sheet.freeze(1, 2)
+    worksheet.freeze(1, 2)
 
     # フィルター
-    Sheet.set_basic_filter(1, 1, len(updateData) - 1, len(headers))
+    worksheet.set_basic_filter(1, 1, len(updateData) - 1, len(headers))

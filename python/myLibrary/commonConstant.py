@@ -4,6 +4,21 @@
 汎用定数
 """
 
+# スプレッドシート全体に適用するテキストの書式
+DEFAULT_TEXT_FORMAT: dict = {
+    "fontFamily": "Meiryo",
+}
+
+# スプレッドシート全体に適用する書式
+DEFAULT_FORMAT: dict = {
+    "textFormat": DEFAULT_TEXT_FORMAT,
+}
+
+# ヘッダーに適用する書式
+HEADER_DEFAULT_FORMAT: dict = {
+    "horizontalAlignment": "CENTER",
+}
+
 # 戦闘技能
 SKILLS: "list[dict]" = [
     {"key": "lvFig", "name": "ファイター"},

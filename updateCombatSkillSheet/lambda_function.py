@@ -1,26 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-from google.oauth2 import service_account
-from gspread import Client, Spreadsheet, authorize, utils, worksheet
+from gspread import Worksheet, utils
+from myLibrary import commonConstant, commonFunction
 
 """
 戦闘特技シートを更新
 """
-
-# AWSのリージョン
-AWS_REGION: str = "ap-northeast-1"
-
-# GoogleServiceAccountsテーブルのid
-GOOGLE_SERVIE_ACCOUNT_ID: int = 1
-
-# 戦闘特技シート
-Sheet: worksheet = None
-
-# シート全体に適用するテキストの書式
-DefaultTextFormat: dict = {
-    "fontFamily": "Meiryo",
-}
 
 
 def lambda_handler(event: dict, context):
@@ -38,45 +24,24 @@ def lambda_handler(event: dict, context):
     googleServiceAccount: dict = event["GoogleServiceAccount"]
     players: list[dict] = event["Players"]
 
-    # 初期化
-    init(spreadsheetId, googleServiceAccount)
+    # スプレッドシートを開く
+    worksheet: Worksheet = commonFunction.openSpreadsheet(
+        googleServiceAccount, spreadsheetId, "戦闘特技"
+    )
 
     # 更新
-    updateSheet(players)
+    updateSheet(worksheet, players)
 
 
-def init(spreadsheetId: str, googleServiceAccount: dict):
-    """
-
-    初期化
-
-    Args:
-        spreadsheetId str: スプレッドシートのID
-        googleServiceAccount str: スプレッドシートの認証情報
-    """
-    global Sheet
-
-    # サービスアカウントでスプレッドシートにログイン
-    credentials = service_account.Credentials.from_service_account_info(
-        googleServiceAccount,
-        scopes=["https://www.googleapis.com/auth/spreadsheets"],
-    )
-    client: Client = authorize(credentials)
-
-    # 戦闘特技シートを開く
-    book: Spreadsheet = client.open_by_key(spreadsheetId)
-    Sheet = book.worksheet("戦闘特技")
-
-
-def updateSheet(players: "list[dict]"):
+def updateSheet(worksheet: Worksheet, players: "list[dict]"):
     """
 
     シートを更新
 
     Args:
-        players list[Player]: プレイヤー情報
+        worksheet Worksheet: シート
+        players list[dict]: プレイヤー情報
     """
-    global Sheet
 
     updateData: list[list] = []
 
@@ -145,7 +110,7 @@ def updateSheet(players: "list[dict]"):
 
         # PC列のハイパーリンク
         pcIndex: int = headers.index("PC") + 1
-        pcTextFormat: dict = DefaultTextFormat.copy()
+        pcTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
         pcTextFormat["link"] = {"uri": player["url"]}
         formats.append(
             {
@@ -163,7 +128,7 @@ def updateSheet(players: "list[dict]"):
 
         if grayOutStartIndex is not None:
             grayOutEndIndex: int = headers.index("Lv.15") + 1
-            grayOutTextFormat: dict = DefaultTextFormat.copy()
+            grayOutTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
             grayOutTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 0.4, "green": 0.4, "blue": 0.4}
             }
@@ -177,22 +142,18 @@ def updateSheet(players: "list[dict]"):
             )
 
     # クリア
-    Sheet.clear()
+    worksheet.clear()
 
     # 更新
-    Sheet.update(updateData, value_input_option="USER_ENTERED")
+    worksheet.update(updateData, value_input_option="USER_ENTERED")
 
     # 書式設定
     # 全体
     startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(len(updateData), Sheet.col_count)
-    Sheet.format(
+    endA1: str = utils.rowcol_to_a1(len(updateData), worksheet.col_count)
+    worksheet.format(
         f"{startA1}:{endA1}",
-        {
-            "textFormat": {
-                "fontFamily": "Meiryo",
-            },
-        },
+        commonConstant.DEFAULT_FORMAT,
     )
 
     # ヘッダー
@@ -201,12 +162,12 @@ def updateSheet(players: "list[dict]"):
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"horizontalAlignment": "CENTER"},
+            "format": commonConstant.HEADER_DEFAULT_FORMAT,
         }
     )
 
     # 部分的なフォーマットを設定
-    Sheet.batch_format(formats)
+    worksheet.batch_format(formats)
 
     # 行列の固定
-    Sheet.freeze(1, 2)
+    worksheet.freeze(1, 2)
