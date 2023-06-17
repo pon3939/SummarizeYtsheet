@@ -216,9 +216,11 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
                 formatedPlayer["skills"][skill["key"]] = skillLevel
 
         # 各能力値
+        formatedPlayer["technic"] = int(ytsheetJson.get("sttBaseTec", "0"))
+        formatedPlayer["physical"] = int(ytsheetJson.get("sttBasePhy", "0"))
+        formatedPlayer["spirit"] = int(ytsheetJson.get("sttBaseSpi", "0"))
         for statusKey in commonConstant.STATUS_KEYS:
             status = {}
-            status["htb"] = int(ytsheetJson.get(statusKey["htb"], "0"))
             status["baseStatus"] = int(
                 ytsheetJson.get(statusKey["baseStatus"], "0")
             )

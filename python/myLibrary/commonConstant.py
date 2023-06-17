@@ -50,7 +50,7 @@ STATUS_KEYS: "list[dict]" = [
     {
         "name": "器用",
         "key": "dexterity",
-        "htb": "sttBaseTec",
+        "htb": "technic",
         "baseStatus": "sttBaseA",
         "increasedStatus": "sttGrowA",
         "additionalStatus": "sttAddA",
@@ -59,7 +59,7 @@ STATUS_KEYS: "list[dict]" = [
     {
         "name": "敏捷",
         "key": "agility",
-        "htb": "sttBaseTec",
+        "htb": "technic",
         "baseStatus": "sttBaseB",
         "increasedStatus": "sttGrowB",
         "additionalStatus": "sttAddB",
@@ -68,7 +68,7 @@ STATUS_KEYS: "list[dict]" = [
     {
         "name": "筋力",
         "key": "strength",
-        "htb": "sttBasePhy",
+        "htb": "physical",
         "baseStatus": "sttBaseC",
         "increasedStatus": "sttGrowC",
         "additionalStatus": "sttAddC",
@@ -77,7 +77,7 @@ STATUS_KEYS: "list[dict]" = [
     {
         "name": "生命",
         "key": "vitality",
-        "htb": "sttBasePhy",
+        "htb": "physical",
         "baseStatus": "sttBaseD",
         "increasedStatus": "sttGrowD",
         "additionalStatus": "sttAddD",
@@ -86,7 +86,7 @@ STATUS_KEYS: "list[dict]" = [
     {
         "name": "知力",
         "key": "intelligence",
-        "htb": "sttBaseSpi",
+        "htb": "spirit",
         "baseStatus": "sttBaseE",
         "increasedStatus": "sttGrowE",
         "additionalStatus": "sttAddE",
@@ -95,7 +95,7 @@ STATUS_KEYS: "list[dict]" = [
     {
         "name": "精神",
         "key": "mental",
-        "htb": "sttBaseSpi",
+        "htb": "spirit",
         "baseStatus": "sttBaseF",
         "increasedStatus": "sttGrowF",
         "additionalStatus": "sttAddF",

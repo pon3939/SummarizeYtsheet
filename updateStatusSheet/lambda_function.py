@@ -107,14 +107,16 @@ def updateSheet(worksheet: Worksheet, players: "list[dict]"):
         statusTexts: list[str] = []
         for statusKey in commonConstant.STATUS_KEYS:
             status: dict = player[statusKey["key"]]
-            baseStatus: int = status["htb"] + status["baseStatus"]
+            htb: int = player[statusKey["htb"]]
+            baseStatus: int = htb + status["baseStatus"]
             statusPoint: int = baseStatus + status["increasedStatus"]
             statusText: str = f'{baseStatus}+{status["increasedStatus"]}'
             if status["additionalStatus"] > 0:
                 # 増強分が存在する場合のみ詳細に表示する
                 statusPoint += status["additionalStatus"]
                 statusText += f'+{status["additionalStatus"]}'
-            expectedHtb += status["htb"]
+
+            expectedHtb += htb
             totalBaseStatus += baseStatus
             statuses.append(statusPoint)
             statusTexts.append(statusText)
