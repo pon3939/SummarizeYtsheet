@@ -186,11 +186,18 @@ def FormatPlayers(players: "list[dict]") -> "list[dict]":
         )
 
         # 特殊な変数
+        formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
+
         # JSONに変換するため、Decimalをintに変換
         no += 1
         formatedPlayer["no"] = int(player.get("id", "-1"))
-        formatedPlayer["faith"] = ytsheetJson.get("faith", "なし")
-        formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
+
+        # 信仰
+        faith = ytsheetJson.get("faith", "なし")
+        if faith == "その他の信仰":
+            faith = ytsheetJson.get("faithOther", faith)
+
+        formatedPlayer["faith"] = faith
 
         # 自動取得
         formatedPlayer["autoCombatFeats"] = ytsheetJson.get(
