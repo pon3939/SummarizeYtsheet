@@ -3,6 +3,23 @@
 		{
 			"type": "aws-sam",
 			"request": "direct-invoke",
+			"name": "updateStyleSheet:lambda_function.lambda_handler (python3.8)",
+			"invokeTarget": {
+				"target": "code",
+				"projectRoot": "${workspaceFolder}/updateStyleSheet",
+				"lambdaHandler": "lambda_function.lambda_handler"
+			},
+			"lambda": {
+				"runtime": "python3.8",
+				"payload": {
+					"path": "updateStyleSheet/input.json"
+				},
+				"environmentVariables": {}
+			}
+		},
+		{
+			"type": "aws-sam",
+			"request": "direct-invoke",
 			"name": "FormatYtsheetData:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",

@@ -229,6 +229,27 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
             )
             formatedPlayer[statusKey["key"]] = status
 
+        # 流派を初期化
+        formatedPlayer["styles"] = []
+
+        # 秘伝
+        mysticArtsNum: int = int(ytsheetJson.get("mysticArtsNum", "0"))
+        for i in range(1, mysticArtsNum + 1):
+            style: str = FindStyleFormalName(
+                ytsheetJson.get(f"mysticArts{i}", "")
+            )
+            if style != "" and style not in formatedPlayer["styles"]:
+                formatedPlayer["styles"].append(style)
+
+        # 名誉アイテム
+        honorItemsNum: int = int(ytsheetJson.get("honorItemsNum", "0"))
+        for i in range(1, honorItemsNum + 1):
+            style: str = FindStyleFormalName(
+                ytsheetJson.get(f"honorItem{i}", "")
+            )
+            if style != "" and style not in formatedPlayer["styles"]:
+                formatedPlayer["styles"].append(style)
+
         # セッション履歴を集計
         formatedPlayer["gameMasterTimes"] = 0
         formatedPlayer["playerTimes"] = 0
@@ -236,7 +257,7 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
         totalFumbleExp: int = 0
         fumbleCount: int = 0
         historyNum: int = int(ytsheetJson.get("historyNum", "0"))
-        for i in range(1, historyNum):
+        for i in range(1, historyNum + 1):
             gameMaster: str = ytsheetJson.get(f"history{i}Gm", "")
             if gameMaster == "":
                 # GM名未記載の履歴からピンゾロのみのセッション履歴を探す
@@ -339,3 +360,22 @@ def calculateFromString(string: str) -> int:
         return 0
 
     return eval(string)
+
+
+def FindStyleFormalName(string: str) -> str:
+    """
+
+    引数が流派を表す文字列か調べ、流派の正式名称を返却する
+
+    Args:
+        string str: 確認する文字列
+
+    Returns:
+        str: 引数が流派を表す文字列の場合は流派名、それ以外は空文字
+    """
+
+    for style in commonConstant.STYLES:
+        if search(style["keywordRegexp"], string):
+            return style["name"]
+
+    return ""
