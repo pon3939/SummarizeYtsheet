@@ -253,6 +253,40 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
             if style != "" and style not in formatedPlayer["styles"]:
                 formatedPlayer["styles"].append(style)
 
+        # アビスカースを初期化
+        formatedPlayer["abyssCurses"] = []
+
+        # 武器
+        weaponNum: int = int(ytsheetJson.get("weaponNum", "0"))
+        for i in range(1, weaponNum + 1):
+            formatedPlayer["abyssCurses"].extend(
+                FindAbyssCurses(ytsheetJson.get(f"weapon{i}Name", ""))
+            )
+            formatedPlayer["abyssCurses"].extend(
+                FindAbyssCurses(ytsheetJson.get(f"weapon{i}Note", ""))
+            )
+
+        # 盾
+        formatedPlayer["abyssCurses"].extend(
+            FindAbyssCurses(ytsheetJson.get("shield1Name", ""))
+        )
+        formatedPlayer["abyssCurses"].extend(
+            FindAbyssCurses(ytsheetJson.get("shield1Note", ""))
+        )
+
+        # 鎧
+        formatedPlayer["abyssCurses"].extend(
+            FindAbyssCurses(ytsheetJson.get("armour1Name", ""))
+        )
+        formatedPlayer["abyssCurses"].extend(
+            FindAbyssCurses(ytsheetJson.get("armour1Note", ""))
+        )
+
+        # 所持品
+        formatedPlayer["abyssCurses"].extend(
+            FindAbyssCurses(ytsheetJson.get("items", ""))
+        )
+
         # セッション履歴を集計
         formatedPlayer["gameMasterTimes"] = 0
         formatedPlayer["playerTimes"] = 0
@@ -382,3 +416,23 @@ def FindStyleFormalName(string: str) -> str:
             return style["name"]
 
     return ""
+
+
+def FindAbyssCurses(string: str) -> "list[str]":
+    """
+
+    引数に含まれるアビスカースを返却する
+
+    Args:
+        string str: 確認する文字列
+
+    Returns:
+        list[str]: 引数に含まれるアビスカース
+    """
+
+    result: list[str] = []
+    for abyssCurse in commonConstant.ABYSS_CURSES:
+        if abyssCurse in string:
+            result.append(abyssCurse)
+
+    return result
