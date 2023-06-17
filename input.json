@@ -1,5 +1,9 @@
 {
 	"SpreadsheetId": "",
 	"GoogleServiceAccount": {},
+	"LevelCap": {
+		"MinimumExp": "",
+		"MaxExp": ""
+	},
 	"Players": []
 }

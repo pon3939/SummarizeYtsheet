@@ -101,11 +101,8 @@ def updateSheet(
 
         # 技能レベル
         for skill in commonConstant.SKILLS:
-            level = player[skill["key"]]
-            if level == 0:
-                # 技能レベル0は表示しない
-                level = ""
-            else:
+            level = player["skills"].get(skill["key"], "")
+            if level != "":
                 # 合計を加算
                 total[headers.index(skill["name"])] += 1
 

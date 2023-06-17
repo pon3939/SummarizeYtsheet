@@ -209,10 +209,11 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
             formatedPlayer["updateTime"] = jst.strftime("%Y/%m/%d %H:%M:%S")
 
         # 技能レベル
+        formatedPlayer["skills"] = {}
         for skill in commonConstant.SKILLS:
-            formatedPlayer[skill["key"]] = int(
-                ytsheetJson.get(skill["key"], "0")
-            )
+            skillLevel: int = int(ytsheetJson.get(skill["key"], "0"))
+            if skillLevel > 0:
+                formatedPlayer["skills"][skill["key"]] = skillLevel
 
         # 各能力値
         for statusKey in commonConstant.STATUS_KEYS:
