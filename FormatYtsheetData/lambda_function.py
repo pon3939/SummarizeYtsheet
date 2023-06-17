@@ -80,15 +80,15 @@ def lambda_handler(event: dict, context) -> dict:
     """
 
     # ゆとシートのデータを取得
-    players: "list[dict]" = getPlayers()
+    players: "list[dict]" = GetPlayers()
 
     # ゆとシートのデータを整形
-    formattedPlayers: "list[dict]" = formatPlayers(players)
+    formattedPlayers: "list[dict]" = FormatPlayers(players)
 
     return {"Players": formattedPlayers}
 
 
-def getPlayers() -> "list[dict]":
+def GetPlayers() -> "list[dict]":
     """DBからプレイヤー情報を取得
 
     容量が大きいためStep Functionsでは対応不可
@@ -112,7 +112,7 @@ def getPlayers() -> "list[dict]":
     return players
 
 
-def formatPlayers(players: "list[dict]") -> "list[dict]":
+def FormatPlayers(players: "list[dict]") -> "list[dict]":
     """プレイヤー情報を整形
 
     State間のPayloadサイズは最大256KB
@@ -124,12 +124,12 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
     """
 
     totalFumbleRegexp: str = "|".join(
-        list(map(normalizeString, FUMBLE_TITLES))
+        list(map(NormalizeString, FUMBLE_TITLES))
     )
     fumbleCountRegexps: "list[str]" = list(
         map(
             lambda x: rf"(?<={x})\d+",
-            map(normalizeString, FUMBLE_COUNT_PREFIXES),
+            map(NormalizeString, FUMBLE_COUNT_PREFIXES),
         )
     )
 
@@ -298,13 +298,13 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
             gameMaster: str = ytsheetJson.get(f"history{i}Gm", "")
             if gameMaster == "":
                 # GM名未記載の履歴からピンゾロのみのセッション履歴を探す
-                normalizedTitle = normalizeString(
+                normalizedTitle = NormalizeString(
                     ytsheetJson.get(f"history{i}Title", "")
                 )
-                normalizedDate = normalizeString(
+                normalizedDate = NormalizeString(
                     ytsheetJson.get(f"history{i}Date", "")
                 )
-                normalizedMember = normalizeString(
+                normalizedMember = NormalizeString(
                     ytsheetJson.get(f"history{i}Member", "")
                 )
                 if (
@@ -312,7 +312,7 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
                     or search(totalFumbleRegexp, normalizedDate)
                     or search(totalFumbleRegexp, normalizedMember)
                 ):
-                    totalFumbleExp += calculateFromString(
+                    totalFumbleExp += CalculateFromString(
                         ytsheetJson.get(f"history{i}Exp", "0")
                     )
             else:
@@ -332,7 +332,7 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
                     formatedPlayer["diedTimes"] += 1
 
                 # ピンゾロ回数を集計
-                normalizedNote = normalizeString(note)
+                normalizedNote = NormalizeString(note)
                 for fumbleCountRegexp in fumbleCountRegexps:
                     fumbleCountMatch = search(
                         fumbleCountRegexp, normalizedNote
@@ -349,7 +349,7 @@ def formatPlayers(players: "list[dict]") -> "list[dict]":
     return formattedPlayers
 
 
-def normalizeString(string: str) -> str:
+def NormalizeString(string: str) -> str:
     """
 
     文字列を正規化
@@ -380,7 +380,7 @@ def normalizeString(string: str) -> str:
     return result
 
 
-def calculateFromString(string: str) -> int:
+def CalculateFromString(string: str) -> int:
     """
 
     四則演算の文字列から解を求める

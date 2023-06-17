@@ -24,15 +24,15 @@ def lambda_handler(event: dict, context):
     players: "list[dict]" = event["Players"]
 
     # スプレッドシートを開く
-    worksheet: Worksheet = commonFunction.openSpreadsheet(
+    worksheet: Worksheet = commonFunction.OpenSpreadsheet(
         googleServiceAccount, spreadsheetId, "基本"
     )
 
     # 更新
-    updateSheet(worksheet, players)
+    UpdateSheet(worksheet, players)
 
 
-def updateSheet(worksheet: Worksheet, players: "list[dict]"):
+def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     """
 
     シートを更新

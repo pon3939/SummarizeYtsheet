@@ -9,7 +9,7 @@ from gspread import Client, Spreadsheet, Worksheet, authorize
 """
 
 
-def openSpreadsheet(
+def OpenSpreadsheet(
     googleServiceAccount: dict, spreadsheetId: str, worksheetName: str
 ) -> Worksheet:
     """

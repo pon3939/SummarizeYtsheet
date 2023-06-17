@@ -28,15 +28,15 @@ def lambda_handler(event: dict, context):
     minimumExp: int = int(levelCap["MinimumExp"])
 
     # スプレッドシートを開く
-    worksheet: Worksheet = commonFunction.openSpreadsheet(
+    worksheet: Worksheet = commonFunction.OpenSpreadsheet(
         googleServiceAccount, spreadsheetId, "技能"
     )
 
     # 更新
-    updateSheet(worksheet, players, maxExp, minimumExp)
+    UpdateSheet(worksheet, players, maxExp, minimumExp)
 
 
-def updateSheet(
+def UpdateSheet(
     worksheet: Worksheet, players: "list[dict]", maxExp: int, minimumExp: int
 ):
     """
