@@ -45,7 +45,9 @@
 			},
 			"lambda": {
 				"runtime": "python3.8",
-				"payload": {},
+				"payload": {
+					"path": "FormatYtsheetData/input.json"
+				},
 				"environmentVariables": {}
 			}
 		},

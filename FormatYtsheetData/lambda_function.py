@@ -8,6 +8,7 @@ from re import escape, search
 from unicodedata import normalize
 
 from boto3 import resource
+from boto3.dynamodb.conditions import Attr, Equals
 from myLibrary import commonConstant
 from pytz import timezone
 
@@ -79,8 +80,10 @@ def lambda_handler(event: dict, context) -> dict:
         dict: 整形されたプレイヤー情報
     """
 
+    seasonId: int = int(event["SeasonId"])
+
     # ゆとシートのデータを取得
-    players: "list[dict]" = GetPlayers()
+    players: "list[dict]" = GetPlayers(seasonId)
 
     # ゆとシートのデータを整形
     formattedPlayers: "list[dict]" = FormatPlayers(players)
@@ -88,10 +91,13 @@ def lambda_handler(event: dict, context) -> dict:
     return {"Players": formattedPlayers}
 
 
-def GetPlayers() -> "list[dict]":
+def GetPlayers(seasonId: int) -> "list[dict]":
     """DBからプレイヤー情報を取得
 
     容量が大きいためStep Functionsでは対応不可
+
+    Args:
+        seasonId int: シーズンID
 
     Returns:
         list[dict]: プレイヤー情報
@@ -99,14 +105,18 @@ def GetPlayers() -> "list[dict]":
     global Dynamodb
 
     Dynamodb = resource("dynamodb", region_name=AWS_REGION)
-    teble = Dynamodb.Table("Players")
-    response: dict = teble.scan()
+    teble = Dynamodb.Table("PlayerCharacters")
+    filterExpression: Equals = Attr("seasonId").eq(seasonId)
+    response: dict = teble.scan(FilterExpression=filterExpression)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
-        response = teble.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
+        response = teble.scan(
+            ExclusiveStartKey=response["LastEvaluatedKey"],
+            FilterExpression=filterExpression,
+        )
     players.extend(response["Items"])
 
     return players

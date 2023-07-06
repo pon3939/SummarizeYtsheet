@@ -1,9 +1,10 @@
 {
 	"SpreadsheetId": "",
+	"SeasonId": "2",
 	"GoogleServiceAccount": {},
 	"LevelCap": {
-		"MinimumExp": "",
-		"MaxExp": ""
+		"MinimumExp": "49500",
+		"MaxExp": "62000"
 	},
 	"Players": []
 }
