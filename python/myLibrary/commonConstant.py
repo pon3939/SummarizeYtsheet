@@ -206,7 +206,7 @@ STYLES: "list[dict]" = [
         "is20": False,
     },
     {
-        "name": "ファイラステン古流ヴィンド派",
+        "name": "ファイラステン古流ヴィンド派(双剣の型)",
         "keywordRegexp": "|".join(["ファイラステン", "ヴィンド"]),
         "is20": False,
     },
@@ -229,7 +229,7 @@ STYLES: "list[dict]" = [
         "is20": False,
     },
     {
-        "name": "ガオン夢想獣投術",
+        "name": "ガオン無双獣投術",
         "keywordRegexp": "|".join(
             [
                 "ガオン",
@@ -297,13 +297,13 @@ STYLES: "list[dict]" = [
         "is20": False,
     },
     {
-        "name": "式召異魔法術・魔使影光学理論",
+        "name": "「七色のマナ」式召異魔法術・魔使影光学理論",
         "keywordRegexp": "|".join(["式召異", "魔使影"]),
         "is20": False,
     },
     {
         "name": "七色のマナ：魔法行使法学派",
-        "keywordRegexp": "|".join(["七色のマナ", "魔法行使法学派"]),
+        "keywordRegexp": "|".join(["七色のマナ：", "七色のマナ:", "魔法行使"]),
         "is20": False,
     },
     {
@@ -380,7 +380,7 @@ STYLES: "list[dict]" = [
         "is20": True,
     },
     {
-        "name": "ライロック魔刃剣",
+        "name": "ライロック魔刃術",
         "keywordRegexp": "|".join(
             [
                 "ライロック",
@@ -407,7 +407,7 @@ STYLES: "list[dict]" = [
         "is20": True,
     },
     {
-        "name": "ベネディクト流紳士杖術",
+        "name": "ベネディクト流紳士杖道",
         "keywordRegexp": "|".join(
             [
                 "ベネディクト",
@@ -561,7 +561,7 @@ STYLES: "list[dict]" = [
         "is20": True,
     },
     {
-        "name": "不死者討滅技バニシングデス",
+        "name": "不死者討滅武技バニシングデス",
         "keywordRegexp": "|".join(
             [
                 "バニシングデス",
@@ -570,10 +570,11 @@ STYLES: "list[dict]" = [
         "is20": True,
     },
     {
-        "name": "ダルボン流下克戦闘術",
+        "name": "ダルポン流下克戦闘術",
         "keywordRegexp": "|".join(
             [
                 "ダルボン",
+                "ダルポン",
             ]
         ),
         "is20": True,
@@ -597,7 +598,7 @@ STYLES: "list[dict]" = [
         "is20": True,
     },
     {
-        "name": "バルナッド英雄庭流派・討神舞踏剣",
+        "name": "バルナッド英雄庭流派・封神舞踏剣",
         "keywordRegexp": "|".join(
             [
                 "バルナッド",
@@ -651,7 +652,7 @@ STYLES: "list[dict]" = [
         "is20": True,
     },
     {
-        "name": "バルカン流召喚術",
+        "name": "バルカン流召精術",
         "keywordRegexp": "|".join(
             [
                 "バルカン",
