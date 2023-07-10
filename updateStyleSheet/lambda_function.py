@@ -59,10 +59,10 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     for style in commonConstant.STYLES:
         headers.append(style["name"])
 
-    # 縦書きの伸ばし棒を置換
+    # ヘッダーを縦書き用に変換
     displayHeaders: list[str] = list(
         map(
-            lambda x: x.replace("ー", "｜"),
+            lambda x: commonFunction.ConvertToVerticalHeader(x),
             headers,
         )
     )

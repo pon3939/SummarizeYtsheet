@@ -31,3 +31,18 @@ def OpenSpreadsheet(
     # 基本シートを開く
     book: Spreadsheet = client.open_by_key(spreadsheetId)
     return book.worksheet(worksheetName)
+
+
+def ConvertToVerticalHeader(horizontalHeader: str) -> str:
+    """
+
+    ヘッダーを縦書き用の文字に変換する
+
+    Args:
+        horizontalHeader str: 横書きヘッダー
+    Returns:
+        str: 縦書きヘッダー
+    """
+    return (
+        horizontalHeader.replace("ー", "｜").replace("(", "︵").replace(")", "︶")
+    )

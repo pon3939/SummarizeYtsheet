@@ -64,10 +64,10 @@ def UpdateSheet(
     for skill in commonConstant.SKILLS:
         headers.append(skill["name"])
 
-    # 縦書きの伸ばし棒を置換
+    # ヘッダーを縦書き用に変換
     displayHeader: list[str] = list(
         map(
-            lambda x: x.replace("ー", "｜"),
+            lambda x: commonFunction.ConvertToVerticalHeader(x),
             headers,
         )
     )
