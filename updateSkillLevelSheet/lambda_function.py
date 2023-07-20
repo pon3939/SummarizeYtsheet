@@ -81,7 +81,6 @@ def UpdateSheet(
         row: list = []
 
         # No.
-        # JSONに変換するため、Decimalをintに変換
         row.append(player["no"])
 
         # PC
