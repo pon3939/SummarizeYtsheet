@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+from re import sub
+
 from gspread import Worksheet, utils
 from myLibrary import commonConstant, commonFunction
 
@@ -29,6 +31,11 @@ RACES_STATUSES: "list[dict]" = {
     "ソレイユ": {"diceCount": 9, "fixedValue": 6},
     "アルヴ": {"diceCount": 8, "fixedValue": 12},
     "シャドウ": {"diceCount": 10, "fixedValue": 0},
+    "スプリガン": {"diceCount": 8, "fixedValue": 0},
+    "アビスボーン": {"diceCount": 9, "fixedValue": 6},
+    "ハイマン": {"diceCount": 8, "fixedValue": 0},
+    "フロウライト": {"diceCount": 11, "fixedValue": 12},
+    "ダークドワーフ": {"diceCount": 9, "fixedValue": 12},
 }
 
 
@@ -127,13 +134,9 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
             expectedHtb = DICE_EXPECTED_VALUE * 2 * 6
 
         race: str = player["race"]
-        raceKey: str = race
-        if "ナイトメア" in raceKey:
-            raceKey = "ナイトメア"
-        elif "ウィークリング" in raceKey:
-            raceKey = "ウィークリング"
 
-        racesStatus: dict = RACES_STATUSES[raceKey]
+        # 希少種とナイトメアの種族名は整形
+        racesStatus: dict = RACES_STATUSES[sub("（.*", "", race)]
         expectedStatus: int = (
             expectedHtb
             + DICE_EXPECTED_VALUE * racesStatus["diceCount"]
@@ -141,7 +144,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         )
 
         # No.
-        # JSONに変換するため、Decimalをintに変換
         row.append(player["no"])
 
         # PC
