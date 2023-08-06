@@ -80,7 +80,8 @@ def lambda_handler(event: dict, context) -> dict:
         dict: 整形されたプレイヤー情報
     """
 
-    seasonId: int = int(event["SeasonId"])
+    environmet: dict = event["Environment"]
+    seasonId: int = int(environmet["SeasonId"])
 
     # ゆとシートのデータを取得
     players: "list[dict]" = GetPlayers(seasonId)

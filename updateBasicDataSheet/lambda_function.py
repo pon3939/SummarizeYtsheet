@@ -19,7 +19,8 @@ def lambda_handler(event: dict, context):
     """
 
     # 入力
-    spreadsheetId: str = event["SpreadsheetId"]
+    environment: dict = event["Environment"]
+    spreadsheetId: str = environment["SpreadsheetId"]
     googleServiceAccount: dict = event["GoogleServiceAccount"]
     players: "list[dict]" = event["Players"]
 
