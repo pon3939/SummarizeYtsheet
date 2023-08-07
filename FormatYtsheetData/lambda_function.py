@@ -212,11 +212,11 @@ def FormatPlayers(
         formatedPlayer["no"] = int(player.get("id", "-1"))
 
         # 経験点の状態
-        formatedPlayer["expStatus"] = ExpStatus.ACTIVE
+        formatedPlayer["expStatus"] = ExpStatus.ExpStatus.ACTIVE.value
         if exp >= maxExp:
-            formatedPlayer["expStatus"] = ExpStatus.MAX
+            formatedPlayer["expStatus"] = ExpStatus.ExpStatus.MAX.value
         elif exp < minimumExp:
-            formatedPlayer["expStatus"] = ExpStatus.DEACTIVE
+            formatedPlayer["expStatus"] = ExpStatus.ExpStatus.DEACTIVE.value
 
         # 信仰
         faith = ytsheetJson.get("faith", "なし")
