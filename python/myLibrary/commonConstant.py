@@ -17,6 +17,7 @@ DEFAULT_FORMAT: dict = {
 # ヘッダーに適用する書式
 HEADER_DEFAULT_FORMAT: dict = {
     "horizontalAlignment": "CENTER",
+    "textRotation": {"vertical": False},
 }
 
 # 戦闘技能
@@ -710,3 +711,7 @@ ABYSS_CURSES: "list[str]" = [
     "つきまとう",
     "のろまな",
 ]
+
+# 参加傾向のセルの値
+ENTRY_TREND_ACTIVE: str = "アクティブ"
+ENTRY_TREND_DEACTIVE: str = ""

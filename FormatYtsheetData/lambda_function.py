@@ -9,7 +9,7 @@ from unicodedata import normalize
 
 from boto3 import resource
 from boto3.dynamodb.conditions import Attr, Equals
-from myLibrary import commonConstant
+from myLibrary import commonConstant, expStatus
 from pytz import timezone
 
 """
@@ -80,13 +80,17 @@ def lambda_handler(event: dict, context) -> dict:
         dict: 整形されたプレイヤー情報
     """
 
-    seasonId: int = int(event["SeasonId"])
+    environmet: dict = event["Environment"]
+    seasonId: int = int(environmet["SeasonId"])
+    levelCap: dict = event["LevelCap"]
+    maxExp: int = int(levelCap["MaxExp"])
+    minimumExp: int = int(levelCap["MinimumExp"])
 
     # ゆとシートのデータを取得
     players: "list[dict]" = GetPlayers(seasonId)
 
     # ゆとシートのデータを整形
-    formattedPlayers: "list[dict]" = FormatPlayers(players)
+    formattedPlayers: "list[dict]" = FormatPlayers(players, maxExp, minimumExp)
 
     return {"Players": formattedPlayers}
 
@@ -122,13 +126,17 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     return players
 
 
-def FormatPlayers(players: "list[dict]") -> "list[dict]":
+def FormatPlayers(
+    players: "list[dict]", maxExp: int, minimumExp: int
+) -> "list[dict]":
     """プレイヤー情報を整形
 
     State間のPayloadサイズは最大256KB
 
     Args:
         players dict[dict]: ゆとシートから取得したプレイヤー情報
+        maxExp int: 経験点の上限
+        minimumExp int: 経験点の下限
     Returns:
         list[dict]: 整形されたプレイヤー情報
     """
@@ -190,7 +198,8 @@ def FormatPlayers(players: "list[dict]") -> "list[dict]":
 
         # 数値
         formatedPlayer["level"] = int(ytsheetJson.get("level", "0"))
-        formatedPlayer["exp"] = int(ytsheetJson.get("expTotal", "0"))
+        exp = int(ytsheetJson.get("expTotal", "0"))
+        formatedPlayer["exp"] = exp
         formatedPlayer["growthTimes"] = int(
             ytsheetJson.get("historyGrowTotal", "0")
         )
@@ -201,6 +210,13 @@ def FormatPlayers(players: "list[dict]") -> "list[dict]":
         # JSONに変換するため、Decimalをintに変換
         no += 1
         formatedPlayer["no"] = int(player.get("id", "-1"))
+
+        # 経験点の状態
+        formatedPlayer["expStatus"] = expStatus.ExpStatus.ACTIVE.value
+        if exp >= maxExp:
+            formatedPlayer["expStatus"] = expStatus.ExpStatus.MAX.value
+        elif exp < minimumExp:
+            formatedPlayer["expStatus"] = expStatus.ExpStatus.DEACTIVE.value
 
         # 信仰
         faith = ytsheetJson.get("faith", "なし")

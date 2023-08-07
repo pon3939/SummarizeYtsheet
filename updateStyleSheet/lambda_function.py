@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gspread import Worksheet, utils
-from myLibrary import commonConstant, commonFunction
+from myLibrary import commonConstant, commonFunction, expStatus
 
 """
 流派シートを更新
@@ -23,7 +23,8 @@ def lambda_handler(event: dict, context):
     """
 
     # 入力
-    spreadsheetId: str = event["SpreadsheetId"]
+    environment: dict = event["Environment"]
+    spreadsheetId: str = environment["SpreadsheetId"]
     googleServiceAccount: dict = event["GoogleServiceAccount"]
     players: "list[dict]" = event["Players"]
 
@@ -52,6 +53,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     headers: "list[str]" = [
         "No.",
         "PC",
+        "参加傾向",
         "2.0流派",
         "未加入",
         "加入数",
@@ -68,7 +70,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     )
     updateData.append(displayHeaders)
 
-    notTotalColumnCount: int = 2
+    notTotalColumnCount: int = 3
     totalColumnCount: int = len(headers) - notTotalColumnCount
     total: list = ([None] * notTotalColumnCount) + ([0] * totalColumnCount)
     formats: "list[dict]" = []
@@ -94,6 +96,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # PC
         row.append(player["characterName"])
+
+        # 参加傾向
+        row.append(
+            commonConstant.ENTRY_TREND_DEACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            else commonConstant.ENTRY_TREND_ACTIVE
+        )
 
         # 2.0流派
         is20String: str = ""
