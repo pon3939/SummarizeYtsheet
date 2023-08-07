@@ -64,6 +64,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     updateData.append(header)
 
     totalDiedTimes: int = 0
+    activeCount: int = 0
     formats: "list[dict]" = []
     for player in players:
         row: list = []
@@ -75,11 +76,12 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         row.append(player["characterName"])
 
         # 参加傾向
-        row.append(
-            commonConstant.ENTRY_TREND_DEACTIVE
-            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
-            else commonConstant.ENTRY_TREND_ACTIVE
-        )
+        entryTrend: str = commonConstant.ENTRY_TREND_DEACTIVE
+        if player["expStatus"] != expStatus.ExpStatus.DEACTIVE:
+            entryTrend = commonConstant.ENTRY_TREND_ACTIVE
+            activeCount += 1
+
+        row.append(entryTrend)
 
         # PL
         row.append(player["name"])
@@ -130,8 +132,10 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
     # 合計行
     total: list = [None] * len(header)
+    activeCountIndex: int = header.index("参加傾向")
     diedIndex: int = header.index("死亡")
-    total[diedIndex - 1] = "合計"
+    total[activeCountIndex - 1] = "合計"
+    total[activeCountIndex] = activeCount
     total[diedIndex] = totalDiedTimes
     updateData.append(total)
 
