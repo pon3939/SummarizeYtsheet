@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gspread import Worksheet, utils
-from myLibrary import commonConstant, commonFunction
+from myLibrary import commonConstant, commonFunction, expStatus
 
 """
 基本シートを更新
@@ -49,6 +49,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     header: "list[str]" = [
         "No.",
         "PC",
+        "参加傾向",
         "PL",
         "種族",
         "年齢",
@@ -72,6 +73,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # PC
         row.append(player["characterName"])
+
+        # 参加傾向
+        row.append(
+            commonConstant.ENTRY_TREND_DEACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            else commonConstant.ENTRY_TREND_ACTIVE
+        )
 
         # PL
         row.append(player["name"])

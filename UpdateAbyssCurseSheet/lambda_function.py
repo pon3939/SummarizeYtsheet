@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gspread import Worksheet, utils
-from myLibrary import commonConstant, commonFunction
+from myLibrary import commonConstant, commonFunction, expStatus
 
 """
 アビスカースシートを更新
@@ -53,6 +53,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     headers: "list[str]" = [
         "No.",
         "PC",
+        "参加傾向",
         "アビスカースの数",
     ]
     for abyssCurse in commonConstant.ABYSS_CURSES:
@@ -60,7 +61,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
     updateData.append(headers)
 
-    notTotalColumnCount: int = 2
+    notTotalColumnCount: int = 3
     totalColumnCount: int = len(headers) - notTotalColumnCount
     total: list = ([None] * notTotalColumnCount) + ([0] * totalColumnCount)
     formats: "list[dict]" = []
@@ -84,6 +85,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # PC
         row.append(receivedCursesString + player["characterName"])
+
+        # 参加傾向
+        row.append(
+            commonConstant.ENTRY_TREND_DEACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            else commonConstant.ENTRY_TREND_ACTIVE
+        )
 
         # 数
         cursesCount: int = receivedCurses.count(TRUE_STRING)

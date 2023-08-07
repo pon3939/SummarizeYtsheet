@@ -2,7 +2,7 @@
 
 
 from gspread import Worksheet, utils
-from myLibrary import ExpStatus, commonConstant, commonFunction
+from myLibrary import commonConstant, commonFunction, expStatus
 
 """
 技能シートを更新
@@ -50,6 +50,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     headers: list[str] = [
         "No.",
         "PC",
+        "参加傾向",
         "信仰",
         "Lv",
         "経験点\nピンゾロ含む",
@@ -80,6 +81,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         # PC
         row.append(player["characterName"])
 
+        # 参加傾向
+        row.append(
+            commonConstant.ENTRY_TREND_DEACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            else commonConstant.ENTRY_TREND_ACTIVE
+        )
+
         # 信仰
         row.append(player["faith"])
 
@@ -109,7 +117,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         # 経験点の文字色
         expIndex: int = headers.index("経験点\nピンゾロ含む") + 1
         expTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
-        if player["expStatus"] == ExpStatus.ExpStatus.MAX:
+        if player["expStatus"] == expStatus.ExpStatus.MAX:
             expTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 1, "green": 0, "blue": 0}
             }
@@ -119,7 +127,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
                     "format": {"textFormat": expTextFormat},
                 }
             )
-        elif player["expStatus"] == ExpStatus.ExpStatus.DEACTIVE:
+        elif player["expStatus"] == expStatus.ExpStatus.DEACTIVE:
             expTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 0, "green": 0, "blue": 1}
             }

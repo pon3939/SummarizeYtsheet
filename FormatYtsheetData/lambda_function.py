@@ -9,7 +9,7 @@ from unicodedata import normalize
 
 from boto3 import resource
 from boto3.dynamodb.conditions import Attr, Equals
-from myLibrary import ExpStatus, commonConstant
+from myLibrary import commonConstant, expStatus
 from pytz import timezone
 
 """
@@ -212,11 +212,11 @@ def FormatPlayers(
         formatedPlayer["no"] = int(player.get("id", "-1"))
 
         # 経験点の状態
-        formatedPlayer["expStatus"] = ExpStatus.ExpStatus.ACTIVE.value
+        formatedPlayer["expStatus"] = expStatus.ExpStatus.ACTIVE.value
         if exp >= maxExp:
-            formatedPlayer["expStatus"] = ExpStatus.ExpStatus.MAX.value
+            formatedPlayer["expStatus"] = expStatus.ExpStatus.MAX.value
         elif exp < minimumExp:
-            formatedPlayer["expStatus"] = ExpStatus.ExpStatus.DEACTIVE.value
+            formatedPlayer["expStatus"] = expStatus.ExpStatus.DEACTIVE.value
 
         # 信仰
         faith = ytsheetJson.get("faith", "なし")

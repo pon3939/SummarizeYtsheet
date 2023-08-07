@@ -2,7 +2,7 @@
 
 
 from gspread import Worksheet, utils
-from myLibrary import commonConstant, commonFunction
+from myLibrary import commonConstant, commonFunction, expStatus
 
 """
 戦闘特技シートを更新
@@ -50,6 +50,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     headers: list[str] = [
         "No.",
         "PC",
+        "参加傾向",
         "バトルダンサー",
         "Lv.1",
         "Lv.3",
@@ -71,6 +72,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # PC
         row.append(player["characterName"])
+
+        # 参加傾向
+        row.append(
+            commonConstant.ENTRY_TREND_DEACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            else commonConstant.ENTRY_TREND_ACTIVE
+        )
 
         # バトルダンサー
         row.append(player["combatFeatsLv1bat"])
@@ -171,3 +179,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
     # 行列の固定
     worksheet.freeze(1, 2)
+
+    # フィルター
+    worksheet.set_basic_filter(1, 1, len(updateData), worksheet.col_count)
