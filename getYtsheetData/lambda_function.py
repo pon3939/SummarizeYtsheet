@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from json import dumps, loads
+
 from requests import Response, get
 
 """
@@ -30,6 +32,9 @@ def lambda_handler(event: dict, context) -> dict:
     # ステータスコード200以外は例外発生
     response.raise_for_status()
 
-    ytsheetJson: str = response.text
+    ytsheetJson: dict = loads(response.text)
 
-    return {"id": id, "ytsheetJson": ytsheetJson}
+    # 不要なデータを削除
+    ytsheetJson.pop("imageCompressed", None)
+
+    return {"id": id, "ytsheetJson": dumps(ytsheetJson)}
