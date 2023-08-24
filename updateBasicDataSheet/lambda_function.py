@@ -58,6 +58,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         "穢れ",
         "参加",
         "GM",
+        "参加+GM",
         "死亡",
         "更新日時",
     ]
@@ -102,10 +103,15 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         row.append(player["sin"])
 
         # 参加
-        row.append(player["playerTimes"])
+        playerTimes: int = player["playerTimes"]
+        row.append(playerTimes)
 
         # GM
-        row.append(player["gameMasterTimes"])
+        gameMasterTimes: int = player["gameMasterTimes"]
+        row.append(gameMasterTimes)
+
+        # 参加+GM
+        row.append(playerTimes + gameMasterTimes)
 
         # 死亡
         row.append(player["diedTimes"])
