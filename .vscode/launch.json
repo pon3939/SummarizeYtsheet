@@ -6,13 +6,13 @@
 			"name": "UpdateAbyssCurseSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/UpdateAbyssCurseSheet",
+				"projectRoot": "${workspaceFolder}/Lambda/UpdateAbyssCurseSheet",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "UpdateAbyssCurseSheet/input.json"
+					"path": "Lambda/UpdateAbyssCurseSheet/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -23,13 +23,13 @@
 			"name": "updateStyleSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/updateStyleSheet",
+				"projectRoot": "${workspaceFolder}/Lambda/updateStyleSheet",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "updateStyleSheet/input.json"
+					"path": "Lambda/updateStyleSheet/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -40,13 +40,13 @@
 			"name": "FormatYtsheetData:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/FormatYtsheetData",
+				"projectRoot": "${workspaceFolder}/Lambda/FormatYtsheetData",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "FormatYtsheetData/input.json"
+					"path": "Lambda/FormatYtsheetData/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -57,13 +57,13 @@
 			"name": "updateCombatSkillSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/updateCombatSkillSheet",
+				"projectRoot": "${workspaceFolder}/Lambda/updateCombatSkillSheet",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "updateCombatSkillSheet/input.json"
+					"path": "Lambda/updateCombatSkillSheet/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -74,13 +74,13 @@
 			"name": "updateStatusSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/updateStatusSheet",
+				"projectRoot": "${workspaceFolder}/Lambda/updateStatusSheet",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "updateStatusSheet/input.json"
+					"path": "Lambda/updateStatusSheet/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -91,13 +91,13 @@
 			"name": "updateSkillLevelSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/updateSkillLevelSheet",
+				"projectRoot": "${workspaceFolder}/Lambda/updateSkillLevelSheet",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "updateSkillLevelSheet/input.json"
+					"path": "Lambda/updateSkillLevelSheet/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -108,13 +108,13 @@
 			"name": "updateBasicDataSheet:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/updateBasicDataSheet",
+				"projectRoot": "${workspaceFolder}/Lambda/updateBasicDataSheet",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "updateBasicDataSheet/input.json"
+					"path": "Lambda/updateBasicDataSheet/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -125,13 +125,13 @@
 			"name": "getYtsheetData:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/getYtsheetData",
+				"projectRoot": "${workspaceFolder}/Lambda/getYtsheetData",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "getYtsheetData/input.json"
+					"path": "Lambda/getYtsheetData/input.json"
 				},
 				"environmentVariables": {}
 			}

@@ -4,28 +4,30 @@
 
 実行環境にはAWS Step Functionsを使用しているよ
 
-## getYtsheetData
+## Lambda
+
+### getYtsheetData
 
 ゆとシートからデータを取得するよ
 
-## FormatYtsheetData
+### FormatYtsheetData
 
 ゆとシートから取得したデータをフォーマットするよ
 
 AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要なデータのみ集計しているよ
 
-## updateBasicDataSheet
+### updateBasicDataSheet
 
 基本シートを更新するよ
 
-## updateSkillLeveSheet
+### updateSkillLeveSheet
 
 技能シートを更新するよ
 
-## updateStatusSheet
+### updateStatusSheet
 
 能力値シートを更新するよ
 
-## updateCombatSkillSheet
+### updateCombatSkillSheet
 
 能力値シートを更新するよ
