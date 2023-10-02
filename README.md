@@ -31,3 +31,14 @@ AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要な
 ### updateCombatSkillSheet
 
 能力値シートを更新するよ
+
+## StepFunctions
+
+### SummarizeYtsheet
+
+ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ
+Googleスプレッドシートの更新はUpdateYtsheetSpreadSheetを呼んでいるよ
+
+### UpdateYtsheetSpreadSheet
+
+Googleスプレッドシートを更新するよ

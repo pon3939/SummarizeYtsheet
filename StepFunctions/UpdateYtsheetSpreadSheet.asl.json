@@ -1,0 +1,299 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Get Master Data Parallel",
+  "States": {
+    "Get Master Data Parallel": {
+      "Type": "Parallel",
+      "Next": "Format Ytsheet Data",
+      "Branches": [
+        {
+          "StartAt": "Get Environment",
+          "States": {
+            "Get Environment": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:getItem",
+              "Parameters": {
+                "TableName": "Environments",
+                "Key": {
+                  "id": {
+                    "N.$": "$.environmentId"
+                  }
+                }
+              },
+              "ResultSelector": {
+                "Environment": {
+                  "SpreadsheetId.$": "$.Item.spreadsheetId.S",
+                  "SeasonId.$": "$.Item.seasonId.N"
+                }
+              },
+              "Next": "Get Level Cap"
+            },
+            "Get Level Cap": {
+              "Type": "Task",
+              "Parameters": {
+                "TableName": "LevelCaps",
+                "KeyConditionExpression": "seasonId = :seasonId AND startDate <= :startDate",
+                "ExpressionAttributeValues": {
+                  ":startDate": {
+                    "S.$": "$$.State.EnteredTime"
+                  },
+                  ":seasonId": {
+                    "N.$": "$.Environment.SeasonId"
+                  }
+                },
+                "ScanIndexForward": false,
+                "Limit": 1
+              },
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+              "ResultSelector": {
+                "MaxExp.$": "$.Items[0].maxExp.N",
+                "MinimumExp.$": "$.Items[0].minimumExp.N"
+              },
+              "End": true,
+              "ResultPath": "$.LevelCap"
+            }
+          }
+        },
+        {
+          "StartAt": "Get Google Service Account",
+          "States": {
+            "Get Google Service Account": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:getItem",
+              "Parameters": {
+                "TableName": "GoogleServiceAccounts",
+                "Key": {
+                  "id": {
+                    "N": "1"
+                  }
+                }
+              },
+              "ResultSelector": {
+                "auth_provider_x509_cert_url.$": "$.Item.json.M.auth_provider_x509_cert_url.S",
+                "auth_uri.$": "$.Item.json.M.auth_uri.S",
+                "client_email.$": "$.Item.json.M.client_email.S",
+                "client_id.$": "$.Item.json.M.client_id.S",
+                "client_x509_cert_url.$": "$.Item.json.M.client_x509_cert_url.S",
+                "private_key.$": "$.Item.json.M.private_key.S",
+                "private_key_id.$": "$.Item.json.M.private_key_id.S",
+                "project_id.$": "$.Item.json.M.project_id.S",
+                "token_uri.$": "$.Item.json.M.token_uri.S",
+                "type.$": "$.Item.json.M.type.S",
+                "universe_domain.$": "$.Item.json.M.universe_domain.S"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultSelector": {
+        "Environment.$": "$[0].Environment",
+        "LevelCap.$": "$[0].LevelCap",
+        "GoogleServiceAccount.$": "$[1]"
+      }
+    },
+    "Format Ytsheet Data": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:FormatYtsheetData:$LATEST"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Update Spread Sheet Parallel",
+      "ResultPath": "$.FormatResult"
+    },
+    "Update Spread Sheet Parallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "update Basic Data Sheet",
+          "States": {
+            "update Basic Data Sheet": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateBasicDataSheet:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Update Skill Level Sheet",
+          "States": {
+            "Update Skill Level Sheet": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateSkillLevelSheet:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Update Status Sheet",
+          "States": {
+            "Update Status Sheet": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateStatusSheet:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Update Combat Skill Sheet",
+          "States": {
+            "Update Combat Skill Sheet": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateCombatSkillSheet:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Update Style Sheet",
+          "States": {
+            "Update Style Sheet": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateStyleSheet:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Update Abyss Curse Sheet",
+          "States": {
+            "Update Abyss Curse Sheet": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:UpdateAbyssCurseSheet:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        }
+      ],
+      "End": true,
+      "Parameters": {
+        "Environment.$": "$.Environment",
+        "GoogleServiceAccount.$": "$.GoogleServiceAccount",
+        "LevelCap.$": "$.LevelCap",
+        "Players.$": "$.FormatResult.Payload.Players"
+      }
+    }
+  }
+}

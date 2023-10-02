@@ -1,0 +1,245 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Pass Input Parallel",
+  "States": {
+    "Pass Input Parallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Pass Input",
+          "States": {
+            "Pass Input": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Get Environment",
+          "States": {
+            "Get Environment": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:getItem",
+              "Parameters": {
+                "TableName": "Environments",
+                "Key": {
+                  "id": {
+                    "N.$": "$.environmentId"
+                  }
+                }
+              },
+              "Next": "Scan Players",
+              "ResultSelector": {
+                "Items": [],
+                "SeasonId.$": "$.Item.seasonId.N"
+              }
+            },
+            "Scan Players": {
+              "Type": "Task",
+              "Parameters": {
+                "TableName": "PlayerCharacters",
+                "ProjectionExpression": "id,#url",
+                "ExpressionAttributeNames": {
+                  "#url": "url"
+                },
+                "FilterExpression": "seasonId = :seasonId",
+                "ExpressionAttributeValues": {
+                  ":seasonId": {
+                    "N.$": "$.SeasonId"
+                  }
+                }
+              },
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:scan",
+              "Next": "Scan Loop",
+              "ResultPath": "$.scannedResult"
+            },
+            "Scan Loop": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.scannedResult.LastEvaluatedKey",
+                  "IsPresent": true,
+                  "Next": "Join Items"
+                }
+              ],
+              "Default": "Join Last Items"
+            },
+            "Join Last Items": {
+              "Type": "Pass",
+              "Next": "Flat Last Items",
+              "Parameters": {
+                "Items.$": "States.Array($.Items, $.scannedResult.Items)",
+                "SeasonId.$": "$.SeasonId"
+              }
+            },
+            "Flat Last Items": {
+              "Type": "Pass",
+              "Next": "Init Loop",
+              "Parameters": {
+                "Items.$": "$.Items[*][*]",
+                "SeasonId.$": "$.SeasonId"
+              }
+            },
+            "Init Loop": {
+              "Type": "Pass",
+              "Next": "Get Ytsheet Data Loop",
+              "Parameters": {
+                "players.$": "$",
+                "index": 0,
+                "maxIndex.$": "States.ArrayLength($.Items)",
+                "SeasonId.$": "$.SeasonId"
+              }
+            },
+            "Join Items": {
+              "Type": "Pass",
+              "Next": "Flat Items",
+              "Parameters": {
+                "Items.$": "States.Array($.Items, $.scannedResult.Items)",
+                "LastEvaluatedKey.$": "$.scannedResult.LastEvaluatedKey",
+                "SeasonId.$": "$.SeasonId"
+              }
+            },
+            "Flat Items": {
+              "Type": "Pass",
+              "Next": "Scan Separated Players",
+              "Parameters": {
+                "Items.$": "$.Items[*][*]",
+                "LastEvaluatedKey.$": "$.LastEvaluatedKey",
+                "SeasonId.$": "$.SeasonId"
+              }
+            },
+            "Scan Separated Players": {
+              "Type": "Task",
+              "Parameters": {
+                "TableName": "PlayerCharacters",
+                "ExclusiveStartKey.$": "$.LastEvaluatedKey",
+                "ProjectionExpression": "id,#url",
+                "ExpressionAttributeNames": {
+                  "#url": "url"
+                },
+                "FilterExpression": "seasonId = :seasonId",
+                "ExpressionAttributeValues": {
+                  ":seasonId": {
+                    "N.$": "$.SeasonId"
+                  }
+                }
+              },
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:scan",
+              "Next": "Scan Loop",
+              "ResultPath": "$.scannedResult"
+            },
+            "Get Ytsheet Data Loop": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.index",
+                  "NumericLessThanPath": "$.maxIndex",
+                  "Next": "Pass Loop Data Parallel"
+                }
+              ],
+              "Default": "End"
+            },
+            "Pass Loop Data Parallel": {
+              "Type": "Parallel",
+              "Next": "Get Ytsheet Data Loop",
+              "Branches": [
+                {
+                  "StartAt": "Get Ytsheet Data",
+                  "States": {
+                    "Get Ytsheet Data": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "Parameters": {
+                        "Payload.$": "$",
+                        "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:getYtsheetData:$LATEST"
+                      },
+                      "Retry": [
+                        {
+                          "ErrorEquals": [
+                            "Lambda.ServiceException",
+                            "Lambda.AWSLambdaException",
+                            "Lambda.SdkClientException",
+                            "Lambda.TooManyRequestsException"
+                          ],
+                          "IntervalSeconds": 2,
+                          "MaxAttempts": 6,
+                          "BackoffRate": 2
+                        }
+                      ],
+                      "Next": "Update Player",
+                      "ResultPath": "$.GetResult"
+                    },
+                    "Update Player": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::dynamodb:updateItem",
+                      "Parameters": {
+                        "TableName": "PlayerCharacters",
+                        "Key": {
+                          "seasonId": {
+                            "N.$": "$.SeasonId"
+                          },
+                          "id": {
+                            "N.$": "$.GetResult.Payload.id"
+                          }
+                        },
+                        "UpdateExpression": "SET ytsheetJson = :ytsheetJson, updateTime = :updateTime",
+                        "ExpressionAttributeValues": {
+                          ":ytsheetJson": {
+                            "S.$": "$.GetResult.Payload.ytsheetJson"
+                          },
+                          ":updateTime": {
+                            "S.$": "$$.State.EnteredTime"
+                          }
+                        }
+                      },
+                      "Next": "Wait"
+                    },
+                    "Wait": {
+                      "Type": "Wait",
+                      "Seconds": 15,
+                      "End": true
+                    }
+                  }
+                },
+                {
+                  "StartAt": "Pass Loop Data",
+                  "States": {
+                    "Pass Loop Data": {
+                      "Type": "Pass",
+                      "End": true
+                    }
+                  }
+                }
+              ],
+              "OutputPath": "$[1]",
+              "Parameters": {
+                "players.$": "$.players",
+                "index.$": "States.MathAdd($.index, 1)",
+                "maxIndex.$": "$.maxIndex",
+                "SeasonId.$": "$.SeasonId"
+              }
+            },
+            "End": {
+              "Type": "Pass",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "Start UpdateYtsheetSpreadSheet",
+      "OutputPath": "$[0]"
+    },
+    "Start UpdateYtsheetSpreadSheet": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:ap-northeast-1:759821454976:stateMachine:UpdateYtsheetSpreadSheet",
+        "Input": {
+          "environmentId.$": "$.environmentId",
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+        }
+      },
+      "End": true
+    }
+  }
+}
