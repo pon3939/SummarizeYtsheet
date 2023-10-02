@@ -6,6 +6,15 @@
 
 ## Lambda
 
+デバッグ環境構築
+
+```bash
+cd Lambda
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt -t python
+```
+
 ### getYtsheetData
 
 ゆとシートからデータを取得するよ
@@ -36,7 +45,7 @@ AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要な
 
 ### SummarizeYtsheet
 
-ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ
+ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ  
 Googleスプレッドシートの更新はUpdateYtsheetSpreadSheetを呼んでいるよ
 
 ### UpdateYtsheetSpreadSheet
