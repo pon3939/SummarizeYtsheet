@@ -41,6 +41,10 @@ AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要な
 
 能力値シートを更新するよ
 
+### InsertPlayerCharacters
+
+PlayerCharactersテーブルを登録するよ
+
 ## StepFunctions
 
 ### SummarizeYtsheet
