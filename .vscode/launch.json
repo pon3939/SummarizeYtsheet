@@ -29,7 +29,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/UpdateAbyssCurseSheet/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -46,7 +46,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/updateStyleSheet/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -63,7 +63,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/FormatYtsheetData/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -80,7 +80,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/updateCombatSkillSheet/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -97,7 +97,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/updateStatusSheet/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -114,7 +114,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/updateSkillLevelSheet/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -131,7 +131,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/updateBasicDataSheet/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
@@ -148,7 +148,7 @@
 			"lambda": {
 				"runtime": "python3.8",
 				"payload": {
-					"path": "Lambda/getYtsheetData/input.json"
+					"path": "Lambda/input.json"
 				},
 				"environmentVariables": {}
 			}
