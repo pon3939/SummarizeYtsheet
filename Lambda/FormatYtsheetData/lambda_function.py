@@ -19,10 +19,6 @@ from pytz import timezone
 # AWSのリージョン
 AWS_REGION: str = "ap-northeast-1"
 
-# DBコネクション
-Dynamodb = None
-
-
 # 自分が開催したときのGM名
 SELF_GAME_MASTER_NAMES: "list[str]" = [
     "俺",
@@ -106,18 +102,25 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     Returns:
         list[dict]: プレイヤー情報
     """
-    global Dynamodb
 
-    Dynamodb = resource("dynamodb", region_name=AWS_REGION)
-    teble = Dynamodb.Table("PlayerCharacters")
+    dynamodb = resource("dynamodb", region_name=AWS_REGION)
+    teble = dynamodb.Table("PlayerCharacters")
+    projectionExpression: str = "id, player, #url, ytsheetJson"
+    expressionAttributeNames: dict = {"#url": "url"}
     filterExpression: Equals = Attr("seasonId").eq(seasonId)
-    response: dict = teble.scan(FilterExpression=filterExpression)
+    response: dict = teble.scan(
+        ProjectionExpression=projectionExpression,
+        ExpressionAttributeNames=expressionAttributeNames,
+        FilterExpression=filterExpression,
+    )
 
     # ページ分割分を取得
     players: "list[dict]" = list()
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
         response = teble.scan(
+            ProjectionExpression=projectionExpression,
+            ExpressionAttributeNames=expressionAttributeNames,
             ExclusiveStartKey=response["LastEvaluatedKey"],
             FilterExpression=filterExpression,
         )
