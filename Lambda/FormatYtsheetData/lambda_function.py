@@ -4,7 +4,7 @@
 from datetime import datetime
 from itertools import chain
 from json import loads
-from re import escape, search
+from re import escape, search, sub
 from unicodedata import normalize
 
 from boto3 import resource
@@ -105,7 +105,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
 
     dynamodb = resource("dynamodb", region_name=AWS_REGION)
     teble = dynamodb.Table("PlayerCharacters")
-    projectionExpression: str = "id, player, #url, ytsheetJson"
+    projectionExpression: str = "id, player, updateTime, #url, ytsheetJson"
     expressionAttributeNames: dict = {"#url": "url"}
     filterExpression: Equals = Attr("seasonId").eq(seasonId)
     response: dict = teble.scan(
@@ -166,7 +166,6 @@ def FormatPlayers(
         # 文字列
         formatedPlayer["name"] = player.get("player", "")
         formatedPlayer["url"] = player.get("url", "")
-        formatedPlayer["characterName"] = ytsheetJson.get("characterName", "")
         formatedPlayer["race"] = ytsheetJson.get("race", "")
         formatedPlayer["age"] = ytsheetJson.get("age", "")
         formatedPlayer["gender"] = ytsheetJson.get("gender", "")
@@ -213,6 +212,13 @@ def FormatPlayers(
         # JSONに変換するため、Decimalをintに変換
         no += 1
         formatedPlayer["no"] = int(player.get("id", "-1"))
+
+        # PC名
+        # フリガナを削除
+        characterName: str = ytsheetJson.get("characterName", "")
+        formatedPlayer["characterName"] = sub(
+            r"\|([^《]*)《[^》]*》", r"\1", characterName
+        )
 
         # 経験点の状態
         formatedPlayer["expStatus"] = expStatus.ExpStatus.ACTIVE.value
