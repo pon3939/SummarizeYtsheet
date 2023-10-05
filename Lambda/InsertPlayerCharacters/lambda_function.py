@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 
+from typing import Union
+
 from boto3 import client
+from mypy_boto3_dynamodb.client import DynamoDBClient
+from mypy_boto3_dynamodb.type_defs import (
+    BatchWriteItemOutputTypeDef,
+    ScanOutputTypeDef,
+)
 
 """
 PlayerCharactersに登録
 """
 
 # PCテーブル
-DynamoDb = None
+DynamoDb: Union[DynamoDBClient, None] = None
 
 # AWSのリージョン
 AWS_REGION: str = "ap-northeast-1"
@@ -55,13 +62,16 @@ def GetNewId(seasonId: int) -> int:
     """
     global DynamoDb
 
+    if DynamoDb is None:
+        raise Exception("DynamoDBが初期化されていません")
+
     scanOptions: dict = {
         "TableName": "PlayerCharacters",
         "ProjectionExpression": "id",
         "FilterExpression": "seasonId = :seasonId",
         "ExpressionAttributeValues": {":seasonId": {"N": str(seasonId)}},
     }
-    response: dict = DynamoDb.scan(**scanOptions)
+    response: ScanOutputTypeDef = DynamoDb.scan(**scanOptions)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
@@ -91,6 +101,9 @@ def insertPlayerCharacters(
     """
     global DynamoDb
 
+    if DynamoDb is None:
+        raise Exception("DynamoDBが初期化されていません")
+
     id = playerCharacterId
     stringSeasonId = str(seasonId)
     requestItems = []
@@ -106,7 +119,7 @@ def insertPlayerCharacters(
         requestItems.append(requestItem)
         id += 1
 
-    response = DynamoDb.batch_write_item(
+    response: BatchWriteItemOutputTypeDef = DynamoDb.batch_write_item(
         RequestItems={"PlayerCharacters": requestItems}
     )
 

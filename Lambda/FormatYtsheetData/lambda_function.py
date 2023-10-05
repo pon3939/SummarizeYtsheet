@@ -10,6 +10,8 @@ from unicodedata import normalize
 
 from boto3 import client
 from myLibrary import commonConstant, expStatus
+from mypy_boto3_dynamodb.client import DynamoDBClient
+from mypy_boto3_dynamodb.type_defs import ScanOutputTypeDef
 from pytz import timezone
 
 """
@@ -103,7 +105,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         list[dict]: プレイヤー情報
     """
 
-    dynamodb = client("dynamodb", region_name=AWS_REGION)
+    dynamodb: DynamoDBClient = client("dynamodb", region_name=AWS_REGION)
     scanOptions: dict = {
         "TableName": "PlayerCharacters",
         "ProjectionExpression": "id, player, updateTime, #url, ytsheetJson",
@@ -111,7 +113,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         "FilterExpression": "seasonId = :seasonId",
         "ExpressionAttributeValues": {":seasonId": {"N": str(seasonId)}},
     }
-    response: dict = dynamodb.scan(**scanOptions)
+    response: ScanOutputTypeDef = dynamodb.scan(**scanOptions)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
