@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from boto3 import resource
-from boto3.dynamodb.conditions import Attr, Equals
+from boto3 import client
 
 """
 PlayerCharactersに登録
 """
 
 # PCテーブル
-PlayerCharactersTable = None
+DynamoDb = None
 
 # AWSのリージョン
 AWS_REGION: str = "ap-northeast-1"
@@ -27,7 +26,7 @@ def lambda_handler(event, context):
         context awslambdaric.lambda_context.LambdaContext: コンテキスト
     """
 
-    seasonId: dict = event["SeasonId"]
+    seasonId: int = event["SeasonId"]
     playerCharacters: list[dict] = event["PlayerCharacters"]
 
     initDb()
@@ -38,10 +37,9 @@ def lambda_handler(event, context):
 def initDb():
     """DBに接続する"""
 
-    global PlayerCharactersTable
+    global DynamoDb
 
-    dynamoDb = resource("dynamodb", region_name=AWS_REGION)
-    PlayerCharactersTable = dynamoDb.Table(TABLE_NAME)
+    DynamoDb = client("dynamodb", region_name=AWS_REGION)
 
 
 def GetNewId(seasonId: int) -> int:
@@ -55,32 +53,30 @@ def GetNewId(seasonId: int) -> int:
     Returns:
         int: ID
     """
-    global PlayerCharactersTable
+    global DynamoDb
 
-    projectionExpression: str = "id"
-    filterExpression: Equals = Attr("seasonId").eq(seasonId)
-    response: dict = PlayerCharactersTable.scan(
-        ProjectionExpression=projectionExpression,
-        FilterExpression=filterExpression,
-    )
+    scanOptions: dict = {
+        "TableName": "PlayerCharacters",
+        "ProjectionExpression": "id",
+        "FilterExpression": "seasonId = :seasonId",
+        "ExpressionAttributeValues": {":seasonId": {"N": str(seasonId)}},
+    }
+    response: dict = DynamoDb.scan(**scanOptions)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
-        response = PlayerCharactersTable.scan(
-            ProjectionExpression=projectionExpression,
-            ExclusiveStartKey=response["LastEvaluatedKey"],
-            FilterExpression=filterExpression,
-        )
+        scanOptions["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+        response = DynamoDb.scan(**scanOptions)
     players.extend(response["Items"])
 
     if len(players) == 0:
         return 1
 
-    maxPlayer = max(players, key=(lambda player: player["id"]))
+    maxPlayer = max(players, key=(lambda player: int(player["id"]["N"])))
 
-    return maxPlayer["id"] + 1
+    return int(maxPlayer["id"]["N"]) + 1
 
 
 def insertPlayerCharacters(
@@ -93,12 +89,28 @@ def insertPlayerCharacters(
         seasonId: int: シーズンID
         playerCharacterId: int: ID
     """
-    global PlayerCharactersTable
+    global DynamoDb
 
-    with PlayerCharactersTable.batch_writer() as writer:
-        id = playerCharacterId
-        for playerCharacter in playerCharacters:
-            item = playerCharacter.copy()
-            item.update(seasonId=seasonId, id=id)
-            writer.put_item(Item=item)
-            id += 1
+    id = playerCharacterId
+    stringSeasonId = str(seasonId)
+    requestItems = []
+    for playerCharacter in playerCharacters:
+        requestItem: dict = {}
+        requestItem["PutRequest"] = {}
+        requestItem["PutRequest"]["Item"] = {
+            "seasonId": {"N": stringSeasonId},
+            "id": {"N": str(id)},
+            "player": {"S": playerCharacter["player"]},
+            "url": {"S": playerCharacter["url"]},
+        }
+        requestItems.append(requestItem)
+        id += 1
+
+    response = DynamoDb.batch_write_item(
+        RequestItems={"PlayerCharacters": requestItems}
+    )
+
+    while response["UnprocessedItems"] != {}:
+        response = DynamoDb.batch_write_item(
+            RequestItems=response["UnprocessedItems"]
+        )

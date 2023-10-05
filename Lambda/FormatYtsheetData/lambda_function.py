@@ -5,10 +5,10 @@ from datetime import datetime
 from itertools import chain
 from json import loads
 from re import escape, search, sub
+from typing import Union
 from unicodedata import normalize
 
-from boto3 import resource
-from boto3.dynamodb.conditions import Attr, Equals
+from boto3 import client
 from myLibrary import commonConstant, expStatus
 from pytz import timezone
 
@@ -103,27 +103,22 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         list[dict]: プレイヤー情報
     """
 
-    dynamodb = resource("dynamodb", region_name=AWS_REGION)
-    teble = dynamodb.Table("PlayerCharacters")
-    projectionExpression: str = "id, player, updateTime, #url, ytsheetJson"
-    expressionAttributeNames: dict = {"#url": "url"}
-    filterExpression: Equals = Attr("seasonId").eq(seasonId)
-    response: dict = teble.scan(
-        ProjectionExpression=projectionExpression,
-        ExpressionAttributeNames=expressionAttributeNames,
-        FilterExpression=filterExpression,
-    )
+    dynamodb = client("dynamodb", region_name=AWS_REGION)
+    scanOptions: dict = {
+        "TableName": "PlayerCharacters",
+        "ProjectionExpression": "id, player, updateTime, #url, ytsheetJson",
+        "ExpressionAttributeNames": {"#url": "url"},
+        "FilterExpression": "seasonId = :seasonId",
+        "ExpressionAttributeValues": {":seasonId": {"N": str(seasonId)}},
+    }
+    response: dict = dynamodb.scan(**scanOptions)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
-        response = teble.scan(
-            ProjectionExpression=projectionExpression,
-            ExpressionAttributeNames=expressionAttributeNames,
-            ExclusiveStartKey=response["LastEvaluatedKey"],
-            FilterExpression=filterExpression,
-        )
+        scanOptions["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+        response = dynamodb.scan(**scanOptions)
     players.extend(response["Items"])
 
     return players
@@ -155,17 +150,17 @@ def FormatPlayers(
     )
 
     # idでソート
-    players.sort(key=lambda player: player["id"])
+    players.sort(key=lambda player: int(player["id"]["N"]))
 
     formattedPlayers: "list[dict]" = []
     no: int = 0
     for player in players:
         formatedPlayer: dict = {}
-        ytsheetJson: dict = loads(player.get("ytsheetJson", r"{}"))
+        ytsheetJson: dict = loads(player.get("ytsheetJson", {"S": r"{}"})["S"])
 
         # 文字列
-        formatedPlayer["name"] = player.get("player", "")
-        formatedPlayer["url"] = player.get("url", "")
+        formatedPlayer["name"] = player.get("player", {"S": ""})["S"]
+        formatedPlayer["url"] = player.get("url", {"S": ""})["S"]
         formatedPlayer["race"] = ytsheetJson.get("race", "")
         formatedPlayer["age"] = ytsheetJson.get("age", "")
         formatedPlayer["gender"] = ytsheetJson.get("gender", "")
@@ -211,7 +206,7 @@ def FormatPlayers(
 
         # JSONに変換するため、Decimalをintに変換
         no += 1
-        formatedPlayer["no"] = int(player.get("id", "-1"))
+        formatedPlayer["no"] = int(player["id"]["N"])
 
         # PC名
         # フリガナを削除
@@ -241,7 +236,9 @@ def FormatPlayers(
 
         # 更新日時をスプレッドシートが理解できる形式に変換
         formatedPlayer["updateTime"] = None
-        strUpdatetime: str = player.get("updateTime")
+        strUpdatetime: Union[str, None] = player.get(
+            "updateTime", {"S": None}
+        )["S"]
         if strUpdatetime is not None:
             # UTCをJSTに変換
             utc: datetime = datetime.fromisoformat(
