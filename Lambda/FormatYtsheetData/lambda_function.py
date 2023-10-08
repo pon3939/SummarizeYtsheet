@@ -213,9 +213,12 @@ def FormatPlayers(
         # PC名
         # フリガナを削除
         characterName: str = ytsheetJson.get("characterName", "")
-        formatedPlayer["characterName"] = sub(
-            r"\|([^《]*)《[^》]*》", r"\1", characterName
-        )
+        characterName = sub(r"\|([^《]*)《[^》]*》", r"\1", characterName)
+        if characterName == "":
+            # PC名が空の場合は二つ名を表示
+            characterName = ytsheetJson.get("aka", "")
+
+        formatedPlayer["characterName"] = characterName
 
         # 経験点の状態
         formatedPlayer["expStatus"] = expStatus.ExpStatus.ACTIVE.value
