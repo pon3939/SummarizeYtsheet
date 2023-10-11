@@ -206,9 +206,9 @@ def FormatPlayers(
         # 特殊な変数
         formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
 
-        # JSONに変換するため、Decimalをintに変換
+        # No
         no += 1
-        formatedPlayer["no"] = int(player["id"]["N"])
+        formatedPlayer["no"] = no
 
         # PC名
         # フリガナを削除
