@@ -114,3 +114,28 @@ def _(dynamoDBData: list) -> list:
         list: 変換後のJSON
     """
     return list(map(ConvertDynamoDBToJson, dynamoDBData))
+
+
+def ConvertJsonToDynamoDB(json: dict) -> dict:
+    """
+
+    データをDynamoDBで扱える型に変換する
+
+    Args:
+        json dict: 変換するデータ
+    Returns:
+        dict: 変換後のデータ
+    """
+    convertedJson: dict = {}
+    for key, value in json.items():
+        # 適切な型に変換する
+        if isinstance(value, str):
+            # 文字列
+            convertedJson[key] = {"S": value}
+        elif isinstance(value, (int, float)):
+            # 数値
+            convertedJson[key] = {"N": str(value)}
+        else:
+            raise Exception("未対応の型です")
+
+    return convertedJson

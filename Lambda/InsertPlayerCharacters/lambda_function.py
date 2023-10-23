@@ -66,11 +66,14 @@ def GetNewId(seasonId: int) -> int:
     if DynamoDb is None:
         raise Exception("DynamoDBが初期化されていません")
 
+    expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
+        {":seasonId": seasonId}
+    )
     scanOptions: dict = {
         "TableName": "PlayerCharacters",
         "ProjectionExpression": "id",
         "FilterExpression": "seasonId = :seasonId",
-        "ExpressionAttributeValues": {":seasonId": {"N": str(seasonId)}},
+        "ExpressionAttributeValues": expressionAttributeValues,
     }
     response: ScanOutputTypeDef = DynamoDb.scan(**scanOptions)
 
@@ -107,17 +110,19 @@ def insertPlayerCharacters(
         raise Exception("DynamoDBが初期化されていません")
 
     id = playerCharacterId
-    stringSeasonId = str(seasonId)
     requestItems = []
     for playerCharacter in playerCharacters:
         requestItem: dict = {}
         requestItem["PutRequest"] = {}
-        requestItem["PutRequest"]["Item"] = {
-            "seasonId": {"N": stringSeasonId},
-            "id": {"N": str(id)},
-            "player": {"S": playerCharacter["player"]},
-            "url": {"S": playerCharacter["url"]},
+        item: dict = {
+            "seasonId": seasonId,
+            "id": id,
+            "player": playerCharacter["player"],
+            "url": playerCharacter["url"],
         }
+        requestItem["PutRequest"][
+            "Item"
+        ] = commonFunction.ConvertJsonToDynamoDB(item)
         requestItems.append(requestItem)
         id += 1
 

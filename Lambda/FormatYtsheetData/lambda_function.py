@@ -106,12 +106,15 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     """
 
     dynamodb: DynamoDBClient = client("dynamodb", region_name=AWS_REGION)
+    expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
+        {":seasonId": seasonId}
+    )
     scanOptions: dict = {
         "TableName": "PlayerCharacters",
         "ProjectionExpression": "id, player, updateTime, #url, ytsheetJson",
         "ExpressionAttributeNames": {"#url": "url"},
         "FilterExpression": "seasonId = :seasonId",
-        "ExpressionAttributeValues": {":seasonId": {"N": str(seasonId)}},
+        "ExpressionAttributeValues": expressionAttributeValues,
     }
     response: ScanOutputTypeDef = dynamodb.scan(**scanOptions)
 
