@@ -27,7 +27,7 @@ def lambda_handler(event: dict, context) -> dict:
         event["players"]["Items"][index]
     )
     url: str = player["url"] + "&mode=json"
-    id: int = int(player["id"])
+    id: str = str(player["id"])
 
     # ゆとシートにアクセス
     response: Response = get(url)
