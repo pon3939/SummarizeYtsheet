@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from gspread import Worksheet, utils
+from gspread import Spreadsheet, Worksheet, utils
 from myLibrary import commonConstant, commonFunction, expStatus
 
 """
@@ -26,9 +26,10 @@ def lambda_handler(event: dict, context):
     players: list[dict] = event["Players"]
 
     # スプレッドシートを開く
-    worksheet: Worksheet = commonFunction.OpenSpreadsheet(
-        googleServiceAccount, spreadsheetId, "戦闘特技"
+    spreadsheet: Spreadsheet = commonFunction.OpenSpreadsheet(
+        googleServiceAccount, spreadsheetId
     )
+    worksheet: Worksheet = spreadsheet.worksheet("戦闘特技")
 
     # 更新
     UpdateSheet(worksheet, players)

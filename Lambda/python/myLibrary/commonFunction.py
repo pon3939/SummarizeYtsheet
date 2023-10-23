@@ -4,7 +4,7 @@
 from functools import singledispatch
 
 from google.oauth2 import service_account
-from gspread import Client, Spreadsheet, Worksheet, authorize
+from gspread import Client, Spreadsheet, authorize
 
 """
 汎用関数
@@ -12,8 +12,8 @@ from gspread import Client, Spreadsheet, Worksheet, authorize
 
 
 def OpenSpreadsheet(
-    googleServiceAccount: dict, spreadsheetId: str, worksheetName: str
-) -> Worksheet:
+    googleServiceAccount: dict, spreadsheetId: str
+) -> Spreadsheet:
     """
 
     スプレッドシートを開く
@@ -21,7 +21,6 @@ def OpenSpreadsheet(
     Args:
         googleServiceAccount str: スプレッドシートの認証情報
         spreadsheetId str: スプレッドシートのID
-        worksheetName str: シートの名前
     """
 
     # サービスアカウントでスプレッドシートにログイン
@@ -30,10 +29,7 @@ def OpenSpreadsheet(
         scopes=["https://www.googleapis.com/auth/spreadsheets"],
     )
     client: Client = authorize(credentials)
-
-    # 基本シートを開く
-    book: Spreadsheet = client.open_by_key(spreadsheetId)
-    return book.worksheet(worksheetName)
+    return client.open_by_key(spreadsheetId)
 
 
 def ConvertToVerticalHeader(horizontalHeader: str) -> str:
