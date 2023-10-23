@@ -196,4 +196,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     worksheet.freeze(1, 2)
 
     # フィルター
-    worksheet.set_basic_filter(1, 1, len(updateData) - 1, len(headers))
+    worksheet.set_basic_filter(
+        1, 1, len(updateData) - 1, len(headers)  # type: ignore
+    )

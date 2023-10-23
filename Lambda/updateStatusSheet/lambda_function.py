@@ -14,7 +14,7 @@ from myLibrary import commonConstant, commonFunction, expStatus
 DICE_EXPECTED_VALUE: float = 3.5
 
 # 初期作成時に振るダイスの数と能力増加分
-RACES_STATUSES: "list[dict]" = {
+RACES_STATUSES: dict = {
     "人間": {"diceCount": 12, "fixedValue": 0},
     "エルフ": {"diceCount": 11, "fixedValue": 0},
     "ドワーフ": {"diceCount": 10, "fixedValue": 12},
@@ -134,13 +134,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         # 初期能力期待値を計算
         isAdventurer: bool = player["birth"] == "冒険者"
         if isAdventurer:
-            expectedHtb = DICE_EXPECTED_VALUE * 2 * 6
+            expectedHtb = int(DICE_EXPECTED_VALUE * 2 * 6)
 
         race: str = player["race"]
 
         # 希少種とナイトメアの種族名は整形
         racesStatus: dict = RACES_STATUSES[sub("（.*", "", race)]
-        expectedStatus: int = (
+        expectedStatus: float = (
             expectedHtb
             + DICE_EXPECTED_VALUE * racesStatus["diceCount"]
             + racesStatus["fixedValue"]
@@ -270,4 +270,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     worksheet.freeze(1, 2)
 
     # フィルター
-    worksheet.set_basic_filter(1, 1, len(updateData), len(header))
+    worksheet.set_basic_filter(
+        1, 1, len(updateData), len(header)  # type: ignore
+    )

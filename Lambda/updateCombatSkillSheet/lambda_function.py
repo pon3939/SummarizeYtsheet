@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+from typing import Union
+
 from gspread import Spreadsheet, Worksheet, utils
 from myLibrary import commonConstant, commonFunction, expStatus
 
@@ -129,7 +131,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         )
 
         # 習得レベルに満たないものはグレーで表示
-        grayOutStartIndex: int = None
+        grayOutStartIndex: Union[int, None] = None
         for i in range(3, 15, 2):
             if player["level"] < i:
                 grayOutStartIndex = headers.index(f"Lv.{i}") + 1
@@ -182,4 +184,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     worksheet.freeze(1, 2)
 
     # フィルター
-    worksheet.set_basic_filter(1, 1, len(updateData), worksheet.col_count)
+    worksheet.set_basic_filter(
+        1, 1, len(updateData), worksheet.col_count  # type: ignore
+    )
