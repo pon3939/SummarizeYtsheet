@@ -25,6 +25,10 @@ pip install -r requirements.txt -t python
 
 AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要なデータのみ集計しているよ
 
+### ReorderWorksheets
+
+ワークシートのタブを並び替えるよ
+
 ### updateBasicDataSheet
 
 基本シートを更新するよ
