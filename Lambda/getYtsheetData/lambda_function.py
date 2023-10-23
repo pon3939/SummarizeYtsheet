@@ -2,6 +2,7 @@
 
 from json import dumps, loads
 
+from myLibrary import commonFunction
 from requests import Response, get
 
 """
@@ -22,9 +23,11 @@ def lambda_handler(event: dict, context) -> dict:
     """
 
     index: int = event["index"] - 1
-    player: dict = event["players"]["Items"][index]
-    url: str = player["url"]["S"] + "&mode=json"
-    id: int = player["id"]["N"]
+    player: dict = commonFunction.ConvertDynamoDBToJson(
+        event["players"]["Items"][index]
+    )
+    url: str = player["url"] + "&mode=json"
+    id: int = int(player["id"])
 
     # ゆとシートにアクセス
     response: Response = get(url)

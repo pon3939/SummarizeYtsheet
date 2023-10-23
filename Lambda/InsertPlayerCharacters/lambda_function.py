@@ -3,6 +3,7 @@
 from typing import Union
 
 from boto3 import client
+from myLibrary import commonFunction
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,
@@ -84,9 +85,10 @@ def GetNewId(seasonId: int) -> int:
     if len(players) == 0:
         return 1
 
-    maxPlayer = max(players, key=(lambda player: int(player["id"]["N"])))
+    players = commonFunction.ConvertDynamoDBToJson(players)
+    maxPlayer = max(players, key=(lambda player: player["id"]))
 
-    return int(maxPlayer["id"]["N"]) + 1
+    return int(maxPlayer["id"]) + 1
 
 
 def insertPlayerCharacters(

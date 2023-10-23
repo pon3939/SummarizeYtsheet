@@ -9,7 +9,7 @@ from typing import Union
 from unicodedata import normalize
 
 from boto3 import client
-from myLibrary import commonConstant, expStatus
+from myLibrary import commonConstant, commonFunction, expStatus
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import ScanOutputTypeDef
 from pytz import timezone
@@ -123,7 +123,8 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         response = dynamodb.scan(**scanOptions)
     players.extend(response["Items"])
 
-    return players
+    # 使いやすいようにフォーマット
+    return commonFunction.ConvertDynamoDBToJson(players)
 
 
 def FormatPlayers(
@@ -152,17 +153,17 @@ def FormatPlayers(
     )
 
     # idでソート
-    players.sort(key=lambda player: int(player["id"]["N"]))
+    players.sort(key=lambda player: player["id"])
 
     formattedPlayers: "list[dict]" = []
     no: int = 0
     for player in players:
         formatedPlayer: dict = {}
-        ytsheetJson: dict = loads(player.get("ytsheetJson", {"S": r"{}"})["S"])
+        ytsheetJson: dict = loads(player.get("ytsheetJson", r"{}"))
 
         # 文字列
-        formatedPlayer["name"] = player.get("player", {"S": ""})["S"]
-        formatedPlayer["url"] = player.get("url", {"S": ""})["S"]
+        formatedPlayer["name"] = player.get("player", "")
+        formatedPlayer["url"] = player.get("url", "")
         formatedPlayer["race"] = ytsheetJson.get("race", "")
         formatedPlayer["age"] = ytsheetJson.get("age", "")
         formatedPlayer["gender"] = ytsheetJson.get("gender", "")
@@ -241,9 +242,7 @@ def FormatPlayers(
 
         # 更新日時をスプレッドシートが理解できる形式に変換
         formatedPlayer["updateTime"] = None
-        strUpdatetime: Union[str, None] = player.get(
-            "updateTime", {"S": None}
-        )["S"]
+        strUpdatetime: Union[str, None] = player.get("updateTime")
         if strUpdatetime is not None:
             # UTCをJSTに変換
             utc: datetime = datetime.fromisoformat(

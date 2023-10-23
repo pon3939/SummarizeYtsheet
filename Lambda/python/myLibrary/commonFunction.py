@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+from functools import singledispatch
+
 from google.oauth2 import service_account
 from gspread import Client, Spreadsheet, Worksheet, authorize
 
@@ -21,6 +23,7 @@ def OpenSpreadsheet(
         spreadsheetId str: スプレッドシートのID
         worksheetName str: シートの名前
     """
+
     # サービスアカウントでスプレッドシートにログイン
     credentials = service_account.Credentials.from_service_account_info(
         googleServiceAccount,
@@ -43,6 +46,71 @@ def ConvertToVerticalHeader(horizontalHeader: str) -> str:
     Returns:
         str: 縦書きヘッダー
     """
+
     return (
         horizontalHeader.replace("ー", "｜").replace("(", "︵").replace(")", "︶")
     )
+
+
+@singledispatch
+def ConvertDynamoDBToJson(dynamoDBData):
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+    未対応の型の場合、例外を発生させる
+
+    Args:
+        dynamoDBData: DynamoDBから取得したデータ
+    """
+    raise Exception("未対応の型です")
+
+
+@ConvertDynamoDBToJson.register
+def _(dynamoDBData: dict) -> dict:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+
+    Args:
+        dynamoDBData dict: DynamoDBから取得したデータ
+    Returns:
+        dict: 変換後のJSON
+    """
+
+    convertedJson: dict = {}
+    for key, value in dynamoDBData.items():
+        if isinstance(value, dict):
+            # 適切な型に変換する
+            valuesKey = next(iter(value.keys()))
+            valuesValue = next(iter(value.values()))
+            if valuesKey == "S":
+                # 文字列
+                convertedJson[key] = valuesValue
+            elif valuesKey == "N":
+                # 数値
+                convertedJson[key] = float(valuesValue)
+            else:
+                raise Exception("未対応の型です")
+
+        elif isinstance(value, list):
+            # 各要素を再度変換する
+            convertedJson[key] = ConvertDynamoDBToJson(value)
+
+        else:
+            raise Exception("未対応の型です")
+
+    return convertedJson
+
+
+@ConvertDynamoDBToJson.register
+def _(dynamoDBData: list) -> list:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+
+    Args:
+        dynamoDBData list: DynamoDBから取得したデータ
+    Returns:
+        list: 変換後のJSON
+    """
+    return list(map(ConvertDynamoDBToJson, dynamoDBData))
