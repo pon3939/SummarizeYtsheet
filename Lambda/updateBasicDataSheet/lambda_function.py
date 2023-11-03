@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from re import Match, search, sub
+from typing import Union
+
 from gspread import Spreadsheet, Worksheet, utils
 from myLibrary import commonConstant, commonFunction, expStatus
 
@@ -53,6 +56,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         "参加傾向",
         "PL",
         "種族",
+        "種族\nマイナーチェンジ除く",
         "年齢",
         "性別",
         "信仰",
@@ -89,7 +93,19 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         row.append(player["name"])
 
         # 種族
-        row.append(player["race"])
+        minorRace: str = player["race"]
+        if "ナイトメア" not in minorRace:
+            # ナイトメア以外はかっこの中身のみ表示
+            minorRaceMatch: Union[Match[str], None] = search(
+                r"(?<=（)(.+)(?=）)", player["race"]
+            )
+            if minorRaceMatch is not None:
+                minorRace = minorRaceMatch.group()
+
+        row.append(minorRace)
+
+        # 種族(マイナーチェンジ除く)
+        row.append(sub(r"（.+）", "", player["race"]))
 
         # 年齢
         row.append(player["age"])
