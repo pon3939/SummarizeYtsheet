@@ -98,8 +98,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
             "初期能力値合計",
             "初期能力期待値",
             "期待値との差",
-            "初期作成時に振る\nダイスの数",
-            "初期能力固定値分",
             "ダイス平均",
             "備考",
         ]
@@ -178,17 +176,10 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         # 期待値との差
         row.append(totalBaseStatus - expectedStatus)
 
-        # 初期作成時に振るダイスの数
-        row.append(racesStatus["diceCount"])
-
-        # 初期能力固定値分
-        fixedStatus: int = expectedHtb + racesStatus["fixedValue"]
-        row.append(fixedStatus)
-
         # ダイス平均
-        diceAverage: float = (totalBaseStatus - fixedStatus) / racesStatus[
-            "diceCount"
-        ]
+        diceAverage: float = (
+            totalBaseStatus - expectedHtb - racesStatus["fixedValue"]
+        ) / racesStatus["diceCount"]
         row.append(diceAverage)
 
         # 備考
