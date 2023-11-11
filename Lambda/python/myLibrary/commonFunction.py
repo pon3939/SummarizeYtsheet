@@ -11,9 +11,7 @@ from gspread import Client, Spreadsheet, authorize
 """
 
 
-def OpenSpreadsheet(
-    googleServiceAccount: dict, spreadsheetId: str
-) -> Spreadsheet:
+def OpenSpreadsheet(googleServiceAccount: dict, spreadsheetId: str) -> Spreadsheet:
     """
 
     スプレッドシートを開く
@@ -43,9 +41,7 @@ def ConvertToVerticalHeader(horizontalHeader: str) -> str:
         str: 縦書きヘッダー
     """
 
-    return (
-        horizontalHeader.replace("ー", "｜").replace("(", "︵").replace(")", "︶")
-    )
+    return horizontalHeader.replace("ー", "｜").replace("(", "︵").replace(")", "︶")
 
 
 @singledispatch

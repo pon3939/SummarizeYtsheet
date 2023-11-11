@@ -205,9 +205,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         # ダイス平均4.5を超える場合は赤文字
         if diceAverage > 4.5:
             diceAverageIndex: int = header.index("ダイス平均") + 1
-            diceAverageTextFormat: dict = (
-                commonConstant.DEFAULT_TEXT_FORMAT.copy()
-            )
+            diceAverageTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
             diceAverageTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 1, "green": 0, "blue": 0}
             }
@@ -261,6 +259,4 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     worksheet.freeze(1, 2)
 
     # フィルター
-    worksheet.set_basic_filter(
-        1, 1, len(updateData), len(header)  # type: ignore
-    )
+    worksheet.set_basic_filter(1, 1, len(updateData), len(header))  # type: ignore

@@ -5,10 +5,7 @@ from typing import Union
 from boto3 import client
 from myLibrary import commonFunction
 from mypy_boto3_dynamodb.client import DynamoDBClient
-from mypy_boto3_dynamodb.type_defs import (
-    BatchWriteItemOutputTypeDef,
-    ScanOutputTypeDef,
-)
+from mypy_boto3_dynamodb.type_defs import BatchWriteItemOutputTypeDef, ScanOutputTypeDef
 
 """
 PlayerCharactersに登録
@@ -120,9 +117,7 @@ def insertPlayerCharacters(
             "player": playerCharacter["player"],
             "url": playerCharacter["url"],
         }
-        requestItem["PutRequest"][
-            "Item"
-        ] = commonFunction.ConvertJsonToDynamoDB(item)
+        requestItem["PutRequest"]["Item"] = commonFunction.ConvertJsonToDynamoDB(item)
         requestItems.append(requestItem)
         id += 1
 
@@ -131,6 +126,4 @@ def insertPlayerCharacters(
     )
 
     while response["UnprocessedItems"] != {}:
-        response = DynamoDb.batch_write_item(
-            RequestItems=response["UnprocessedItems"]
-        )
+        response = DynamoDb.batch_write_item(RequestItems=response["UnprocessedItems"])
