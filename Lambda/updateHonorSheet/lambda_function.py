@@ -4,7 +4,7 @@ from gspread import Spreadsheet, Worksheet, utils
 from myLibrary import commonConstant, commonFunction, expStatus
 
 """
-流派シートを更新
+名誉点・流派シートを更新
 """
 
 
@@ -32,7 +32,7 @@ def lambda_handler(event: dict, context):
     spreadsheet: Spreadsheet = commonFunction.OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
-    worksheet: Worksheet = spreadsheet.worksheet("流派")
+    worksheet: Worksheet = spreadsheet.worksheet("名誉点・流派")
 
     # 更新
     UpdateSheet(worksheet, players)
@@ -55,6 +55,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         "No.",
         "PC",
         "参加傾向",
+        "冒険者ランク",
+        "累計名誉点",
         "2.0流派",
         "未加入",
         "加入数",
@@ -104,6 +106,12 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
             if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
             else commonConstant.ENTRY_TREND_ACTIVE
         )
+
+        # 冒険者ランク
+        row.append(player["adventurerRank"])
+
+        # 累計名誉点
+        row.append(player["totalHonor"])
 
         # 2.0流派
         is20String: str = ""

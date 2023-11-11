@@ -259,15 +259,15 @@
           }
         },
         {
-          "StartAt": "Update Style Sheet",
+          "StartAt": "Update Honor Sheet",
           "States": {
-            "Update Style Sheet": {
+            "Update Honor Sheet": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke",
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
-                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateStyleSheet:$LATEST"
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:UpdateHonorSheet:$LATEST"
               },
               "Retry": [
                 {
