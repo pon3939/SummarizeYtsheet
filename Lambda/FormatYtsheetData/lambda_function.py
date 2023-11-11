@@ -130,9 +130,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     return commonFunction.ConvertDynamoDBToJson(players)
 
 
-def FormatPlayers(
-    players: "list[dict]", maxExp: int, minimumExp: int
-) -> "list[dict]":
+def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[dict]":
     """プレイヤー情報を整形
 
     State間のPayloadサイズは最大256KB
@@ -145,9 +143,7 @@ def FormatPlayers(
         list[dict]: 整形されたプレイヤー情報
     """
 
-    totalFumbleRegexp: str = "|".join(
-        list(map(NormalizeString, FUMBLE_TITLES))
-    )
+    totalFumbleRegexp: str = "|".join(list(map(NormalizeString, FUMBLE_TITLES)))
     fumbleCountRegexps: "list[str]" = list(
         map(
             lambda x: rf"(?<={x})\d+",
@@ -171,41 +167,21 @@ def FormatPlayers(
         formatedPlayer["age"] = ytsheetJson.get("age", "")
         formatedPlayer["gender"] = ytsheetJson.get("gender", "")
         formatedPlayer["birth"] = ytsheetJson.get("birth", "")
-        formatedPlayer["combatFeatsLv1"] = ytsheetJson.get(
-            "combatFeatsLv1", ""
-        )
-        formatedPlayer["combatFeatsLv3"] = ytsheetJson.get(
-            "combatFeatsLv3", ""
-        )
-        formatedPlayer["combatFeatsLv5"] = ytsheetJson.get(
-            "combatFeatsLv5", ""
-        )
-        formatedPlayer["combatFeatsLv7"] = ytsheetJson.get(
-            "combatFeatsLv7", ""
-        )
-        formatedPlayer["combatFeatsLv9"] = ytsheetJson.get(
-            "combatFeatsLv9", ""
-        )
-        formatedPlayer["combatFeatsLv11"] = ytsheetJson.get(
-            "combatFeatsLv11", ""
-        )
-        formatedPlayer["combatFeatsLv13"] = ytsheetJson.get(
-            "combatFeatsLv13", ""
-        )
-        formatedPlayer["combatFeatsLv15"] = ytsheetJson.get(
-            "combatFeatsLv15", ""
-        )
-        formatedPlayer["combatFeatsLv1bat"] = ytsheetJson.get(
-            "combatFeatsLv1bat", ""
-        )
+        formatedPlayer["combatFeatsLv1"] = ytsheetJson.get("combatFeatsLv1", "")
+        formatedPlayer["combatFeatsLv3"] = ytsheetJson.get("combatFeatsLv3", "")
+        formatedPlayer["combatFeatsLv5"] = ytsheetJson.get("combatFeatsLv5", "")
+        formatedPlayer["combatFeatsLv7"] = ytsheetJson.get("combatFeatsLv7", "")
+        formatedPlayer["combatFeatsLv9"] = ytsheetJson.get("combatFeatsLv9", "")
+        formatedPlayer["combatFeatsLv11"] = ytsheetJson.get("combatFeatsLv11", "")
+        formatedPlayer["combatFeatsLv13"] = ytsheetJson.get("combatFeatsLv13", "")
+        formatedPlayer["combatFeatsLv15"] = ytsheetJson.get("combatFeatsLv15", "")
+        formatedPlayer["combatFeatsLv1bat"] = ytsheetJson.get("combatFeatsLv1bat", "")
 
         # 数値
         formatedPlayer["level"] = int(ytsheetJson.get("level", "0"))
         exp = int(ytsheetJson.get("expTotal", "0"))
         formatedPlayer["exp"] = exp
-        formatedPlayer["growthTimes"] = int(
-            ytsheetJson.get("historyGrowTotal", "0")
-        )
+        formatedPlayer["growthTimes"] = int(ytsheetJson.get("historyGrowTotal", "0"))
 
         # 特殊な変数
         formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
@@ -248,9 +224,7 @@ def FormatPlayers(
         strUpdatetime: Union[str, None] = player.get("updateTime")
         if strUpdatetime is not None:
             # UTCをJSTに変換
-            utc: datetime = datetime.fromisoformat(
-                strUpdatetime.replace("Z", "+00:00")
-            )
+            utc: datetime = datetime.fromisoformat(strUpdatetime.replace("Z", "+00:00"))
             jst: datetime = utc.astimezone(timezone("Asia/Tokyo"))
             formatedPlayer["updateTime"] = jst.strftime("%Y/%m/%d %H:%M:%S")
 
@@ -267,9 +241,7 @@ def FormatPlayers(
         formatedPlayer["spirit"] = int(ytsheetJson.get("sttBaseSpi", "0"))
         for statusKey in commonConstant.STATUS_KEYS:
             status = {}
-            status["baseStatus"] = int(
-                ytsheetJson.get(statusKey["baseStatus"], "0")
-            )
+            status["baseStatus"] = int(ytsheetJson.get(statusKey["baseStatus"], "0"))
             status["increasedStatus"] = int(
                 ytsheetJson.get(statusKey["increasedStatus"], "0")
             )
@@ -284,18 +256,14 @@ def FormatPlayers(
         # 秘伝
         mysticArtsNum: int = int(ytsheetJson.get("mysticArtsNum", "0"))
         for i in range(1, mysticArtsNum + 1):
-            style: str = FindStyleFormalName(
-                ytsheetJson.get(f"mysticArts{i}", "")
-            )
+            style: str = FindStyleFormalName(ytsheetJson.get(f"mysticArts{i}", ""))
             if style != "" and style not in formatedPlayer["styles"]:
                 formatedPlayer["styles"].append(style)
 
         # 名誉アイテム
         honorItemsNum: int = int(ytsheetJson.get("honorItemsNum", "0"))
         for i in range(1, honorItemsNum + 1):
-            style: str = FindStyleFormalName(
-                ytsheetJson.get(f"honorItem{i}", "")
-            )
+            style: str = FindStyleFormalName(ytsheetJson.get(f"honorItem{i}", ""))
             if style != "" and style not in formatedPlayer["styles"]:
                 formatedPlayer["styles"].append(style)
 
@@ -347,9 +315,7 @@ def FormatPlayers(
                 normalizedTitle = NormalizeString(
                     ytsheetJson.get(f"history{i}Title", "")
                 )
-                normalizedDate = NormalizeString(
-                    ytsheetJson.get(f"history{i}Date", "")
-                )
+                normalizedDate = NormalizeString(ytsheetJson.get(f"history{i}Date", ""))
                 normalizedMember = NormalizeString(
                     ytsheetJson.get(f"history{i}Member", "")
                 )
@@ -380,9 +346,7 @@ def FormatPlayers(
                 # ピンゾロ回数を集計
                 normalizedNote = NormalizeString(note)
                 for fumbleCountRegexp in fumbleCountRegexps:
-                    fumbleCountMatch = search(
-                        fumbleCountRegexp, normalizedNote
-                    )
+                    fumbleCountMatch = search(fumbleCountRegexp, normalizedNote)
                     if fumbleCountMatch is not None:
                         fumbleCount += int(fumbleCountMatch.group(0))
                         break
