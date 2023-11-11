@@ -73,7 +73,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     )
     updateData.append(displayHeaders)
 
-    notTotalColumnCount: int = 3
+    notTotalColumnCount: int = 5
     totalColumnCount: int = len(headers) - notTotalColumnCount
     total: list = ([None] * notTotalColumnCount) + ([0] * totalColumnCount)
     formats: "list[dict]" = []
