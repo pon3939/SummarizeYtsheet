@@ -49,6 +49,10 @@ AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要な
 
 PlayerCharactersテーブルを登録するよ
 
+### InsertLevelCaps
+
+LevelCapsテーブルを登録するよ
+
 ## StepFunctions
 
 ### SummarizeYtsheet

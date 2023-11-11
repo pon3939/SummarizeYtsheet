@@ -8,7 +8,6 @@ from re import escape, search, sub
 from typing import Union
 from unicodedata import normalize
 
-from boto3 import client
 from myLibrary import commonConstant, commonFunction, expStatus
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import ScanOutputTypeDef
@@ -17,9 +16,6 @@ from pytz import timezone
 """
 プレイヤー情報を整形
 """
-
-# AWSのリージョン
-AWS_REGION: str = "ap-northeast-1"
 
 # 自分が開催したときのGM名
 SELF_GAME_MASTER_NAMES: "list[str]" = [
@@ -105,7 +101,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         list[dict]: プレイヤー情報
     """
 
-    dynamodb: DynamoDBClient = client("dynamodb", region_name=AWS_REGION)
+    dynamodb: DynamoDBClient = commonFunction.InitDb()
     expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
         {":seasonId": seasonId}
     )

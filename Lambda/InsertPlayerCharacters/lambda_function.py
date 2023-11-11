@@ -2,7 +2,6 @@
 
 from typing import Union
 
-from boto3 import client
 from myLibrary import commonFunction
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import BatchWriteItemOutputTypeDef, ScanOutputTypeDef
@@ -13,9 +12,6 @@ PlayerCharactersに登録
 
 # PCテーブル
 DynamoDb: Union[DynamoDBClient, None] = None
-
-# AWSのリージョン
-AWS_REGION: str = "ap-northeast-1"
 
 # PCのテーブル名
 TABLE_NAME: str = "PlayerCharacters"
@@ -31,20 +27,14 @@ def lambda_handler(event, context):
         context awslambdaric.lambda_context.LambdaContext: コンテキスト
     """
 
+    global DynamoDb
+
     seasonId: int = event["SeasonId"]
     playerCharacters: list[dict] = event["PlayerCharacters"]
 
-    initDb()
+    DynamoDb = commonFunction.InitDb()
     playerCharacterId: int = GetNewId(seasonId)
     insertPlayerCharacters(playerCharacters, seasonId, playerCharacterId)
-
-
-def initDb():
-    """DBに接続する"""
-
-    global DynamoDb
-
-    DynamoDb = client("dynamodb", region_name=AWS_REGION)
 
 
 def GetNewId(seasonId: int) -> int:
@@ -67,7 +57,7 @@ def GetNewId(seasonId: int) -> int:
         {":seasonId": seasonId}
     )
     scanOptions: dict = {
-        "TableName": "PlayerCharacters",
+        "TableName": TABLE_NAME,
         "ProjectionExpression": "id",
         "FilterExpression": "seasonId = :seasonId",
         "ExpressionAttributeValues": expressionAttributeValues,
@@ -97,7 +87,7 @@ def insertPlayerCharacters(
     """PCを挿入する
 
     Args:
-        playerCharacters: list[dict]: シーズンID
+        playerCharacters: list[dict]: PC情報
         seasonId: int: シーズンID
         playerCharacterId: int: ID
     """
@@ -122,7 +112,7 @@ def insertPlayerCharacters(
         id += 1
 
     response: BatchWriteItemOutputTypeDef = DynamoDb.batch_write_item(
-        RequestItems={"PlayerCharacters": requestItems}
+        RequestItems={TABLE_NAME: requestItems}
     )
 
     while response["UnprocessedItems"] != {}:

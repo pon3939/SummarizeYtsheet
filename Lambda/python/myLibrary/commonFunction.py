@@ -3,12 +3,21 @@
 
 from functools import singledispatch
 
+from boto3 import client
 from google.oauth2 import service_account
 from gspread import Client, Spreadsheet, authorize
+from myLibrary import commonConstant
+from mypy_boto3_dynamodb.client import DynamoDBClient
 
 """
 汎用関数
 """
+
+
+def InitDb() -> DynamoDBClient:
+    """DBに接続する"""
+
+    return client("dynamodb", region_name=commonConstant.AWS_REGION)
 
 
 def OpenSpreadsheet(googleServiceAccount: dict, spreadsheetId: str) -> Spreadsheet:
