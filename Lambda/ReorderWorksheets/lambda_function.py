@@ -35,7 +35,7 @@ def lambda_handler(event: dict, context):
     reorderedSheets.append(spreadsheet.worksheet("技能"))
     reorderedSheets.append(spreadsheet.worksheet("能力値"))
     reorderedSheets.append(spreadsheet.worksheet("戦闘特技"))
-    reorderedSheets.append(spreadsheet.worksheet("流派"))
+    reorderedSheets.append(spreadsheet.worksheet("名誉点・流派"))
     reorderedSheets.append(spreadsheet.worksheet("アビスカース"))
 
     # 並び替え
