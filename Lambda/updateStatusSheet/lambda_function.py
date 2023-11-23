@@ -92,6 +92,12 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     header.extend(
         [
             "成長",
+            "HP",
+            "MP",
+            "生命抵抗力",
+            "精神抵抗力",
+            "魔物知識",
+            "先制力",
             "ダイス平均",
             "備考",
         ]
@@ -147,6 +153,24 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # 成長
         row.append(player["growthTimes"])
+
+        # HP
+        row.append(player["hp"])
+
+        # MP
+        row.append(player["mp"])
+
+        # 生命抵抗力
+        row.append(player["lifeResistance"])
+
+        # 精神抵抗力
+        row.append(player["spiritResistance"])
+
+        # 魔物知識
+        row.append(player["monsterKnowledge"])
+
+        # 先制力
+        row.append(player["initiative"])
 
         # ダイス平均
         diceAverage: float = (

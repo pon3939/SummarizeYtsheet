@@ -180,6 +180,12 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
         formatedPlayer["exp"] = exp
         formatedPlayer["growthTimes"] = int(ytsheetJson.get("historyGrowTotal", "0"))
         formatedPlayer["totalHonor"] = int(ytsheetJson.get("historyHonorTotal", "0"))
+        formatedPlayer["hp"] = int(ytsheetJson.get("hpTotal", "0"))
+        formatedPlayer["mp"] = int(ytsheetJson.get("mpTotal", "0"))
+        formatedPlayer["lifeResistance"] = int(ytsheetJson.get("vitResistTotal", "0"))
+        formatedPlayer["spiritResistance"] = int(ytsheetJson.get("mndResistTotal", "0"))
+        formatedPlayer["monsterKnowledge"] = int(ytsheetJson.get("monsterLore", "0"))
+        formatedPlayer["initiative"] = int(ytsheetJson.get("initiative", "0"))
 
         # 特殊な変数
         formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
