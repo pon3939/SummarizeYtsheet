@@ -196,7 +196,7 @@
                     },
                     "Wait": {
                       "Type": "Wait",
-                      "Seconds": 15,
+                      "Seconds": 10,
                       "End": true
                     }
                   }
