@@ -85,19 +85,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         "種族",
     ]
     statuseHeaders: list[str] = []
-    statuseDetailHeaders: list[str] = []
     for statusKey in commonConstant.STATUS_KEYS:
         statusName: str = statusKey["name"]
         statuseHeaders.append(statusName)
-        statuseDetailHeaders.append(statusName + "詳細")
     header.extend(statuseHeaders)
-    header.extend(statuseDetailHeaders)
     header.extend(
         [
             "成長",
-            "初期能力値合計",
-            "初期能力期待値",
-            "期待値との差",
             "ダイス平均",
             "備考",
         ]
@@ -112,22 +106,15 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         expectedHtb: int = 0
         totalBaseStatus: int = 0
         statuses: list[int] = []
-        statusTexts: list[str] = []
         for statusKey in commonConstant.STATUS_KEYS:
             status: dict = player[statusKey["key"]]
             htb: int = player[statusKey["htb"]]
             baseStatus: int = htb + status["baseStatus"]
             statusPoint: int = baseStatus + status["increasedStatus"]
-            statusText: str = f'{baseStatus}+{status["increasedStatus"]}'
-            if status["additionalStatus"] > 0:
-                # 増強分が存在する場合のみ詳細に表示する
-                statusPoint += status["additionalStatus"]
-                statusText += f'+{status["additionalStatus"]}'
-
+            statusPoint += status["additionalStatus"]
             expectedHtb += htb
             totalBaseStatus += baseStatus
             statuses.append(statusPoint)
-            statusTexts.append(statusText)
 
         # 初期能力期待値を計算
         isAdventurer: bool = player["birth"] == "冒険者"
@@ -138,11 +125,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # 希少種とナイトメアの種族名は整形
         racesStatus: dict = RACES_STATUSES[sub("（.*", "", race)]
-        expectedStatus: float = (
-            expectedHtb
-            + DICE_EXPECTED_VALUE * racesStatus["diceCount"]
-            + racesStatus["fixedValue"]
-        )
 
         # No.
         row.append(player["no"])
@@ -162,19 +144,9 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # 各能力値
         row.extend(statuses)
-        row.extend(statusTexts)
 
         # 成長
         row.append(player["growthTimes"])
-
-        # 初期能力値合計
-        row.append(totalBaseStatus)
-
-        # 初期能力期待値
-        row.append(expectedStatus)
-
-        # 期待値との差
-        row.append(totalBaseStatus - expectedStatus)
 
         # ダイス平均
         diceAverage: float = (
