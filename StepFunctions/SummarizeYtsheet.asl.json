@@ -28,36 +28,36 @@
                   }
                 }
               },
-              "Next": "Scan Players",
+              "Next": "Select Players",
               "ResultSelector": {
                 "Items": [],
                 "SeasonId.$": "$.Item.seasonId.N"
               }
             },
-            "Scan Players": {
+            "Select Players": {
               "Type": "Task",
+              "Next": "Scan Loop",
               "Parameters": {
                 "TableName": "PlayerCharacters",
                 "ProjectionExpression": "id,#url",
                 "ExpressionAttributeNames": {
                   "#url": "url"
                 },
-                "FilterExpression": "seasonId = :seasonId",
+                "KeyConditionExpression": "seasonId = :seasonId",
                 "ExpressionAttributeValues": {
                   ":seasonId": {
                     "N.$": "$.SeasonId"
                   }
                 }
               },
-              "Resource": "arn:aws:states:::aws-sdk:dynamodb:scan",
-              "Next": "Scan Loop",
-              "ResultPath": "$.scannedResult"
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+              "ResultPath": "$.Players"
             },
             "Scan Loop": {
               "Type": "Choice",
               "Choices": [
                 {
-                  "Variable": "$.scannedResult.LastEvaluatedKey",
+                  "Variable": "$.Players.LastEvaluatedKey",
                   "IsPresent": true,
                   "Next": "Join Items"
                 }
@@ -68,7 +68,7 @@
               "Type": "Pass",
               "Next": "Flat Last Items",
               "Parameters": {
-                "Items.$": "States.Array($.Items, $.scannedResult.Items)",
+                "Items.$": "States.Array($.Items, $.Players.Items)",
                 "SeasonId.$": "$.SeasonId"
               }
             },
@@ -94,22 +94,23 @@
               "Type": "Pass",
               "Next": "Flat Items",
               "Parameters": {
-                "Items.$": "States.Array($.Items, $.scannedResult.Items)",
-                "LastEvaluatedKey.$": "$.scannedResult.LastEvaluatedKey",
+                "Items.$": "States.Array($.Items, $.Players.Items)",
+                "LastEvaluatedKey.$": "$.Players.LastEvaluatedKey",
                 "SeasonId.$": "$.SeasonId"
               }
             },
             "Flat Items": {
               "Type": "Pass",
-              "Next": "Scan Separated Players",
+              "Next": "Select Separated Players",
               "Parameters": {
                 "Items.$": "$.Items[*][*]",
                 "LastEvaluatedKey.$": "$.LastEvaluatedKey",
                 "SeasonId.$": "$.SeasonId"
               }
             },
-            "Scan Separated Players": {
+            "Select Separated Players": {
               "Type": "Task",
+              "Next": "Scan Loop",
               "Parameters": {
                 "TableName": "PlayerCharacters",
                 "ExclusiveStartKey.$": "$.LastEvaluatedKey",
@@ -117,16 +118,15 @@
                 "ExpressionAttributeNames": {
                   "#url": "url"
                 },
-                "FilterExpression": "seasonId = :seasonId",
+                "KeyConditionExpression": "seasonId = :seasonId",
                 "ExpressionAttributeValues": {
                   ":seasonId": {
                     "N.$": "$.SeasonId"
                   }
                 }
               },
-              "Resource": "arn:aws:states:::aws-sdk:dynamodb:scan",
-              "Next": "Scan Loop",
-              "ResultPath": "$.scannedResult"
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+              "ResultPath": "$.Players"
             },
             "Get Ytsheet Data Loop": {
               "Type": "Choice",
