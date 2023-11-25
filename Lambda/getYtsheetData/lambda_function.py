@@ -40,4 +40,4 @@ def lambda_handler(event: dict, context) -> dict:
     # 不要なデータを削除
     ytsheetJson.pop("imageCompressed", None)
 
-    return {"id": id, "ytsheetJson": dumps(ytsheetJson)}
+    return {"id": id, "ytsheetJson": dumps(ytsheetJson, ensure_ascii=False)}
