@@ -36,7 +36,7 @@
             },
             "Select Players": {
               "Type": "Task",
-              "Next": "Scan Loop",
+              "Next": "Select Players Loop",
               "Parameters": {
                 "TableName": "PlayerCharacters",
                 "ProjectionExpression": "id,#url",
@@ -53,7 +53,7 @@
               "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
               "ResultPath": "$.Players"
             },
-            "Scan Loop": {
+            "Select Players Loop": {
               "Type": "Choice",
               "Choices": [
                 {
@@ -110,7 +110,7 @@
             },
             "Select Separated Players": {
               "Type": "Task",
-              "Next": "Scan Loop",
+              "Next": "Select Players Loop",
               "Parameters": {
                 "TableName": "PlayerCharacters",
                 "ExclusiveStartKey.$": "$.LastEvaluatedKey",
