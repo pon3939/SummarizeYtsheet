@@ -152,6 +152,17 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
                 }
             )
 
+            # バトルダンサー未習得もグレーで表示
+            if player["skills"].get("lvBat", 0) == 0:
+                battleDancerIndex: int = headers.index("バトルダンサー") + 1
+                battleDancerA1: str = utils.rowcol_to_a1(rowIndex, battleDancerIndex)
+                formats.append(
+                    {
+                        "range": f"{battleDancerA1}:{battleDancerA1}",
+                        "format": {"textFormat": grayOutTextFormat},
+                    }
+                )
+
     # クリア
     worksheet.clear()
 
