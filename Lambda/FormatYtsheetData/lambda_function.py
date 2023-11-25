@@ -10,7 +10,7 @@ from unicodedata import normalize
 
 from myLibrary import commonConstant, commonFunction, expStatus
 from mypy_boto3_dynamodb.client import DynamoDBClient
-from mypy_boto3_dynamodb.type_defs import ScanOutputTypeDef
+from mypy_boto3_dynamodb.type_defs import QueryOutputTypeDef
 from pytz import timezone
 
 """
@@ -105,21 +105,21 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
         {":seasonId": seasonId}
     )
-    scanOptions: dict = {
+    queryOptions: dict = {
         "TableName": "PlayerCharacters",
         "ProjectionExpression": "id, player, updateTime, #url, ytsheetJson",
         "ExpressionAttributeNames": {"#url": "url"},
-        "FilterExpression": "seasonId = :seasonId",
+        "KeyConditionExpression": "seasonId = :seasonId",
         "ExpressionAttributeValues": expressionAttributeValues,
     }
-    response: ScanOutputTypeDef = dynamodb.scan(**scanOptions)
+    response: QueryOutputTypeDef = dynamodb.query(**queryOptions)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
-        scanOptions["ExclusiveStartKey"] = response["LastEvaluatedKey"]
-        response = dynamodb.scan(**scanOptions)
+        queryOptions["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+        response = dynamodb.query(**queryOptions)
     players.extend(response["Items"])
 
     # 使いやすいようにフォーマット

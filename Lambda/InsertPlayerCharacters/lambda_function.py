@@ -4,7 +4,10 @@ from typing import Union
 
 from myLibrary import commonFunction
 from mypy_boto3_dynamodb.client import DynamoDBClient
-from mypy_boto3_dynamodb.type_defs import BatchWriteItemOutputTypeDef, ScanOutputTypeDef
+from mypy_boto3_dynamodb.type_defs import (
+    BatchWriteItemOutputTypeDef,
+    QueryOutputTypeDef,
+)
 
 """
 PlayerCharactersに登録
@@ -56,20 +59,20 @@ def GetNewId(seasonId: int) -> int:
     expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
         {":seasonId": seasonId}
     )
-    scanOptions: dict = {
+    queryOptions: dict = {
         "TableName": TABLE_NAME,
         "ProjectionExpression": "id",
-        "FilterExpression": "seasonId = :seasonId",
+        "KeyConditionExpression": "seasonId = :seasonId",
         "ExpressionAttributeValues": expressionAttributeValues,
     }
-    response: ScanOutputTypeDef = DynamoDb.scan(**scanOptions)
+    response: QueryOutputTypeDef = DynamoDb.query(**queryOptions)
 
     # ページ分割分を取得
     players: "list[dict]" = list()
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
-        scanOptions["ExclusiveStartKey"] = response["LastEvaluatedKey"]
-        response = DynamoDb.scan(**scanOptions)
+        queryOptions["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+        response = DynamoDb.query(**queryOptions)
     players.extend(response["Items"])
 
     if len(players) == 0:
