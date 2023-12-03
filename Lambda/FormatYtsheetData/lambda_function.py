@@ -271,6 +271,13 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
             if style != "" and style not in formatedPlayer["styles"]:
                 formatedPlayer["styles"].append(style)
 
+        # 不名誉詳細
+        disHonorItemsNum: int = int(ytsheetJson.get("dishonorItemsNum", "0"))
+        for i in range(1, disHonorItemsNum + 1):
+            style: str = FindStyleFormalName(ytsheetJson.get(f"dishonorItem{i}", ""))
+            if style != "" and style not in formatedPlayer["styles"]:
+                formatedPlayer["styles"].append(style)
+
         # アビスカースを初期化
         formatedPlayer["abyssCurses"] = []
 
