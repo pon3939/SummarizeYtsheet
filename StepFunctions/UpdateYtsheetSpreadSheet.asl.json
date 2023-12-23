@@ -32,9 +32,9 @@
               "Type": "Task",
               "Parameters": {
                 "TableName": "LevelCaps",
-                "KeyConditionExpression": "seasonId = :seasonId AND startDate <= :startDate",
+                "KeyConditionExpression": "seasonId = :seasonId AND startDatetime <= :startDatetime",
                 "ExpressionAttributeValues": {
-                  ":startDate": {
+                  ":startDatetime": {
                     "S.$": "$$.State.EnteredTime"
                   },
                   ":seasonId": {
