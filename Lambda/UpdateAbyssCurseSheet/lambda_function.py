@@ -122,6 +122,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
     # クリア
     worksheet.clear()
+    worksheet.clear_basic_filter()
 
     # 更新
     worksheet.update(updateData, value_input_option="USER_ENTERED")
