@@ -291,21 +291,15 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
                 FindAbyssCurses(ytsheetJson.get(f"weapon{i}Note", ""))
             )
 
-        # 盾
-        formatedPlayer["abyssCurses"].extend(
-            FindAbyssCurses(ytsheetJson.get("shield1Name", ""))
-        )
-        formatedPlayer["abyssCurses"].extend(
-            FindAbyssCurses(ytsheetJson.get("shield1Note", ""))
-        )
-
         # 鎧
-        formatedPlayer["abyssCurses"].extend(
-            FindAbyssCurses(ytsheetJson.get("armour1Name", ""))
-        )
-        formatedPlayer["abyssCurses"].extend(
-            FindAbyssCurses(ytsheetJson.get("armour1Note", ""))
-        )
+        armourNum: int = int(ytsheetJson.get("armourNum", "0"))
+        for i in range(1, armourNum + 1):
+            formatedPlayer["abyssCurses"].extend(
+                FindAbyssCurses(ytsheetJson.get(f"armour{i}Name", ""))
+            )
+            formatedPlayer["abyssCurses"].extend(
+                FindAbyssCurses(ytsheetJson.get(f"armour{i}Note", ""))
+            )
 
         # 所持品
         formatedPlayer["abyssCurses"].extend(
