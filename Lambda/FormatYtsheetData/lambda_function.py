@@ -31,7 +31,7 @@ SELF_GAME_MASTER_NAMES: "list[str]" = [
 ]
 
 # 死亡時の備考
-DIED_REGEXP: str = "|".join(list(map(escape, ["「死亡」", "(死亡)"])))
+DIED_REGEXP: str = "死亡"
 
 # ピンゾロの表記ゆれ対応
 FUMBLE_TITLES: "list[str]" = [
