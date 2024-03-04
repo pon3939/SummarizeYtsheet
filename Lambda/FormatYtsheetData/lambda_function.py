@@ -225,10 +225,10 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
 
         # 更新日時をスプレッドシートが理解できる形式に変換
         formatedPlayer["updateTime"] = None
-        strUpdatetime: Union[str, None] = player.get("updateTime")
-        if strUpdatetime is not None:
+        strUpdateTime: Union[str, None] = player.get("updateTime")
+        if strUpdateTime is not None:
             # UTCをJSTに変換
-            utc: datetime = datetime.fromisoformat(strUpdatetime.replace("Z", "+00:00"))
+            utc: datetime = datetime.fromisoformat(strUpdateTime)
             jst: datetime = utc.astimezone(timezone("Asia/Tokyo"))
             formatedPlayer["updateTime"] = jst.strftime("%Y/%m/%d %H:%M:%S")
 

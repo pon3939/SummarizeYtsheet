@@ -166,33 +166,8 @@
                           "BackoffRate": 2
                         }
                       ],
-                      "Next": "Update Player",
+                      "Next": "Wait",
                       "ResultPath": "$.GetResult"
-                    },
-                    "Update Player": {
-                      "Type": "Task",
-                      "Resource": "arn:aws:states:::dynamodb:updateItem",
-                      "Parameters": {
-                        "TableName": "PlayerCharacters",
-                        "Key": {
-                          "seasonId": {
-                            "N.$": "$.SeasonId"
-                          },
-                          "id": {
-                            "N.$": "$.GetResult.Payload.id"
-                          }
-                        },
-                        "UpdateExpression": "SET ytsheetJson = :ytsheetJson, updateTime = :updateTime",
-                        "ExpressionAttributeValues": {
-                          ":ytsheetJson": {
-                            "S.$": "$.GetResult.Payload.ytsheetJson"
-                          },
-                          ":updateTime": {
-                            "S.$": "$$.State.EnteredTime"
-                          }
-                        }
-                      },
-                      "Next": "Wait"
                     },
                     "Wait": {
                       "Type": "Wait",
