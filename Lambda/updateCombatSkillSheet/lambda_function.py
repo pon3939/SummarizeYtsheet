@@ -78,8 +78,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # 参加傾向
         row.append(
-            commonConstant.ENTRY_TREND_DEACTIVE
-            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            commonConstant.ENTRY_TREND_INACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.INACTIVE
             else commonConstant.ENTRY_TREND_ACTIVE
         )
 

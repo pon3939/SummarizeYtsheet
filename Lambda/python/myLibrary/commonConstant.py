@@ -717,4 +717,4 @@ ABYSS_CURSES: "list[str]" = [
 
 # 参加傾向のセルの値
 ENTRY_TREND_ACTIVE: str = "アクティブ"
-ENTRY_TREND_DEACTIVE: str = ""
+ENTRY_TREND_INACTIVE: str = ""

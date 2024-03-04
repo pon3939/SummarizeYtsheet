@@ -84,8 +84,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # 参加傾向
         row.append(
-            commonConstant.ENTRY_TREND_DEACTIVE
-            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            commonConstant.ENTRY_TREND_INACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.INACTIVE
             else commonConstant.ENTRY_TREND_ACTIVE
         )
 
@@ -128,7 +128,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
                     "format": {"textFormat": expTextFormat},
                 }
             )
-        elif player["expStatus"] == expStatus.ExpStatus.DEACTIVE:
+        elif player["expStatus"] == expStatus.ExpStatus.INACTIVE:
             expTextFormat["foregroundColorStyle"] = {
                 "rgbColor": {"red": 0, "green": 0, "blue": 1}
             }

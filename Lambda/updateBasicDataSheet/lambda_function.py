@@ -82,8 +82,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         row.append(player["characterName"])
 
         # 参加傾向
-        entryTrend: str = commonConstant.ENTRY_TREND_DEACTIVE
-        if player["expStatus"] != expStatus.ExpStatus.DEACTIVE:
+        entryTrend: str = commonConstant.ENTRY_TREND_INACTIVE
+        if player["expStatus"] != expStatus.ExpStatus.INACTIVE:
             entryTrend = commonConstant.ENTRY_TREND_ACTIVE
             activeCount += 1
 

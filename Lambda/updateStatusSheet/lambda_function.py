@@ -84,11 +84,11 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         "参加傾向",
         "種族",
     ]
-    statuseHeaders: list[str] = []
+    statusHeaders: list[str] = []
     for statusKey in commonConstant.STATUS_KEYS:
         statusName: str = statusKey["name"]
-        statuseHeaders.append(statusName)
-    header.extend(statuseHeaders)
+        statusHeaders.append(statusName)
+    header.extend(statusHeaders)
     header.extend(
         [
             "成長",
@@ -140,8 +140,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
 
         # 参加傾向
         row.append(
-            commonConstant.ENTRY_TREND_DEACTIVE
-            if player["expStatus"] == expStatus.ExpStatus.DEACTIVE
+            commonConstant.ENTRY_TREND_INACTIVE
+            if player["expStatus"] == expStatus.ExpStatus.INACTIVE
             else commonConstant.ENTRY_TREND_ACTIVE
         )
 

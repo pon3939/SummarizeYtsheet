@@ -4,11 +4,12 @@
 from datetime import datetime
 from itertools import chain
 from json import loads
-from re import escape, search, sub
+from re import search, sub
 from typing import Union
 from unicodedata import normalize
 
 from myLibrary import commonConstant, commonFunction, expStatus
+from myLibrary.constant import tableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import QueryOutputTypeDef
 from pytz import timezone
@@ -74,8 +75,8 @@ def lambda_handler(event: dict, context) -> dict:
         dict: 整形されたプレイヤー情報
     """
 
-    environmet: dict = event["Environment"]
-    seasonId: int = int(environmet["SeasonId"])
+    environment: dict = event["Environment"]
+    seasonId: int = int(environment["SeasonId"])
     levelCap: dict = event["LevelCap"]
     maxExp: int = int(levelCap["MaxExp"])
     minimumExp: int = int(levelCap["MinimumExp"])
@@ -106,7 +107,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         {":seasonId": seasonId}
     )
     queryOptions: dict = {
-        "TableName": "PlayerCharacters",
+        "TableName": tableName.PLAYER_CHARACTERS,
         "ProjectionExpression": "id, player, updateTime, #url, ytsheetJson",
         "ExpressionAttributeNames": {"#url": "url"},
         "KeyConditionExpression": "seasonId = :seasonId",
@@ -153,46 +154,48 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
     formattedPlayers: "list[dict]" = []
     no: int = 0
     for player in players:
-        formatedPlayer: dict = {}
+        formattedPlayer: dict = {}
         ytsheetJson: dict = loads(player.get("ytsheetJson", r"{}"))
 
         # 文字列
-        formatedPlayer["name"] = player.get("player", "")
-        formatedPlayer["url"] = player.get("url", "")
-        formatedPlayer["race"] = ytsheetJson.get("race", "")
-        formatedPlayer["age"] = ytsheetJson.get("age", "")
-        formatedPlayer["gender"] = ytsheetJson.get("gender", "")
-        formatedPlayer["birth"] = ytsheetJson.get("birth", "")
-        formatedPlayer["combatFeatsLv1"] = ytsheetJson.get("combatFeatsLv1", "")
-        formatedPlayer["combatFeatsLv3"] = ytsheetJson.get("combatFeatsLv3", "")
-        formatedPlayer["combatFeatsLv5"] = ytsheetJson.get("combatFeatsLv5", "")
-        formatedPlayer["combatFeatsLv7"] = ytsheetJson.get("combatFeatsLv7", "")
-        formatedPlayer["combatFeatsLv9"] = ytsheetJson.get("combatFeatsLv9", "")
-        formatedPlayer["combatFeatsLv11"] = ytsheetJson.get("combatFeatsLv11", "")
-        formatedPlayer["combatFeatsLv13"] = ytsheetJson.get("combatFeatsLv13", "")
-        formatedPlayer["combatFeatsLv15"] = ytsheetJson.get("combatFeatsLv15", "")
-        formatedPlayer["combatFeatsLv1bat"] = ytsheetJson.get("combatFeatsLv1bat", "")
-        formatedPlayer["adventurerRank"] = ytsheetJson.get("rank", "")
+        formattedPlayer["name"] = player.get("player", "")
+        formattedPlayer["url"] = player.get("url", "")
+        formattedPlayer["race"] = ytsheetJson.get("race", "")
+        formattedPlayer["age"] = ytsheetJson.get("age", "")
+        formattedPlayer["gender"] = ytsheetJson.get("gender", "")
+        formattedPlayer["birth"] = ytsheetJson.get("birth", "")
+        formattedPlayer["combatFeatsLv1"] = ytsheetJson.get("combatFeatsLv1", "")
+        formattedPlayer["combatFeatsLv3"] = ytsheetJson.get("combatFeatsLv3", "")
+        formattedPlayer["combatFeatsLv5"] = ytsheetJson.get("combatFeatsLv5", "")
+        formattedPlayer["combatFeatsLv7"] = ytsheetJson.get("combatFeatsLv7", "")
+        formattedPlayer["combatFeatsLv9"] = ytsheetJson.get("combatFeatsLv9", "")
+        formattedPlayer["combatFeatsLv11"] = ytsheetJson.get("combatFeatsLv11", "")
+        formattedPlayer["combatFeatsLv13"] = ytsheetJson.get("combatFeatsLv13", "")
+        formattedPlayer["combatFeatsLv15"] = ytsheetJson.get("combatFeatsLv15", "")
+        formattedPlayer["combatFeatsLv1bat"] = ytsheetJson.get("combatFeatsLv1bat", "")
+        formattedPlayer["adventurerRank"] = ytsheetJson.get("rank", "")
 
         # 数値
-        formatedPlayer["level"] = int(ytsheetJson.get("level", "0"))
+        formattedPlayer["level"] = int(ytsheetJson.get("level", "0"))
         exp = int(ytsheetJson.get("expTotal", "0"))
-        formatedPlayer["exp"] = exp
-        formatedPlayer["growthTimes"] = int(ytsheetJson.get("historyGrowTotal", "0"))
-        formatedPlayer["totalHonor"] = int(ytsheetJson.get("historyHonorTotal", "0"))
-        formatedPlayer["hp"] = int(ytsheetJson.get("hpTotal", "0"))
-        formatedPlayer["mp"] = int(ytsheetJson.get("mpTotal", "0"))
-        formatedPlayer["lifeResistance"] = int(ytsheetJson.get("vitResistTotal", "0"))
-        formatedPlayer["spiritResistance"] = int(ytsheetJson.get("mndResistTotal", "0"))
-        formatedPlayer["monsterKnowledge"] = int(ytsheetJson.get("monsterLore", "0"))
-        formatedPlayer["initiative"] = int(ytsheetJson.get("initiative", "0"))
+        formattedPlayer["exp"] = exp
+        formattedPlayer["growthTimes"] = int(ytsheetJson.get("historyGrowTotal", "0"))
+        formattedPlayer["totalHonor"] = int(ytsheetJson.get("historyHonorTotal", "0"))
+        formattedPlayer["hp"] = int(ytsheetJson.get("hpTotal", "0"))
+        formattedPlayer["mp"] = int(ytsheetJson.get("mpTotal", "0"))
+        formattedPlayer["lifeResistance"] = int(ytsheetJson.get("vitResistTotal", "0"))
+        formattedPlayer["spiritResistance"] = int(
+            ytsheetJson.get("mndResistTotal", "0")
+        )
+        formattedPlayer["monsterKnowledge"] = int(ytsheetJson.get("monsterLore", "0"))
+        formattedPlayer["initiative"] = int(ytsheetJson.get("initiative", "0"))
 
         # 特殊な変数
-        formatedPlayer["sin"] = ytsheetJson.get("sin", "0")
+        formattedPlayer["sin"] = ytsheetJson.get("sin", "0")
 
         # No
         no += 1
-        formatedPlayer["no"] = no
+        formattedPlayer["no"] = no
 
         # PC名
         # フリガナを削除
@@ -202,47 +205,47 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
             # PC名が空の場合は二つ名を表示
             characterName = ytsheetJson.get("aka", "")
 
-        formatedPlayer["characterName"] = characterName
+        formattedPlayer["characterName"] = characterName
 
         # 経験点の状態
-        formatedPlayer["expStatus"] = expStatus.ExpStatus.ACTIVE.value
+        formattedPlayer["expStatus"] = expStatus.ExpStatus.ACTIVE.value
         if exp >= maxExp:
-            formatedPlayer["expStatus"] = expStatus.ExpStatus.MAX.value
+            formattedPlayer["expStatus"] = expStatus.ExpStatus.MAX.value
         elif exp < minimumExp:
-            formatedPlayer["expStatus"] = expStatus.ExpStatus.DEACTIVE.value
+            formattedPlayer["expStatus"] = expStatus.ExpStatus.INACTIVE.value
 
         # 信仰
         faith = ytsheetJson.get("faith", "なし")
         if faith == "その他の信仰":
             faith = ytsheetJson.get("faithOther", faith)
 
-        formatedPlayer["faith"] = faith
+        formattedPlayer["faith"] = faith
 
         # 自動取得
-        formatedPlayer["autoCombatFeats"] = ytsheetJson.get(
+        formattedPlayer["autoCombatFeats"] = ytsheetJson.get(
             "combatFeatsAuto", ""
         ).split(",")
 
         # 更新日時をスプレッドシートが理解できる形式に変換
-        formatedPlayer["updateTime"] = None
+        formattedPlayer["updateTime"] = None
         strUpdateTime: Union[str, None] = player.get("updateTime")
         if strUpdateTime is not None:
             # UTCをJSTに変換
             utc: datetime = datetime.fromisoformat(strUpdateTime)
             jst: datetime = utc.astimezone(timezone("Asia/Tokyo"))
-            formatedPlayer["updateTime"] = jst.strftime("%Y/%m/%d %H:%M:%S")
+            formattedPlayer["updateTime"] = jst.strftime("%Y/%m/%d %H:%M:%S")
 
         # 技能レベル
-        formatedPlayer["skills"] = {}
+        formattedPlayer["skills"] = {}
         for skill in commonConstant.SKILLS:
             skillLevel: int = int(ytsheetJson.get(skill["key"], "0"))
             if skillLevel > 0:
-                formatedPlayer["skills"][skill["key"]] = skillLevel
+                formattedPlayer["skills"][skill["key"]] = skillLevel
 
         # 各能力値
-        formatedPlayer["technic"] = int(ytsheetJson.get("sttBaseTec", "0"))
-        formatedPlayer["physical"] = int(ytsheetJson.get("sttBasePhy", "0"))
-        formatedPlayer["spirit"] = int(ytsheetJson.get("sttBaseSpi", "0"))
+        formattedPlayer["technic"] = int(ytsheetJson.get("sttBaseTec", "0"))
+        formattedPlayer["physical"] = int(ytsheetJson.get("sttBasePhy", "0"))
+        formattedPlayer["spirit"] = int(ytsheetJson.get("sttBaseSpi", "0"))
         for statusKey in commonConstant.STATUS_KEYS:
             status = {}
             status["baseStatus"] = int(ytsheetJson.get(statusKey["baseStatus"], "0"))
@@ -252,64 +255,64 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
             status["additionalStatus"] = int(
                 ytsheetJson.get(statusKey["additionalStatus"], "0")
             )
-            formatedPlayer[statusKey["key"]] = status
+            formattedPlayer[statusKey["key"]] = status
 
         # 流派を初期化
-        formatedPlayer["styles"] = []
+        formattedPlayer["styles"] = []
 
         # 秘伝
         mysticArtsNum: int = int(ytsheetJson.get("mysticArtsNum", "0"))
         for i in range(1, mysticArtsNum + 1):
             style: str = FindStyleFormalName(ytsheetJson.get(f"mysticArts{i}", ""))
-            if style != "" and style not in formatedPlayer["styles"]:
-                formatedPlayer["styles"].append(style)
+            if style != "" and style not in formattedPlayer["styles"]:
+                formattedPlayer["styles"].append(style)
 
         # 名誉アイテム
         honorItemsNum: int = int(ytsheetJson.get("honorItemsNum", "0"))
         for i in range(1, honorItemsNum + 1):
             style: str = FindStyleFormalName(ytsheetJson.get(f"honorItem{i}", ""))
-            if style != "" and style not in formatedPlayer["styles"]:
-                formatedPlayer["styles"].append(style)
+            if style != "" and style not in formattedPlayer["styles"]:
+                formattedPlayer["styles"].append(style)
 
         # 不名誉詳細
         disHonorItemsNum: int = int(ytsheetJson.get("dishonorItemsNum", "0"))
         for i in range(1, disHonorItemsNum + 1):
             style: str = FindStyleFormalName(ytsheetJson.get(f"dishonorItem{i}", ""))
-            if style != "" and style not in formatedPlayer["styles"]:
-                formatedPlayer["styles"].append(style)
+            if style != "" and style not in formattedPlayer["styles"]:
+                formattedPlayer["styles"].append(style)
 
         # アビスカースを初期化
-        formatedPlayer["abyssCurses"] = []
+        formattedPlayer["abyssCurses"] = []
 
         # 武器
         weaponNum: int = int(ytsheetJson.get("weaponNum", "0"))
         for i in range(1, weaponNum + 1):
-            formatedPlayer["abyssCurses"].extend(
+            formattedPlayer["abyssCurses"].extend(
                 FindAbyssCurses(ytsheetJson.get(f"weapon{i}Name", ""))
             )
-            formatedPlayer["abyssCurses"].extend(
+            formattedPlayer["abyssCurses"].extend(
                 FindAbyssCurses(ytsheetJson.get(f"weapon{i}Note", ""))
             )
 
         # 鎧
         armourNum: int = int(ytsheetJson.get("armourNum", "0"))
         for i in range(1, armourNum + 1):
-            formatedPlayer["abyssCurses"].extend(
+            formattedPlayer["abyssCurses"].extend(
                 FindAbyssCurses(ytsheetJson.get(f"armour{i}Name", ""))
             )
-            formatedPlayer["abyssCurses"].extend(
+            formattedPlayer["abyssCurses"].extend(
                 FindAbyssCurses(ytsheetJson.get(f"armour{i}Note", ""))
             )
 
         # 所持品
-        formatedPlayer["abyssCurses"].extend(
+        formattedPlayer["abyssCurses"].extend(
             FindAbyssCurses(ytsheetJson.get("items", ""))
         )
 
         # セッション履歴を集計
-        formatedPlayer["gameMasterTimes"] = 0
-        formatedPlayer["playerTimes"] = 0
-        formatedPlayer["diedTimes"] = 0
+        formattedPlayer["gameMasterTimes"] = 0
+        formattedPlayer["playerTimes"] = 0
+        formattedPlayer["diedTimes"] = 0
         totalFumbleExp: int = 0
         fumbleCount: int = 0
         historyNum: int = int(ytsheetJson.get("historyNum", "0"))
@@ -335,18 +338,18 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
             else:
                 # 参加、GM回数を集計
                 if (
-                    gameMaster == formatedPlayer["name"]
+                    gameMaster == formattedPlayer["name"]
                     or gameMaster in SELF_GAME_MASTER_NAMES
                 ):
-                    formatedPlayer["gameMasterTimes"] += 1
+                    formattedPlayer["gameMasterTimes"] += 1
                 else:
-                    formatedPlayer["playerTimes"] += 1
+                    formattedPlayer["playerTimes"] += 1
 
                 # 備考
                 note: str = ytsheetJson.get(f"history{i}Note", "")
                 if search(DIED_REGEXP, note):
                     # 死亡回数を集計
-                    formatedPlayer["diedTimes"] += 1
+                    formattedPlayer["diedTimes"] += 1
 
                 # ピンゾロ回数を集計
                 normalizedNote = NormalizeString(note)
@@ -357,9 +360,9 @@ def FormatPlayers(players: "list[dict]", maxExp: int, minimumExp: int) -> "list[
                         break
 
             # ピンゾロ経験点は最大値を採用する(複数の書き方で書かれていた場合、重複して集計してしまうため)
-            formatedPlayer["fumbleExp"] = max(totalFumbleExp, fumbleCount * 50)
+            formattedPlayer["fumbleExp"] = max(totalFumbleExp, fumbleCount * 50)
 
-        formattedPlayers.append(formatedPlayer)
+        formattedPlayers.append(formattedPlayer)
 
     return formattedPlayers
 

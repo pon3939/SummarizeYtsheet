@@ -3,6 +3,7 @@
 from typing import Union
 
 from myLibrary import commonFunction
+from myLibrary.constant import tableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,
@@ -15,9 +16,6 @@ PlayerCharactersに登録
 
 # PCテーブル
 DynamoDb: Union[DynamoDBClient, None] = None
-
-# PCのテーブル名
-TABLE_NAME: str = "PlayerCharacters"
 
 
 def lambda_handler(event, context):
@@ -60,7 +58,7 @@ def GetNewId(seasonId: int) -> int:
         {":seasonId": seasonId}
     )
     queryOptions: dict = {
-        "TableName": TABLE_NAME,
+        "TableName": tableName.PLAYER_CHARACTERS,
         "ProjectionExpression": "id",
         "KeyConditionExpression": "seasonId = :seasonId",
         "ExpressionAttributeValues": expressionAttributeValues,
@@ -115,7 +113,7 @@ def insertPlayerCharacters(
         id += 1
 
     response: BatchWriteItemOutputTypeDef = DynamoDb.batch_write_item(
-        RequestItems={TABLE_NAME: requestItems}
+        RequestItems={tableName.PLAYER_CHARACTERS: requestItems}
     )
 
     while response["UnprocessedItems"] != {}:
