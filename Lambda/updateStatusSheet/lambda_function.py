@@ -36,6 +36,7 @@ RACES_STATUSES: dict = {
     "ハイマン": {"diceCount": 8, "fixedValue": 0},
     "フロウライト": {"diceCount": 11, "fixedValue": 12},
     "ダークドワーフ": {"diceCount": 9, "fixedValue": 12},
+    "ケンタウロス": {"diceCount": 10, "fixedValue": 6},
 }
 
 
