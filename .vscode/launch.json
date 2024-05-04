@@ -3,6 +3,23 @@
 		{
 			"type": "aws-sam",
 			"request": "direct-invoke",
+			"name": "InsertPlayers:lambda_function.lambda_handler (python3.9)",
+			"invokeTarget": {
+				"target": "code",
+				"projectRoot": "${workspaceFolder}/Lambda/InsertPlayers",
+				"lambdaHandler": "lambda_function.lambda_handler"
+			},
+			"lambda": {
+				"runtime": "python3.9",
+				"payload": {
+					"path": "Lambda/input.json"
+				},
+				"environmentVariables": {}
+			}
+		},
+		{
+			"type": "aws-sam",
+			"request": "direct-invoke",
 			"name": "InsertLevelCaps:lambda_function.lambda_handler (python3.8)",
 			"invokeTarget": {
 				"target": "code",
@@ -24,23 +41,6 @@
 			"invokeTarget": {
 				"target": "code",
 				"projectRoot": "${workspaceFolder}/Lambda/ReorderWorksheets",
-				"lambdaHandler": "lambda_function.lambda_handler"
-			},
-			"lambda": {
-				"runtime": "python3.8",
-				"payload": {
-					"path": "Lambda/input.json"
-				},
-				"environmentVariables": {}
-			}
-		},
-		{
-			"type": "aws-sam",
-			"request": "direct-invoke",
-			"name": "InsertPlayerCharacters:lambda_function.lambda_handler (python3.8)",
-			"invokeTarget": {
-				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/InsertPlayerCharacters",
 				"lambdaHandler": "lambda_function.lambda_handler"
 			},
 			"lambda": {

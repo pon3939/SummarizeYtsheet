@@ -20,7 +20,9 @@ def InitDb() -> DynamoDBClient:
     return client("dynamodb", region_name=commonConstant.AWS_REGION)
 
 
-def OpenSpreadsheet(googleServiceAccount: dict, spreadsheetId: str) -> Spreadsheet:
+def OpenSpreadsheet(
+    googleServiceAccount: dict, spreadsheetId: str
+) -> Spreadsheet:
     """
 
     スプレッドシートを開く
@@ -50,7 +52,11 @@ def ConvertToVerticalHeader(horizontalHeader: str) -> str:
         str: 縦書きヘッダー
     """
 
-    return horizontalHeader.replace("ー", "｜").replace("(", "︵").replace(")", "︶")
+    return (
+        horizontalHeader.replace("ー", "｜")
+        .replace("(", "︵")
+        .replace(")", "︶")
+    )
 
 
 @singledispatch
@@ -136,6 +142,20 @@ def ConvertJsonToDynamoDB(json: dict) -> dict:
         elif isinstance(value, (int, float)):
             # 数値
             convertedJson[key] = {"N": str(value)}
+        elif isinstance(value, dict):
+            # 辞書
+            convertedDict: dict = {}
+            for valueKey, valueValue in value.items():
+                convertedDict[valueKey] = ConvertJsonToDynamoDB(valueValue)
+
+            convertedJson[key] = {"M": convertedDict}
+        elif isinstance(value, list):
+            # 辞書のリスト
+            convertedList: list[dict] = []
+            for dictionary in value:
+                convertedList.append({"M": ConvertJsonToDynamoDB(dictionary)})
+
+            convertedJson[key] = {"L": convertedList}
         else:
             raise Exception("未対応の型です")
 

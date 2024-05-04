@@ -2,23 +2,25 @@
 
 from typing import Union
 
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from myLibrary import commonFunction
 from myLibrary.constant import tableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,
     QueryOutputTypeDef,
+    WriteRequestTypeDef,
 )
 
 """
-PlayerCharactersに登録
+Playersに登録
 """
 
-# PCテーブル
+
 DynamoDb: Union[DynamoDBClient, None] = None
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict, context: LambdaContext):
     """
 
     メイン処理
@@ -30,16 +32,16 @@ def lambda_handler(event, context):
 
     global DynamoDb
 
-    seasonId: int = event["SeasonId"]
-    playerCharacters: list[dict] = event["PlayerCharacters"]
+    seasonId: int = int(event["SeasonId"])
+    players: list[dict] = event["Players"]
 
     DynamoDb = commonFunction.InitDb()
-    playerCharacterId: int = GetNewId(seasonId)
-    insertPlayerCharacters(playerCharacters, seasonId, playerCharacterId)
+    newId: int = GetNewId(seasonId)
+    insertPlayers(players, seasonId, newId)
 
 
 def GetNewId(seasonId: int) -> int:
-    """PCのIDを採番する
+    """IDを採番する
 
     現在の最大ID+1
 
@@ -55,12 +57,12 @@ def GetNewId(seasonId: int) -> int:
         raise Exception("DynamoDBが初期化されていません")
 
     expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
-        {":seasonId": seasonId}
+        {":season_id": seasonId}
     )
     queryOptions: dict = {
-        "TableName": tableName.PLAYER_CHARACTERS,
+        "TableName": tableName.PLAYERS,
         "ProjectionExpression": "id",
-        "KeyConditionExpression": "seasonId = :seasonId",
+        "KeyConditionExpression": "season_id = :season_id ",
         "ExpressionAttributeValues": expressionAttributeValues,
     }
     response: QueryOutputTypeDef = DynamoDb.query(**queryOptions)
@@ -77,44 +79,48 @@ def GetNewId(seasonId: int) -> int:
         return 1
 
     players = commonFunction.ConvertDynamoDBToJson(players)
-    maxPlayer = max(players, key=(lambda player: player["id"]))
+    maxId: dict = max(players, key=(lambda player: player["id"]))
 
-    return int(maxPlayer["id"]) + 1
+    return int(maxId["id"]) + 1
 
 
-def insertPlayerCharacters(
-    playerCharacters: "list[dict]", seasonId: int, playerCharacterId: int
-):
-    """PCを挿入する
+def insertPlayers(players: "list[dict]", seasonId: int, newId: int):
+    """Playersを挿入する
 
     Args:
-        playerCharacters: list[dict]: PC情報
+        players: list[dict]: PC情報
         seasonId: int: シーズンID
-        playerCharacterId: int: ID
+        newId: int: ID
     """
     global DynamoDb
 
     if DynamoDb is None:
         raise Exception("DynamoDBが初期化されていません")
 
-    id = playerCharacterId
-    requestItems = []
-    for playerCharacter in playerCharacters:
-        requestItem: dict = {}
-        requestItem["PutRequest"] = {}
+    id: int = newId
+    requestItems: list[WriteRequestTypeDef] = []
+    for player in players:
+        requestItem: WriteRequestTypeDef = {}
+        requestItem["PutRequest"] = {"Item": {}}
         item: dict = {
-            "seasonId": seasonId,
+            "season_id": seasonId,
             "id": id,
-            "player": playerCharacter["player"],
-            "url": playerCharacter["url"],
+            "name": player["Name"],
+            "characters": [
+                {"ytsheet_id": player["YtsheetId"], "ytsheet_json": {}}
+            ],
         }
-        requestItem["PutRequest"]["Item"] = commonFunction.ConvertJsonToDynamoDB(item)
+        requestItem["PutRequest"]["Item"] = (
+            commonFunction.ConvertJsonToDynamoDB(item)
+        )
         requestItems.append(requestItem)
         id += 1
 
     response: BatchWriteItemOutputTypeDef = DynamoDb.batch_write_item(
-        RequestItems={tableName.PLAYER_CHARACTERS: requestItems}
+        RequestItems={tableName.PLAYERS: requestItems}
     )
 
     while response["UnprocessedItems"] != {}:
-        response = DynamoDb.batch_write_item(RequestItems=response["UnprocessedItems"])
+        response = DynamoDb.batch_write_item(
+            RequestItems=response["UnprocessedItems"]
+        )
