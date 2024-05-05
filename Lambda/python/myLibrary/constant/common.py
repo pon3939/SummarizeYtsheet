@@ -4,9 +4,6 @@
 汎用定数
 """
 
-# AWSのリージョン
-AWS_REGION: str = "ap-northeast-1"
-
 # スプレッドシート全体に適用するテキストの書式
 DEFAULT_TEXT_FORMAT: dict = {
     "fontFamily": "Meiryo",

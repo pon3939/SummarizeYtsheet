@@ -4,6 +4,7 @@
 		"awslambdaric",
 		"boto",
 		"gspread",
+		"Meiryo",
 		"powertools",
 		"rowcol",
 		"ytsheet"

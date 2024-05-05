@@ -8,7 +8,6 @@ from typing import Union
 from boto3 import client
 from google.oauth2 import service_account
 from gspread import Client, Spreadsheet, authorize
-from myLibrary import commonConstant
 from mypy_boto3_dynamodb.client import DynamoDBClient
 
 """
@@ -19,7 +18,7 @@ from mypy_boto3_dynamodb.client import DynamoDBClient
 def InitDb() -> DynamoDBClient:
     """DBに接続する"""
 
-    return client("dynamodb", region_name=commonConstant.AWS_REGION)
+    return client("dynamodb", region_name="ap-northeast-1")
 
 
 def OpenSpreadsheet(
@@ -186,4 +185,19 @@ def GetCurrentDateTimeForDynamoDB() -> str:
         str: 現在日時文字列
     """
 
-    return f"{datetime.now().isoformat(timespec='milliseconds')}Z"
+    return DateTimeToStrForDynamoDB(datetime.now())
+
+
+def DateTimeToStrForDynamoDB(target: datetime) -> str:
+    """
+
+    DynamoDBに登録するための日時文字列を取得
+
+    Returns:
+        str: 日時文字列
+    """
+    gmt = target
+    if target.tzinfo is not None:
+        gmt = target.astimezone(None).replace(tzinfo=None)
+
+    return f"{gmt.isoformat(timespec='milliseconds')}Z"
