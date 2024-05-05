@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
+from datetime import datetime
 from functools import singledispatch
+from typing import Union
 
 from boto3 import client
 from google.oauth2 import service_account
@@ -88,21 +90,7 @@ def _(dynamoDBData: dict) -> dict:
     for key, value in dynamoDBData.items():
         if isinstance(value, dict):
             # 適切な型に変換する
-            valuesKey = next(iter(value.keys()))
-            valuesValue = next(iter(value.values()))
-            if valuesKey == "S":
-                # 文字列
-                convertedJson[key] = valuesValue
-            elif valuesKey == "N":
-                # 数値
-                convertedJson[key] = float(valuesValue)
-            else:
-                raise Exception("未対応の型です")
-
-        elif isinstance(value, list):
-            # 各要素を再度変換する
-            convertedJson[key] = ConvertDynamoDBToJson(value)
-
+            convertedJson[key] = ConvertDynamoDBToJsonByTypeKey(value)
         else:
             raise Exception("未対応の型です")
 
@@ -121,6 +109,37 @@ def _(dynamoDBData: list) -> list:
         list: 変換後のJSON
     """
     return list(map(ConvertDynamoDBToJson, dynamoDBData))
+
+
+def ConvertDynamoDBToJsonByTypeKey(
+    dynamoDBData: dict,
+) -> Union[str, float, list, dict]:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+
+    Args:
+        dynamoDBData dict: DynamoDBから取得したデータ
+    Returns:
+        Union[str, float, list, dict]: 変換後のJSON
+    """
+
+    key = next(iter(dynamoDBData.keys()))
+    value = next(iter(dynamoDBData.values()))
+    if key == "S":
+        # 文字列
+        return value
+    elif key == "N":
+        # 数値
+        return float(value)
+    elif key == "M":
+        # 辞書
+        return ConvertDynamoDBToJson(value)
+    elif key == "L":
+        # リスト
+        return list(map(ConvertDynamoDBToJsonByTypeKey, value))
+
+    raise Exception("未対応の型です")
 
 
 def ConvertJsonToDynamoDB(json: dict) -> dict:
@@ -144,11 +163,7 @@ def ConvertJsonToDynamoDB(json: dict) -> dict:
             convertedJson[key] = {"N": str(value)}
         elif isinstance(value, dict):
             # 辞書
-            convertedDict: dict = {}
-            for valueKey, valueValue in value.items():
-                convertedDict[valueKey] = ConvertJsonToDynamoDB(valueValue)
-
-            convertedJson[key] = {"M": convertedDict}
+            convertedJson[key] = {"M": ConvertJsonToDynamoDB(value)}
         elif isinstance(value, list):
             # 辞書のリスト
             convertedList: list[dict] = []
@@ -160,3 +175,15 @@ def ConvertJsonToDynamoDB(json: dict) -> dict:
             raise Exception("未対応の型です")
 
     return convertedJson
+
+
+def GetCurrentDateTimeForDynamoDB() -> str:
+    """
+
+    DynamoDBに登録するための現在日時文字列を取得
+
+    Returns:
+        str: 現在日時文字列
+    """
+
+    return f"{datetime.now().isoformat(timespec='milliseconds')}Z"
