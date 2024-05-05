@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from myLibrary import commonFunction
@@ -49,8 +50,8 @@ def insertLevelCaps(
     for levelCap in levelCaps:
         # JSTをGMTに変換
         startDatetimeInJst: datetime = datetime.strptime(
-            f'{levelCap["startDatetime"]}+09:00', r"%Y/%m/%d%z"
-        )
+            levelCap["startDatetime"], r"%Y/%m/%d"
+        ).replace(tzinfo=ZoneInfo("Asia/Tokyo"))
 
         requestItem: WriteRequestTypeDef = {}
         requestItem["PutRequest"] = {"Item": {}}
