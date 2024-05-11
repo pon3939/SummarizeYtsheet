@@ -222,5 +222,4 @@ $RECYCLE.BIN/
 
 # レイヤー
 Lambda/python/*
-!Lambda/python/myLibrary
 layer.zip
