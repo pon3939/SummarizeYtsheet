@@ -96,7 +96,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             row.append(cursesCount)
 
             # 各アビスカース
-            row.extend(receivedCurses)
+            row += receivedCurses
 
             updateData.append(row)
 

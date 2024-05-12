@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
+
 from dataclasses import dataclass, field
 from datetime import datetime
 
 from myLibrary.PlayerCharacter import PlayerCharacter
 from pytz import timezone
-
-# -*- coding: utf-8 -*-
-
 
 """
 PL

@@ -119,7 +119,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             row.append(learningCount)
 
             # 各流派
-            row.extend(learnedStyles)
+            row += learnedStyles
 
             updateData.append(row)
 

@@ -31,46 +31,6 @@ SKILLS: dict[str, str] = {
     "lvDem": "デーモンルーラー",
 }
 
-# ゆとシートから取得したJSONのキーのうち、各能力値に関係するもの
-STATUS_KEYS: dict[str, dict[str, str]] = {
-    # 器用
-    "dexterity": {
-        "name": "器用",
-        "htb": "technic",
-        "key": "A",
-    },
-    # 敏捷
-    "agility": {
-        "name": "敏捷",
-        "htb": "technic",
-        "key": "B",
-    },
-    # 筋力
-    "strength": {
-        "name": "筋力",
-        "htb": "physical",
-        "key": "C",
-    },
-    # 生命力
-    "vitality": {
-        "name": "生命",
-        "htb": "physical",
-        "key": "D",
-    },
-    # 知力
-    "intelligence": {
-        "name": "知力",
-        "htb": "spirit",
-        "key": "E",
-    },
-    # 精神力
-    "mental": {
-        "name": "精神",
-        "htb": "spirit",
-        "key": "F",
-    },
-}
-
 # 流派
 STYLES: "list[Style]" = [
     Style("イーヴァル狂闘術", ["イーヴァル"]),

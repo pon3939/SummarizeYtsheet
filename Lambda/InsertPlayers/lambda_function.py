@@ -67,9 +67,9 @@ def GetMaxId(seasonId: int) -> int:
     )
 
     # ページ分割分を取得
-    players: "list[dict]" = list()
+    players: "list[dict]" = []
     while "LastEvaluatedKey" in response:
-        players.extend(response["Items"])
+        players += response["Items"]
         response = DynamoDb.query(
             TableName=TableName.PLAYERS,
             ProjectionExpression=projectionExpression,
@@ -77,7 +77,8 @@ def GetMaxId(seasonId: int) -> int:
             ExpressionAttributeValues=expressionAttributeValues,
             ExclusiveStartKey=response["LastEvaluatedKey"],
         )
-    players.extend(response["Items"])
+
+    players += response["Items"]
 
     if len(players) == 0:
         return 0

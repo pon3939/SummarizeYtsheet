@@ -9,6 +9,7 @@ from unicodedata import normalize
 
 from myLibrary.Constant import SwordWorld
 from myLibrary.ExpStatus import ExpStatus
+from myLibrary.Status import Status
 
 """
 PC
@@ -150,9 +151,15 @@ class PlayerCharacter:
     AbyssCurses: list[str] = field(default_factory=list)
 
     Skills: dict = field(default_factory=dict)
-    Statuses: dict = field(default_factory=dict)
 
     ActiveStatus: ExpStatus = ExpStatus.ACTIVE
+
+    Dexterity: Status = Status()
+    Agility: Status = Status()
+    Strength: Status = Status()
+    Vitality: Status = Status()
+    Intelligence: Status = Status()
+    Mental: Status = Status()
 
     def __post_init__(self) -> None:
         """
@@ -233,18 +240,37 @@ class PlayerCharacter:
         self.Technic = int(ytsheetJson.get("sttBaseTec", "0"))
         self.Physical = int(ytsheetJson.get("sttBasePhy", "0"))
         self.Spirit = int(ytsheetJson.get("sttBaseSpi", "0"))
-        for key, value in SwordWorld.STATUS_KEYS.items():
-            status = {}
-            status["baseStatus"] = int(
-                ytsheetJson.get(value[f'sttBase{value["key"]}'], "0")
-            )
-            status["increasedStatus"] = int(
-                ytsheetJson.get(value[f'sttGrow{value["key"]}'], "0")
-            )
-            status["additionalStatus"] = int(
-                ytsheetJson.get(value[f'sttAdd{value["key"]}'], "0")
-            )
-            self.Statuses[key] = status
+
+        self.Dexterity = Status(
+            int(ytsheetJson.get("sttBaseA", "0")),
+            int(ytsheetJson.get("sttGrowA", "0")),
+            int(ytsheetJson.get("sttAddA", "0")),
+        )
+        self.Agility = Status(
+            int(ytsheetJson.get("sttBaseB", "0")),
+            int(ytsheetJson.get("sttGrowB", "0")),
+            int(ytsheetJson.get("sttAddB", "0")),
+        )
+        self.Strength = Status(
+            int(ytsheetJson.get("sttBaseC", "0")),
+            int(ytsheetJson.get("sttGrowC", "0")),
+            int(ytsheetJson.get("sttAddC", "0")),
+        )
+        self.Vitality = Status(
+            int(ytsheetJson.get("sttBaseD", "0")),
+            int(ytsheetJson.get("sttGrowD", "0")),
+            int(ytsheetJson.get("sttAddD", "0")),
+        )
+        self.Intelligence = Status(
+            int(ytsheetJson.get("sttBaseE", "0")),
+            int(ytsheetJson.get("sttGrowE", "0")),
+            int(ytsheetJson.get("sttAddE", "0")),
+        )
+        self.Mental = Status(
+            int(ytsheetJson.get("sttBaseF", "0")),
+            int(ytsheetJson.get("sttGrowF", "0")),
+            int(ytsheetJson.get("sttAddF", "0")),
+        )
 
         # 秘伝
         mysticArtsNum: int = int(ytsheetJson.get("mysticArtsNum", "0"))

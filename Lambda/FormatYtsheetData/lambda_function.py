@@ -79,9 +79,9 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     )
 
     # ページ分割分を取得
-    players: "list[dict]" = list()
+    players: "list[dict]" = []
     while "LastEvaluatedKey" in response:
-        players.extend(response["Items"])
+        players += response["Items"]
         response = dynamodb.query(
             TableName=TableName.PLAYERS,
             ProjectionExpression="id, character, update_time, name",
@@ -91,6 +91,7 @@ def GetPlayers(seasonId: int) -> "list[dict]":
             ),
             ExclusiveStartKey=response["LastEvaluatedKey"],
         )
-    players.extend(response["Items"])
+
+    players += response["Items"]
 
     return CommonFunction.ConvertDynamoDBToJson(players)
