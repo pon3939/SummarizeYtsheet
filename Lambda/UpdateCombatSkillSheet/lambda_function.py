@@ -70,7 +70,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "Lv.15",
         "自動取得",
     ]
-    updateData.append(headers)
+
     formats: list[dict] = []
     no: int = 0
     for player in players:
@@ -175,6 +175,9 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
                         }
                     )
 
+    # ヘッダーを追加
+    updateData.insert(0, headers)
+
     # クリア
     worksheet.clear()
     worksheet.clear_basic_filter()
@@ -192,8 +195,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     )
 
     # ヘッダー
-    startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(1, len(headers))
+    startA1 = utils.rowcol_to_a1(1, 1)
+    endA1 = utils.rowcol_to_a1(1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",

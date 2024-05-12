@@ -72,7 +72,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "死亡",
         "更新日時",
     ]
-    updateData.append(header)
 
     formats: "list[dict]" = []
     no: int = 0
@@ -164,14 +163,15 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     total[headerIndex] = sum(
         list(
             map(
-                lambda x: (
-                    x[headerIndex] if isinstance(x[headerIndex], int) else 0
-                ),
+                lambda x: (x[headerIndex]),
                 updateData,
             )
         )
     )
     updateData.append(total)
+
+    # ヘッダーを追加
+    updateData.insert(0, header)
 
     # クリア
     worksheet.clear()
@@ -190,8 +190,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     )
 
     # ヘッダー
-    startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(1, len(header))
+    startA1 = utils.rowcol_to_a1(1, 1)
+    endA1 = utils.rowcol_to_a1(1, len(header))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
