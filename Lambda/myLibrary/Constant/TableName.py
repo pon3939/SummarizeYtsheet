@@ -5,8 +5,5 @@
 """
 
 
-PLAYER_CHARACTERS: str = "PlayerCharacters"
-
-
 LEVEL_CAPS: str = "level_caps"
 PLAYERS: str = "players"

@@ -3,8 +3,8 @@
 from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary import commonFunction
-from myLibrary.constant import indexName, tableName
+from myLibrary import CommonFunction
+from myLibrary.Constant import IndexName, TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,
@@ -27,7 +27,7 @@ def lambda_handler(event: dict, context: LambdaContext):
 
     Args:
         event dict: イベント
-        context awslambdaric.lambda_context.LambdaContext: コンテキスト
+        context LambdaContext: コンテキスト
     """
 
     global DynamoDb
@@ -35,7 +35,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     seasonId: int = int(event["SeasonId"])
     players: list[dict] = event["Players"]
 
-    DynamoDb = commonFunction.InitDb()
+    DynamoDb = CommonFunction.InitDb()
     maxId: int = GetMaxId(seasonId)
     putPlayers(players, seasonId, maxId)
 
@@ -56,11 +56,11 @@ def GetMaxId(seasonId: int) -> int:
 
     projectionExpression: str = "id"
     KeyConditionExpression: str = "season_id = :season_id"
-    expressionAttributeValues: dict = commonFunction.ConvertJsonToDynamoDB(
+    expressionAttributeValues: dict = CommonFunction.ConvertJsonToDynamoDB(
         {":season_id": seasonId}
     )
     response: QueryOutputTypeDef = DynamoDb.query(
-        TableName=tableName.PLAYERS,
+        TableName=TableName.PLAYERS,
         ProjectionExpression=projectionExpression,
         KeyConditionExpression=KeyConditionExpression,
         ExpressionAttributeValues=expressionAttributeValues,
@@ -71,7 +71,7 @@ def GetMaxId(seasonId: int) -> int:
     while "LastEvaluatedKey" in response:
         players.extend(response["Items"])
         response = DynamoDb.query(
-            TableName=tableName.PLAYERS,
+            TableName=TableName.PLAYERS,
             ProjectionExpression=projectionExpression,
             KeyConditionExpression=KeyConditionExpression,
             ExpressionAttributeValues=expressionAttributeValues,
@@ -82,7 +82,7 @@ def GetMaxId(seasonId: int) -> int:
     if len(players) == 0:
         return 0
 
-    players = commonFunction.ConvertDynamoDBToJson(players)
+    players = CommonFunction.ConvertDynamoDBToJson(players)
     maxId: dict = max(players, key=(lambda player: player["id"]))
 
     return int(maxId["id"])
@@ -106,38 +106,38 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
     for player in players:
         # プレイヤー名で存在チェック
         queryResult: QueryOutputTypeDef = DynamoDb.query(
-            TableName=tableName.PLAYERS,
+            TableName=TableName.PLAYERS,
             ProjectionExpression="id",
-            IndexName=indexName.PLAYERS_SEASON_ID_NAME,
+            IndexName=IndexName.PLAYERS_SEASON_ID_NAME,
             KeyConditionExpression="season_id = :season_id AND #name = :name",
             ExpressionAttributeNames={"#name": "name"},
-            ExpressionAttributeValues=commonFunction.ConvertJsonToDynamoDB(
+            ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
                 {":season_id": seasonId, ":name": player["Name"]}
             ),
         )
-        existsPlayers: list[dict] = commonFunction.ConvertDynamoDBToJson(
+        existsPlayers: list[dict] = CommonFunction.ConvertDynamoDBToJson(
             queryResult["Items"]
         )
 
         newPlayerCharacter = {
             "ytsheet_id": player["YtsheetId"],
-            "ytsheet_json": {},
+            "ytsheet_json": "{}",
         }
         if len(existsPlayers) > 0:
             # 更新
             DynamoDb.update_item(
-                TableName=tableName.PLAYERS,
-                Key=commonFunction.ConvertJsonToDynamoDB(
+                TableName=TableName.PLAYERS,
+                Key=CommonFunction.ConvertJsonToDynamoDB(
                     {"season_id": seasonId, "id": existsPlayers[0]["id"]}
                 ),
                 UpdateExpression="SET characters = "
                 " list_append(characters, :new_character), "
                 " update_time = :update_time",
-                ExpressionAttributeValues=commonFunction.ConvertJsonToDynamoDB(
+                ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
                     {
                         ":new_character": [newPlayerCharacter],
                         ":update_time": (
-                            commonFunction.GetCurrentDateTimeForDynamoDB()
+                            CommonFunction.GetCurrentDateTimeForDynamoDB()
                         ),
                     }
                 ),
@@ -151,12 +151,12 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
             "id": id,
             "name": player["Name"],
             "characters": [newPlayerCharacter],
-            "update_time": commonFunction.GetCurrentDateTimeForDynamoDB(),
+            "update_time": CommonFunction.GetCurrentDateTimeForDynamoDB(),
         }
         requestItem: WriteRequestTypeDef = {}
         requestItem["PutRequest"] = {"Item": {}}
         requestItem["PutRequest"]["Item"] = (
-            commonFunction.ConvertJsonToDynamoDB(newPlayer)
+            CommonFunction.ConvertJsonToDynamoDB(newPlayer)
         )
         requestItems.append(requestItem)
 
@@ -164,7 +164,7 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
         return
 
     response: BatchWriteItemOutputTypeDef = DynamoDb.batch_write_item(
-        RequestItems={tableName.PLAYERS: requestItems}
+        RequestItems={TableName.PLAYERS: requestItems}
     )
 
     while response["UnprocessedItems"] != {}:

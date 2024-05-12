@@ -4,8 +4,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary import commonFunction
-from myLibrary.constant import tableName
+from myLibrary import CommonFunction
+from myLibrary.Constant import TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,
@@ -24,7 +24,7 @@ def lambda_handler(event: dict, context: LambdaContext):
 
     Args:
         event dict: イベント
-        context awslambdaric.lambda_context.LambdaContext: コンテキスト
+        context LambdaContext: コンテキスト
     """
 
     seasonId: int = int(event["SeasonId"])
@@ -44,7 +44,7 @@ def insertLevelCaps(
         seasonId: int: シーズンID
     """
 
-    dynamoDb: DynamoDBClient = commonFunction.InitDb()
+    dynamoDb: DynamoDBClient = CommonFunction.InitDb()
 
     requestItems: list[WriteRequestTypeDef] = []
     for levelCap in levelCaps:
@@ -58,17 +58,17 @@ def insertLevelCaps(
         item: dict = {
             "season_id": seasonId,
             "start_datetime"
-            "": commonFunction.DateTimeToStrForDynamoDB(startDatetimeInJst),
+            "": CommonFunction.DateTimeToStrForDynamoDB(startDatetimeInJst),
             "max_exp": levelCap["maxExp"],
             "minimum_Exp": levelCap["minimumExp"],
         }
         requestItem["PutRequest"]["Item"] = (
-            commonFunction.ConvertJsonToDynamoDB(item)
+            CommonFunction.ConvertJsonToDynamoDB(item)
         )
         requestItems.append(requestItem)
 
     response: BatchWriteItemOutputTypeDef = dynamoDb.batch_write_item(
-        RequestItems={tableName.LEVEL_CAPS: requestItems}
+        RequestItems={TableName.LEVEL_CAPS: requestItems}
     )
 
     while response["UnprocessedItems"] != {}:

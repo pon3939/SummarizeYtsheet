@@ -73,7 +73,7 @@ def ConvertDynamoDBToJson(dynamoDBData):
     raise Exception("未対応の型です")
 
 
-@ConvertDynamoDBToJson.register
+@ConvertDynamoDBToJson.register  # type: ignore
 def _(dynamoDBData: dict) -> dict:
     """
 
@@ -96,7 +96,7 @@ def _(dynamoDBData: dict) -> dict:
     return convertedJson
 
 
-@ConvertDynamoDBToJson.register
+@ConvertDynamoDBToJson.register  # type: ignore
 def _(dynamoDBData: list) -> list:
     """
 
@@ -193,6 +193,8 @@ def DateTimeToStrForDynamoDB(target: datetime) -> str:
 
     DynamoDBに登録するための日時文字列を取得
 
+    Args:
+        target datetime: 変換する日時
     Returns:
         str: 日時文字列
     """
@@ -201,3 +203,16 @@ def DateTimeToStrForDynamoDB(target: datetime) -> str:
         gmt = target.astimezone(None).replace(tzinfo=None)
 
     return f"{gmt.isoformat(timespec='milliseconds')}Z"
+
+
+def MakeYtsheetUrl(id: str) -> str:
+    """
+
+    ゆとシートのURLを作成
+
+    Args:
+        id str: ゆとシートのID
+    Returns:
+        str: URL
+    """
+    return f"https://yutorize.2-d.jp/ytsheet/sw2.5/?id={id}"
