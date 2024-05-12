@@ -1,35 +1,37 @@
 # -*- coding: utf-8 -*-
 
+from json import loads
+
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary import commonConstant, commonFunction, expStatus
+from myLibrary import CommonFunction
+from myLibrary.Constant import SpreadSheet, SwordWorld
+from myLibrary.Player import Player
 
 """
 アビスカースシートを更新
 """
 
 
-# アビスカースを持っている時に表示する文字列
-TRUE_STRING: str = "○"
-
-
-def lambda_handler(event: dict, context):
+def lambda_handler(event: dict, context: LambdaContext):
     """
 
     メイン処理
 
     Args:
         event dict: イベント
-        context awslambdaric.lambda_context.LambdaContext: コンテキスト
+        context LambdaContext: コンテキスト
     """
 
     # 入力
-    environment: dict = event["Environment"]
-    spreadsheetId: str = environment["SpreadsheetId"]
+    spreadsheetId: str = event["SpreadsheetId"]
     googleServiceAccount: dict = event["GoogleServiceAccount"]
-    players: "list[dict]" = event["Players"]
+    players: "list[Player]" = list(
+        map(lambda x: Player(**loads(x)), event["Players"])
+    )
 
     # スプレッドシートを開く
-    spreadsheet: Spreadsheet = commonFunction.OpenSpreadsheet(
+    spreadsheet: Spreadsheet = CommonFunction.OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
     worksheet: Worksheet = spreadsheet.worksheet("アビスカース")
@@ -38,14 +40,14 @@ def lambda_handler(event: dict, context):
     UpdateSheet(worksheet, players)
 
 
-def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
+def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     """
 
     シートを更新
 
     Args:
         worksheet Worksheet: シート
-        players list[dict]: プレイヤー情報
+        players list[Player]: プレイヤー情報
     """
 
     updateData: list[list] = []
@@ -57,67 +59,81 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
         "参加傾向",
         "アビスカースの数",
     ]
-    for abyssCurse in commonConstant.ABYSS_CURSES:
+    for abyssCurse in SwordWorld.ABYSS_CURSES:
         headers.append(abyssCurse)
 
     updateData.append(headers)
 
     notTotalColumnCount: int = 3
     totalColumnCount: int = len(headers) - notTotalColumnCount
-    total: list = ([None] * notTotalColumnCount) + ([0] * totalColumnCount)
     formats: "list[dict]" = []
+    no: int = 0
     for player in players:
-        row: list = []
+        for character in player.Characters:
+            row: list = []
 
-        # アビスカースの情報を取得
-        receivedCurses: list[str] = []
-        receivedCursesString: str = ""
-        for abyssCurse in commonConstant.ABYSS_CURSES:
-            receivedCurse: str = ""
-            if abyssCurse in player["abyssCurses"]:
-                receivedCurse = TRUE_STRING
-                receivedCursesString += abyssCurse
-                total[headers.index(abyssCurse)] += 1
+            # アビスカースの情報を取得
+            receivedCurses: list[str] = []
+            receivedCursesString: str = ""
+            for abyssCurse in SwordWorld.ABYSS_CURSES:
+                receivedCurse: str = ""
+                if abyssCurse in character.AbyssCurses:
+                    receivedCurse = SpreadSheet.TRUE_STRING
+                    receivedCursesString += abyssCurse
 
-            receivedCurses.append(receivedCurse)
+                receivedCurses.append(receivedCurse)
 
-        # No.
-        row.append(player["no"])
+            # No.
+            no += 1
+            row.append(no)
 
-        # PC
-        row.append(receivedCursesString + player["characterName"])
+            # PC
+            row.append(receivedCursesString + character.Name)
 
-        # 参加傾向
-        row.append(
-            commonConstant.ENTRY_TREND_INACTIVE
-            if player["expStatus"] == expStatus.ExpStatus.INACTIVE
-            else commonConstant.ENTRY_TREND_ACTIVE
-        )
+            # 参加傾向
+            row.append(SpreadSheet.ENTRY_TREND[character.ActiveStatus])
 
-        # 数
-        cursesCount: int = receivedCurses.count(TRUE_STRING)
-        total[headers.index("アビスカースの数")] += cursesCount
-        row.append(cursesCount)
+            # 数
+            cursesCount: int = receivedCurses.count(SpreadSheet.TRUE_STRING)
+            row.append(cursesCount)
 
-        # 各アビスカース
-        row.extend(receivedCurses)
+            # 各アビスカース
+            row.extend(receivedCurses)
 
-        updateData.append(row)
+            updateData.append(row)
 
-        # PC列のハイパーリンク
-        pcIndex: int = headers.index("PC") + 1
-        rowIndex: int = updateData.index(row) + 1
-        pcTextFormat: dict = commonConstant.DEFAULT_TEXT_FORMAT.copy()
-        pcTextFormat["link"] = {"uri": player["url"]}
-        formats.append(
-            {
-                "range": utils.rowcol_to_a1(rowIndex, pcIndex),
-                "format": {"textFormat": pcTextFormat},
+            # PC列のハイパーリンク
+            pcIndex: int = headers.index("PC") + 1
+            rowIndex: int = updateData.index(row) + 1
+            pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
+            pcTextFormat["link"] = {
+                "uri": CommonFunction.MakeYtsheetUrl(character.YtsheetId)
             }
-        )
+            formats.append(
+                {
+                    "range": utils.rowcol_to_a1(rowIndex, pcIndex),
+                    "format": {"textFormat": pcTextFormat},
+                }
+            )
 
     # 合計行
+    total: list = ([None] * notTotalColumnCount) + ([0] * totalColumnCount)
     total[notTotalColumnCount - 1] = "合計"
+    totalIndex: int = headers.index("アビスカースの数")
+    total[totalIndex] = sum(
+        list(
+            map(
+                lambda x: x[totalIndex] if isinstance(x[index], int) else 0,
+                updateData,
+            )
+        )
+    )
+    for abyssCurse in SwordWorld.ABYSS_CURSES:
+        index: int = headers.index(abyssCurse)
+        total[index] = list(map(lambda x: x[index], updateData)).count(
+            SpreadSheet.TRUE_STRING
+        )
+
     updateData.append(total)
 
     # クリア
@@ -133,16 +149,16 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     endA1: str = utils.rowcol_to_a1(len(updateData), len(headers))
     worksheet.format(
         f"{startA1}:{endA1}",
-        commonConstant.DEFAULT_FORMAT,
+        SpreadSheet.DEFAULT_FORMAT,
     )
 
     # ヘッダー
-    startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(1, len(headers))
+    startA1 = utils.rowcol_to_a1(1, 1)
+    endA1 = utils.rowcol_to_a1(1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": commonConstant.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
         }
     )
 
@@ -153,4 +169,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[dict]"):
     worksheet.freeze(1, 2)
 
     # フィルター
-    worksheet.set_basic_filter(1, 1, len(updateData) - 1, len(headers))  # type: ignore
+    worksheet.set_basic_filter(
+        1, 1, len(updateData) - 1, len(headers)  # type: ignore
+    )
