@@ -31,7 +31,7 @@ class Style:
         self.Keywords: list[str] = keywords
         self.Is20: bool = is20
 
-    def getKeywordsRegexp(self) -> str:
+    def GetKeywordsRegexp(self) -> str:
         """
         流派を検索する正規表現を返す
 

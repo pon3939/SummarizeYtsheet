@@ -3,7 +3,12 @@
 from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import (
+    ConvertDynamoDBToJson,
+    ConvertJsonToDynamoDB,
+    GetCurrentDateTimeForDynamoDB,
+    InitDb,
+)
 from myLibrary.Constant import IndexName, TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
@@ -35,7 +40,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     seasonId: int = int(event["SeasonId"])
     players: list[dict] = event["Players"]
 
-    DynamoDb = CommonFunction.InitDb()
+    DynamoDb = InitDb()
     maxId: int = GetMaxId(seasonId)
     putPlayers(players, seasonId, maxId)
 
@@ -56,7 +61,7 @@ def GetMaxId(seasonId: int) -> int:
 
     projectionExpression: str = "id"
     KeyConditionExpression: str = "season_id = :season_id"
-    expressionAttributeValues: dict = CommonFunction.ConvertJsonToDynamoDB(
+    expressionAttributeValues: dict = ConvertJsonToDynamoDB(
         {":season_id": seasonId}
     )
     response: QueryOutputTypeDef = DynamoDb.query(
@@ -83,7 +88,7 @@ def GetMaxId(seasonId: int) -> int:
     if len(players) == 0:
         return 0
 
-    players = CommonFunction.ConvertDynamoDBToJson(players)
+    players = ConvertDynamoDBToJson(players)
     maxId: dict = max(players, key=(lambda player: player["id"]))
 
     return int(maxId["id"])
@@ -112,30 +117,26 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
             IndexName=IndexName.PLAYERS_SEASON_ID_NAME,
             KeyConditionExpression="season_id = :season_id AND #name = :name",
             ExpressionAttributeNames={"#name": "name"},
-            ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
+            ExpressionAttributeValues=ConvertJsonToDynamoDB(
                 {":season_id": seasonId, ":name": player["Name"]}
             ),
         )
-        existsPlayers: list[dict] = CommonFunction.ConvertDynamoDBToJson(
-            queryResult["Items"]
-        )
+        existsPlayers: list[dict] = ConvertDynamoDBToJson(queryResult["Items"])
 
         if len(existsPlayers) > 0:
             # 更新
             DynamoDb.update_item(
                 TableName=TableName.PLAYERS,
-                Key=CommonFunction.ConvertJsonToDynamoDB(
+                Key=ConvertJsonToDynamoDB(
                     {"season_id": seasonId, "id": existsPlayers[0]["id"]}
                 ),
                 UpdateExpression="SET ytsheet_ids = "
                 " list_append(ytsheet_ids, :new_ytsheet_id), "
                 " update_time = :update_time",
-                ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
+                ExpressionAttributeValues=ConvertJsonToDynamoDB(
                     {
                         ":new_ytsheet_id": [player["YtsheetId"]],
-                        ":update_time": (
-                            CommonFunction.GetCurrentDateTimeForDynamoDB()
-                        ),
+                        ":update_time": (GetCurrentDateTimeForDynamoDB()),
                     }
                 ),
             )
@@ -149,13 +150,11 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
             "name": player["Name"],
             "ytsheet_ids": [player["YtsheetId"]],
             "characters": [],
-            "update_time": CommonFunction.GetCurrentDateTimeForDynamoDB(),
+            "update_time": GetCurrentDateTimeForDynamoDB(),
         }
         requestItem: WriteRequestTypeDef = {}
         requestItem["PutRequest"] = {"Item": {}}
-        requestItem["PutRequest"]["Item"] = (
-            CommonFunction.ConvertJsonToDynamoDB(newPlayer)
-        )
+        requestItem["PutRequest"]["Item"] = ConvertJsonToDynamoDB(newPlayer)
         requestItems.append(requestItem)
 
     if len(requestItems) == 0:

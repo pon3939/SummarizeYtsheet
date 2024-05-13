@@ -415,7 +415,7 @@ def _FindStyleFormalName(string: str) -> str:
     """
 
     for style in SwordWorld.STYLES:
-        if search(style.getKeywordsRegexp(), string):
+        if search(style.GetKeywordsRegexp(), string):
             return style.Name
 
     return ""

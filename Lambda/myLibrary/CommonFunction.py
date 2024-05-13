@@ -90,7 +90,7 @@ def _(dynamoDBData: dict) -> dict:
     for key, value in dynamoDBData.items():
         if isinstance(value, dict):
             # 適切な型に変換する
-            convertedJson[key] = ConvertDynamoDBToJsonByTypeKey(value)
+            convertedJson[key] = _ConvertDynamoDBToJsonByTypeKey(value)
         else:
             raise Exception("未対応の型です")
 
@@ -111,7 +111,7 @@ def _(dynamoDBData: list) -> list:
     return list(map(ConvertDynamoDBToJson, dynamoDBData))
 
 
-def ConvertDynamoDBToJsonByTypeKey(
+def _ConvertDynamoDBToJsonByTypeKey(
     dynamoDBData: dict,
 ) -> Union[str, float, list, dict]:
     """
@@ -137,7 +137,7 @@ def ConvertDynamoDBToJsonByTypeKey(
         return ConvertDynamoDBToJson(value)
     elif key == "L":
         # リスト
-        return list(map(ConvertDynamoDBToJsonByTypeKey, value))
+        return list(map(_ConvertDynamoDBToJsonByTypeKey, value))
 
     raise Exception("未対応の型です")
 
@@ -154,12 +154,12 @@ def ConvertJsonToDynamoDB(json: dict) -> dict:
     """
     convertedJson: dict = {}
     for key, value in json.items():
-        convertedJson[key] = ConvertJsonToDynamoDBByTypeKey(value)
+        convertedJson[key] = _ConvertJsonToDynamoDBByTypeKey(value)
 
     return convertedJson
 
 
-def ConvertJsonToDynamoDBByTypeKey(
+def _ConvertJsonToDynamoDBByTypeKey(
     value: Union[str, int, float, dict, list]
 ) -> dict:
     """
@@ -184,7 +184,7 @@ def ConvertJsonToDynamoDBByTypeKey(
     elif isinstance(value, list):
         # リスト
         return {
-            "L": list(map(lambda x: ConvertJsonToDynamoDBByTypeKey(x), value))
+            "L": list(map(lambda x: _ConvertJsonToDynamoDBByTypeKey(x), value))
         }
     else:
         raise Exception("未対応の型です")

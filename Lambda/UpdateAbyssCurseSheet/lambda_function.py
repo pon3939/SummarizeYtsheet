@@ -4,7 +4,7 @@ from json import loads
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import MakeYtsheetUrl, OpenSpreadsheet
 from myLibrary.Constant import SpreadSheet, SwordWorld
 from myLibrary.Player import Player
 
@@ -31,7 +31,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     )
 
     # スプレッドシートを開く
-    spreadsheet: Spreadsheet = CommonFunction.OpenSpreadsheet(
+    spreadsheet: Spreadsheet = OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
     worksheet: Worksheet = spreadsheet.worksheet("アビスカース")
@@ -104,9 +104,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             pcIndex: int = headers.index("PC") + 1
             rowIndex: int = updateData.index(row) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {
-                "uri": CommonFunction.MakeYtsheetUrl(character.YtsheetId)
-            }
+            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),

@@ -4,7 +4,11 @@ from json import loads
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import (
+    ConvertToVerticalHeader,
+    MakeYtsheetUrl,
+    OpenSpreadsheet,
+)
 from myLibrary.Constant import SpreadSheet, SwordWorld
 from myLibrary.ExpStatus import ExpStatus
 from myLibrary.Player import Player
@@ -32,7 +36,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     )
 
     # スプレッドシートを開く
-    spreadsheet: Spreadsheet = CommonFunction.OpenSpreadsheet(
+    spreadsheet: Spreadsheet = OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
     worksheet: Worksheet = spreadsheet.worksheet("技能")
@@ -130,9 +134,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             # PC列のハイパーリンク
             pcIndex: int = headers.index("PC") + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {
-                "uri": CommonFunction.MakeYtsheetUrl(character.YtsheetId)
-            }
+            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),
@@ -157,7 +159,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     # ヘッダーを縦書き用に変換
     displayHeader: list[str] = list(
         map(
-            lambda x: CommonFunction.ConvertToVerticalHeader(x),
+            lambda x: ConvertToVerticalHeader(x),
             headers,
         )
     )

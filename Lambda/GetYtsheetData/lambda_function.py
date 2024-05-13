@@ -4,7 +4,13 @@ from json import dumps, loads
 from time import sleep
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import (
+    ConvertDynamoDBToJson,
+    ConvertJsonToDynamoDB,
+    GetCurrentDateTimeForDynamoDB,
+    InitDb,
+    MakeYtsheetUrl,
+)
 from myLibrary.Constant import TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from requests import Response, get
@@ -26,9 +32,7 @@ def lambda_handler(event: dict, context: LambdaContext):
 
     seasonId: int = int(event["SeasonId"])
     index: int = event["Index"]
-    player: dict = CommonFunction.ConvertDynamoDBToJson(
-        event["Players"][index]
-    )
+    player: dict = ConvertDynamoDBToJson(event["Players"][index])
 
     updatePlayers(seasonId, player)
 
@@ -55,16 +59,14 @@ def updatePlayers(seasonId: int, player: dict):
         updateCharacters.append(character)
 
     # 更新
-    dynamoDb: DynamoDBClient = CommonFunction.InitDb()
-    updateTime: str = CommonFunction.GetCurrentDateTimeForDynamoDB()
+    dynamoDb: DynamoDBClient = InitDb()
+    updateTime: str = GetCurrentDateTimeForDynamoDB()
     dynamoDb.update_item(
         TableName=TableName.PLAYERS,
-        Key=CommonFunction.ConvertJsonToDynamoDB(
-            {"season_id": seasonId, "id": player["id"]}
-        ),
+        Key=ConvertJsonToDynamoDB({"season_id": seasonId, "id": player["id"]}),
         UpdateExpression="SET characters = :characters, "
         " update_time = :update_time",
-        ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
+        ExpressionAttributeValues=ConvertJsonToDynamoDB(
             {
                 ":characters": updateCharacters,
                 ":update_time": updateTime,
@@ -85,7 +87,7 @@ def getYtsheetData(ytsheetId: str) -> dict:
     """
 
     # ゆとシートにアクセス
-    url: str = f"{CommonFunction.MakeYtsheetUrl(ytsheetId)}&mode=json"
+    url: str = f"{MakeYtsheetUrl(ytsheetId)}&mode=json"
     response: Response = get(url)
 
     # ステータスコード200以外は例外発生

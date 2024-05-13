@@ -4,7 +4,11 @@ from dataclasses import asdict
 from json import dumps
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import (
+    ConvertDynamoDBToJson,
+    ConvertJsonToDynamoDB,
+    InitDb,
+)
 from myLibrary.Constant import TableName
 from myLibrary.Player import Player
 from mypy_boto3_dynamodb.client import DynamoDBClient
@@ -69,11 +73,11 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         list[dict]: プレイヤー情報
     """
 
-    dynamodb: DynamoDBClient = CommonFunction.InitDb()
+    dynamodb: DynamoDBClient = InitDb()
     projectionExpression: str = "id, characters, update_time, #name"
     expressionAttributeNames: dict = {"#name": "name"}
     keyConditionExpression: str = "season_id = :season_id"
-    expressionAttributeValues: dict = CommonFunction.ConvertJsonToDynamoDB(
+    expressionAttributeValues: dict = ConvertJsonToDynamoDB(
         {":season_id": seasonId}
     )
     response: QueryOutputTypeDef = dynamodb.query(
@@ -99,4 +103,4 @@ def GetPlayers(seasonId: int) -> "list[dict]":
 
     players += response["Items"]
 
-    return CommonFunction.ConvertDynamoDBToJson(players)
+    return ConvertDynamoDBToJson(players)

@@ -3,7 +3,7 @@
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import OpenSpreadsheet
 
 """
 シートを並び替え
@@ -25,7 +25,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     googleServiceAccount: dict = event["GoogleServiceAccount"]
 
     # スプレッドシートを開く
-    spreadsheet: Spreadsheet = CommonFunction.OpenSpreadsheet(
+    spreadsheet: Spreadsheet = OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
 

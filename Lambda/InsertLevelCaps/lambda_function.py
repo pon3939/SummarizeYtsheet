@@ -4,7 +4,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary import CommonFunction
+from myLibrary.CommonFunction import (
+    ConvertJsonToDynamoDB,
+    DateTimeToStrForDynamoDB,
+    InitDb,
+)
 from myLibrary.Constant import TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
@@ -44,7 +48,7 @@ def insertLevelCaps(
         seasonId: int: シーズンID
     """
 
-    dynamoDb: DynamoDBClient = CommonFunction.InitDb()
+    dynamoDb: DynamoDBClient = InitDb()
 
     requestItems: list[WriteRequestTypeDef] = []
     for levelCap in levelCaps:
@@ -57,14 +61,11 @@ def insertLevelCaps(
         requestItem["PutRequest"] = {"Item": {}}
         item: dict = {
             "season_id": seasonId,
-            "start_datetime"
-            "": CommonFunction.DateTimeToStrForDynamoDB(startDatetimeInJst),
+            "start_datetime" "": DateTimeToStrForDynamoDB(startDatetimeInJst),
             "max_exp": levelCap["maxExp"],
             "minimum_exp": levelCap["minimumExp"],
         }
-        requestItem["PutRequest"]["Item"] = (
-            CommonFunction.ConvertJsonToDynamoDB(item)
-        )
+        requestItem["PutRequest"]["Item"] = ConvertJsonToDynamoDB(item)
         requestItems.append(requestItem)
 
     response: BatchWriteItemOutputTypeDef = dynamoDb.batch_write_item(
