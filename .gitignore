@@ -223,3 +223,6 @@ $RECYCLE.BIN/
 # レイヤー
 python/*
 layer.zip
+
+# デバッグ用入力データ
+input.json
