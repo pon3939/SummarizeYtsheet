@@ -43,12 +43,13 @@ def lambda_handler(event: dict, context: LambdaContext) -> dict:
                     asdict(
                         Player(
                             Name=x["name"],
-                            UpdateTime=x["updateTime"],
+                            UpdateTime=x["update_time"],
                             MaxExp=maxExp,
                             MinimumExp=minimumExp,
                             CharacterJsons=x["characters"],
                         )
-                    )
+                    ),
+                    ensure_ascii=False,
                 ),
                 players,
             )
@@ -69,13 +70,18 @@ def GetPlayers(seasonId: int) -> "list[dict]":
     """
 
     dynamodb: DynamoDBClient = CommonFunction.InitDb()
+    projectionExpression: str = "id, characters, update_time, #name"
+    expressionAttributeNames: dict = {"#name": "name"}
+    keyConditionExpression: str = "season_id = :season_id"
+    expressionAttributeValues: dict = CommonFunction.ConvertJsonToDynamoDB(
+        {":season_id": seasonId}
+    )
     response: QueryOutputTypeDef = dynamodb.query(
         TableName=TableName.PLAYERS,
-        ProjectionExpression="id, character, update_time, name",
-        KeyConditionExpression="season_id = :season_id",
-        ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
-            {":season_id": seasonId}
-        ),
+        ProjectionExpression=projectionExpression,
+        ExpressionAttributeNames=expressionAttributeNames,
+        KeyConditionExpression=keyConditionExpression,
+        ExpressionAttributeValues=expressionAttributeValues,
     )
 
     # ページ分割分を取得
@@ -84,11 +90,10 @@ def GetPlayers(seasonId: int) -> "list[dict]":
         players += response["Items"]
         response = dynamodb.query(
             TableName=TableName.PLAYERS,
-            ProjectionExpression="id, character, update_time, name",
-            KeyConditionExpression="season_id = :season_id",
-            ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
-                {":season_id": seasonId}
-            ),
+            ProjectionExpression=projectionExpression,
+            ExpressionAttributeNames=expressionAttributeNames,
+            KeyConditionExpression=keyConditionExpression,
+            ExpressionAttributeValues=expressionAttributeValues,
             ExclusiveStartKey=response["LastEvaluatedKey"],
         )
 

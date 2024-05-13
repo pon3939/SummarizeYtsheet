@@ -9,6 +9,7 @@ from boto3 import client
 from google.oauth2 import service_account
 from gspread import Client, Spreadsheet, authorize
 from mypy_boto3_dynamodb.client import DynamoDBClient
+from pytz import timezone
 
 """
 汎用関数
@@ -216,6 +217,21 @@ def DateTimeToStrForDynamoDB(target: datetime) -> str:
         gmt = target.astimezone(None).replace(tzinfo=None)
 
     return f"{gmt.isoformat(timespec='milliseconds')}Z"
+
+
+def StrForDynamoDBToDateTime(target: str) -> datetime:
+    """
+
+    DynamoDBに登録された日時文字列からdatetimeを取得
+
+    Args:
+        target str: 日時文字列
+    Returns:
+        datetime: 日時
+    """
+    isoStr = target.removesuffix("Z")
+    utc: datetime = datetime.fromisoformat(isoStr)
+    return utc.astimezone(timezone("Asia/Tokyo"))
 
 
 def MakeYtsheetUrl(id: str) -> str:

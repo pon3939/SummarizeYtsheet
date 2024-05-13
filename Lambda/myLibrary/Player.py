@@ -2,10 +2,9 @@
 
 
 from dataclasses import dataclass, field
-from datetime import datetime
 
+from myLibrary.CommonFunction import StrForDynamoDBToDateTime
 from myLibrary.PlayerCharacter import PlayerCharacter
-from pytz import timezone
 
 """
 PL
@@ -37,9 +36,9 @@ class Player:
             return
 
         # 更新日時をスプレッドシートが理解できる形式に変換
-        utc: datetime = datetime.fromisoformat(self.UpdateTime)
-        jst: datetime = utc.astimezone(timezone("Asia/Tokyo"))
-        self.UpdateTime = jst.strftime("%Y/%m/%d %H:%M:%S")
+        self.UpdateTime = StrForDynamoDBToDateTime(self.UpdateTime).strftime(
+            "%Y/%m/%d %H:%M:%S"
+        )
 
         self.Characters = list(
             map(
