@@ -60,7 +60,7 @@ def insertLevelCaps(
             "start_datetime"
             "": CommonFunction.DateTimeToStrForDynamoDB(startDatetimeInJst),
             "max_exp": levelCap["maxExp"],
-            "minimum_Exp": levelCap["minimumExp"],
+            "minimum_exp": levelCap["minimumExp"],
         }
         requestItem["PutRequest"]["Item"] = (
             CommonFunction.ConvertJsonToDynamoDB(item)
