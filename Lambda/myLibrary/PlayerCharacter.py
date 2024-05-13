@@ -380,7 +380,7 @@ class PlayerCharacter:
         self.PlayerName = ""
         self.MaxExp = 0
         self.MinimumExp = 0
-        self.YtSheetJson = {}
+        self.Json = {}
 
 
 def _CalculateFromString(string: str) -> int:
