@@ -6,8 +6,8 @@
 			"name": "InsertPlayers:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/InsertPlayers",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "InsertPlayers/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -23,8 +23,8 @@
 			"name": "InsertLevelCaps:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/InsertLevelCaps",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "InsertLevelCaps/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -40,8 +40,8 @@
 			"name": "ReorderWorksheets:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/ReorderWorksheets",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "ReorderWorksheets/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -57,8 +57,8 @@
 			"name": "UpdateAbyssCurseSheet:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/UpdateAbyssCurseSheet",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "UpdateAbyssCurseSheet/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -74,8 +74,8 @@
 			"name": "updateHonorSheet:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/updateHonorSheet",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "updateHonorSheet/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -91,8 +91,8 @@
 			"name": "FormatYtsheetData:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/FormatYtsheetData",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "FormatYtsheetData/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -108,8 +108,8 @@
 			"name": "updateCombatSkillSheet:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/updateCombatSkillSheet",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "updateCombatSkillSheet/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -125,8 +125,8 @@
 			"name": "updateStatusSheet:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/updateStatusSheet",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "updateStatusSheet/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -142,8 +142,8 @@
 			"name": "updateSkillLevelSheet:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/updateSkillLevelSheet",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "updateSkillLevelSheet/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -159,8 +159,8 @@
 			"name": "updateBasicDataSheet:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/updateBasicDataSheet",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "updateBasicDataSheet/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
@@ -176,8 +176,8 @@
 			"name": "GetYtsheetData:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
-				"projectRoot": "${workspaceFolder}/Lambda/GetYtsheetData",
-				"lambdaHandler": "lambda_function.lambda_handler"
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "GetYtsheetData/lambda_function.lambda_handler"
 			},
 			"lambda": {
 				"runtime": "python3.9",
