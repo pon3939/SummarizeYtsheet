@@ -39,7 +39,7 @@
               "Next": "Select Players Loop",
               "Parameters": {
                 "TableName": "players",
-                "ProjectionExpression": "id, characters",
+                "ProjectionExpression": "id, ytsheet_ids",
                 "KeyConditionExpression": "season_id = :season_id",
                 "ExpressionAttributeValues": {
                   ":season_id": {
@@ -109,12 +109,9 @@
               "Type": "Task",
               "Next": "Select Players Loop",
               "Parameters": {
-                "TableName": "player_characters",
+                "TableName": "players",
                 "ExclusiveStartKey.$": "$.LastEvaluatedKey",
-                "ProjectionExpression": "id,#url",
-                "ExpressionAttributeNames": {
-                  "#url": "url"
-                },
+                "ProjectionExpression": "id, ytsheet_ids",
                 "KeyConditionExpression": "season_id = :season_id",
                 "ExpressionAttributeValues": {
                   ":season_id": {

@@ -120,10 +120,6 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
             queryResult["Items"]
         )
 
-        newPlayerCharacter = {
-            "ytsheet_id": player["YtsheetId"],
-            "ytsheet_json": "{}",
-        }
         if len(existsPlayers) > 0:
             # 更新
             DynamoDb.update_item(
@@ -131,12 +127,12 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
                 Key=CommonFunction.ConvertJsonToDynamoDB(
                     {"season_id": seasonId, "id": existsPlayers[0]["id"]}
                 ),
-                UpdateExpression="SET characters = "
-                " list_append(characters, :new_character), "
+                UpdateExpression="SET ytsheet_ids = "
+                " list_append(ytsheet_ids, :new_ytsheet_id), "
                 " update_time = :update_time",
                 ExpressionAttributeValues=CommonFunction.ConvertJsonToDynamoDB(
                     {
-                        ":new_character": [newPlayerCharacter],
+                        ":new_ytsheet_id": [player["YtsheetId"]],
                         ":update_time": (
                             CommonFunction.GetCurrentDateTimeForDynamoDB()
                         ),
@@ -151,7 +147,8 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
             "season_id": seasonId,
             "id": id,
             "name": player["Name"],
-            "characters": [newPlayerCharacter],
+            "ytsheet_ids": [player["YtsheetId"]],
+            "characters": [],
             "update_time": CommonFunction.GetCurrentDateTimeForDynamoDB(),
         }
         requestItem: WriteRequestTypeDef = {}

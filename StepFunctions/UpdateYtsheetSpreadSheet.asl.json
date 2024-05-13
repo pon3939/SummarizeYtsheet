@@ -13,17 +13,17 @@
               "Type": "Task",
               "Resource": "arn:aws:states:::dynamodb:getItem",
               "Parameters": {
-                "TableName": "Environments",
+                "TableName": "environments",
                 "Key": {
                   "id": {
-                    "N.$": "$.environmentId"
+                    "N.$": "States.Format('{}', $.EnvironmentId)"
                   }
                 }
               },
               "ResultSelector": {
                 "Environment": {
-                  "SpreadsheetId.$": "$.Item.spreadsheetId.S",
-                  "SeasonId.$": "$.Item.seasonId.N"
+                  "SpreadsheetId.$": "$.Item.spreadsheet_id.S",
+                  "SeasonId.$": "$.Item.season_id.N"
                 }
               },
               "Next": "Get Level Cap"
@@ -31,14 +31,14 @@
             "Get Level Cap": {
               "Type": "Task",
               "Parameters": {
-                "TableName": "LevelCaps",
-                "KeyConditionExpression": "seasonId = :seasonId AND startDatetime <= :startDatetime",
+                "TableName": "level_caps",
+                "KeyConditionExpression": "season_id = :season_id AND start_datetime <= :start_datetime",
                 "ExpressionAttributeValues": {
-                  ":startDatetime": {
+                  ":start_datetime": {
                     "S.$": "$$.State.EnteredTime"
                   },
-                  ":seasonId": {
-                    "N.$": "$.Environment.SeasonId"
+                  ":season_id": {
+                    "N.$": "$.Environment.season_id"
                   }
                 },
                 "ScanIndexForward": false,
@@ -46,8 +46,8 @@
               },
               "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
               "ResultSelector": {
-                "MaxExp.$": "$.Items[0].maxExp.N",
-                "MinimumExp.$": "$.Items[0].minimumExp.N"
+                "MaxExp.$": "$.Items[0].max_exp.N",
+                "MinimumExp.$": "$.Items[0].minimum_exp.N"
               },
               "End": true,
               "ResultPath": "$.LevelCap"
@@ -61,7 +61,7 @@
               "Type": "Task",
               "Resource": "arn:aws:states:::dynamodb:getItem",
               "Parameters": {
-                "TableName": "GoogleServiceAccounts",
+                "TableName": "google_service_accounts",
                 "Key": {
                   "id": {
                     "N": "1"
@@ -69,17 +69,17 @@
                 }
               },
               "ResultSelector": {
-                "auth_provider_x509_cert_url.$": "$.Item.json.M.auth_provider_x509_cert_url.S",
-                "auth_uri.$": "$.Item.json.M.auth_uri.S",
-                "client_email.$": "$.Item.json.M.client_email.S",
-                "client_id.$": "$.Item.json.M.client_id.S",
-                "client_x509_cert_url.$": "$.Item.json.M.client_x509_cert_url.S",
-                "private_key.$": "$.Item.json.M.private_key.S",
-                "private_key_id.$": "$.Item.json.M.private_key_id.S",
-                "project_id.$": "$.Item.json.M.project_id.S",
-                "token_uri.$": "$.Item.json.M.token_uri.S",
-                "type.$": "$.Item.json.M.type.S",
-                "universe_domain.$": "$.Item.json.M.universe_domain.S"
+                "auth_provider_x509_cert_url.$": "$.Item.auth_provider_x509_cert_url.S",
+                "auth_uri.$": "$.Item.auth_uri.S",
+                "client_email.$": "$.Item.client_email.S",
+                "client_id.$": "$.Item.client_id.S",
+                "client_x509_cert_url.$": "$.Item.client_x509_cert_url.S",
+                "private_key.$": "$.Item.private_key.S",
+                "private_key_id.$": "$.Item.private_key_id.S",
+                "project_id.$": "$.Item.project_id.S",
+                "token_uri.$": "$.Item.token_uri.S",
+                "type.$": "$.Item.type.S",
+                "universe_domain.$": "$.Item.universe_domain.S"
               },
               "End": true
             }
@@ -147,15 +147,15 @@
           }
         },
         {
-          "StartAt": "update Basic Data Sheet",
+          "StartAt": "Update Basic Data Sheet",
           "States": {
-            "update Basic Data Sheet": {
+            "Update Basic Data Sheet": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke",
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
-                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateBasicDataSheet:$LATEST"
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:UpdateBasicDataSheet:$LATEST"
               },
               "Retry": [
                 {
@@ -183,7 +183,7 @@
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
-                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateSkillLevelSheet:$LATEST"
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:UpdateSkillLevelSheet:$LATEST"
               },
               "Retry": [
                 {
@@ -211,7 +211,7 @@
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
-                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateStatusSheet:$LATEST"
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:UpdateStatusSheet:$LATEST"
               },
               "Retry": [
                 {
@@ -239,7 +239,7 @@
               "OutputPath": "$.Payload",
               "Parameters": {
                 "Payload.$": "$",
-                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:updateCombatSkillSheet:$LATEST"
+                "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:UpdateCombatSkillSheet:$LATEST"
               },
               "Retry": [
                 {
@@ -317,9 +317,8 @@
       ],
       "End": true,
       "Parameters": {
-        "Environment.$": "$.Environment",
+        "SpreadsheetId.$": "$.Environment.SpreadsheetId",
         "GoogleServiceAccount.$": "$.GoogleServiceAccount",
-        "LevelCap.$": "$.LevelCap",
         "Players.$": "$.FormatResult.Payload.Players"
       }
     }
