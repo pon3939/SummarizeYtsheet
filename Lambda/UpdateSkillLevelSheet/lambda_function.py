@@ -105,7 +105,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             updateData.append(row)
 
             # 書式設定
-            rowIndex: int = updateData.index(row) + 1
+            rowIndex: int = updateData.index(row) + 1 + 1
 
             # 経験点の文字色
             expIndex: int = headers.index("経験点\nピンゾロ含む") + 1

@@ -140,7 +140,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
             # PC列のハイパーリンク
             pcIndex: int = header.index("PC") + 1
-            rowIndex: int = updateData.index(row) + 1
+            rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(

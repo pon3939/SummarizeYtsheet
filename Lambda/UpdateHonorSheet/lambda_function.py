@@ -129,7 +129,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
             # PC列のハイパーリンク
             pcIndex: int = headers.index("PC") + 1
-            rowIndex: int = updateData.index(row) + 1
+            rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
@@ -143,17 +143,23 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     notTotalColumnCount: int = 5
     total: list = [None] * notTotalColumnCount
     total[-1] = "合計"
-    total[headers.index("2.0流派")] = list(
-        map(lambda x: x[headers.index("2.0流派")], updateData)
-    ).count(SpreadSheet.ACTIVE_STRING)
-    total[headers.index("未加入")] = list(
-        map(lambda x: x[headers.index("未加入")], updateData)
-    ).count(SpreadSheet.ACTIVE_STRING)
-    total[headers.index("加入数")] = sum(
-        list(
-            map(
-                lambda x: (x[headers.index("加入数")]),
-                updateData,
+    total.append(
+        list(map(lambda x: x[headers.index("2.0流派")], updateData)).count(
+            SpreadSheet.ACTIVE_STRING
+        )
+    )
+    total.append(
+        list(map(lambda x: x[headers.index("未加入")], updateData)).count(
+            SpreadSheet.ACTIVE_STRING
+        )
+    )
+    total.append(
+        sum(
+            list(
+                map(
+                    lambda x: (x[headers.index("加入数")]),
+                    updateData,
+                )
             )
         )
     )

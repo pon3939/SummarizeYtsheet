@@ -121,7 +121,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             updateData.append(row)
 
             # 書式設定
-            rowIndex: int = updateData.index(row) + 1
+            rowIndex: int = updateData.index(row) + 1 + 1
 
             # PC列のハイパーリンク
             pcIndex: int = headers.index("PC") + 1

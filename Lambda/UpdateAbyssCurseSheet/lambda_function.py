@@ -27,7 +27,10 @@ def lambda_handler(event: dict, context: LambdaContext):
     spreadsheetId: str = event["SpreadsheetId"]
     googleServiceAccount: dict = event["GoogleServiceAccount"]
     players: "list[Player]" = list(
-        map(lambda x: Player(**loads(x)), event["Players"])
+        map(
+            lambda x: Player(**loads(x)),
+            event["Players"],
+        )
     )
 
     # スプレッドシートを開く
@@ -102,7 +105,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
             # PC列のハイパーリンク
             pcIndex: int = headers.index("PC") + 1
-            rowIndex: int = updateData.index(row) + 1
+            rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
