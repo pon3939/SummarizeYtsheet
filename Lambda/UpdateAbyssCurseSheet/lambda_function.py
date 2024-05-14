@@ -65,8 +65,6 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     for abyssCurse in SwordWorld.ABYSS_CURSES:
         headers.append(abyssCurse)
 
-    notTotalColumnCount: int = 3
-    totalColumnCount: int = len(headers) - notTotalColumnCount
     formats: "list[dict]" = []
     no: int = 0
     for player in players:
@@ -116,21 +114,23 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             )
 
     # 合計行
-    total: list = ([None] * notTotalColumnCount) + ([0] * totalColumnCount)
-    total[notTotalColumnCount - 1] = "合計"
-    totalIndex: int = headers.index("アビスカースの数")
-    total[totalIndex] = sum(
-        list(
-            map(
-                lambda x: x[totalIndex],
-                updateData,
+    total: list = [None] * 3
+    total[-1] = "合計"
+    total.append(
+        sum(
+            list(
+                map(
+                    lambda x: x[headers.index("アビスカースの数")],
+                    updateData,
+                )
             )
         )
     )
     for abyssCurse in SwordWorld.ABYSS_CURSES:
-        index: int = headers.index(abyssCurse)
-        total[index] = list(map(lambda x: x[index], updateData)).count(
-            SpreadSheet.TRUE_STRING
+        total.append(
+            list(
+                map(lambda x: x[headers.index(abyssCurse)], updateData)
+            ).count(SpreadSheet.TRUE_STRING)
         )
 
     updateData.append(total)
