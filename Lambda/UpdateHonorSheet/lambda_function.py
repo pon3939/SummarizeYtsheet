@@ -145,12 +145,12 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     total[-1] = "合計"
     total.append(
         list(map(lambda x: x[headers.index("2.0流派")], updateData)).count(
-            SpreadSheet.ACTIVE_STRING
+            SpreadSheet.TRUE_STRING
         )
     )
     total.append(
         list(map(lambda x: x[headers.index("未加入")], updateData)).count(
-            SpreadSheet.ACTIVE_STRING
+            SpreadSheet.TRUE_STRING
         )
     )
     total.append(
@@ -169,7 +169,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         map(
             lambda x: list(
                 map(lambda y: y[headers.index(x.Name)], updateData)
-            ).count(SpreadSheet.ACTIVE_STRING),
+            ).count(SpreadSheet.TRUE_STRING),
             SwordWorld.STYLES,
         )
     )
