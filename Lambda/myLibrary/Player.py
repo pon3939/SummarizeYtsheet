@@ -32,27 +32,34 @@ class Player:
         コンストラクタの後の処理
         """
         if len(self.CharacterJsons) == 0:
-            # JSONからデコードされた場合など
-            return
-
-        # 更新日時をスプレッドシートが理解できる形式に変換
-        self.UpdateTime = StrForDynamoDBToDateTime(self.UpdateTime).strftime(
-            "%Y/%m/%d %H:%M:%S"
-        )
-
-        self.Characters = list(
-            map(
-                lambda x: PlayerCharacter(
-                    Json=x,
-                    PlayerName=self.Name,
-                    MaxExp=self.MaxExp,
-                    MinimumExp=self.MinimumExp,
-                ),
-                self.CharacterJsons,
+            # JSONからデコードされた場合
+            self.Characters = list(
+                map(
+                    lambda x: (
+                        PlayerCharacter(**x) if isinstance(x, dict) else x
+                    ),
+                    self.Characters,
+                )
             )
-        )
+        else:
+            # 更新日時をスプレッドシートが理解できる形式に変換
+            self.UpdateTime = StrForDynamoDBToDateTime(
+                self.UpdateTime
+            ).strftime("%Y/%m/%d %H:%M:%S")
 
-        # 不要なので削除
-        self.MaxExp = 0
-        self.MinimumExp = 0
-        self.CharacterJsons = []
+            self.Characters = list(
+                map(
+                    lambda x: PlayerCharacter(
+                        Json=x,
+                        PlayerName=self.Name,
+                        MaxExp=self.MaxExp,
+                        MinimumExp=self.MinimumExp,
+                    ),
+                    self.CharacterJsons,
+                )
+            )
+
+            # 不要なので削除
+            self.MaxExp = 0
+            self.MinimumExp = 0
+            self.CharacterJsons = []
