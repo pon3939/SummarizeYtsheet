@@ -1,30 +1,31 @@
 # -*- coding: utf-8 -*-
 
+
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet
-from myLibrary import commonFunction
+from myLibrary.CommonFunction import OpenSpreadsheet
 
 """
 シートを並び替え
 """
 
 
-def lambda_handler(event: dict, context):
+def lambda_handler(event: dict, context: LambdaContext):
     """
 
     メイン処理
 
     Args:
         event dict: イベント
-        context awslambdaric.lambda_context.LambdaContext: コンテキスト
+        context LambdaContext: コンテキスト
     """
 
     # 入力
-    environment: dict = event["Environment"]
-    spreadsheetId: str = environment["SpreadsheetId"]
+    spreadsheetId: str = event["SpreadsheetId"]
     googleServiceAccount: dict = event["GoogleServiceAccount"]
 
     # スプレッドシートを開く
-    spreadsheet: Spreadsheet = commonFunction.OpenSpreadsheet(
+    spreadsheet: Spreadsheet = OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
 

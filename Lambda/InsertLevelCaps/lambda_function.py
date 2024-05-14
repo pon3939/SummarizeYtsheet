@@ -1,31 +1,38 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-from myLibrary import commonFunction
+from aws_lambda_powertools.utilities.typing import LambdaContext
+from myLibrary.CommonFunction import (
+    ConvertJsonToDynamoDB,
+    DateTimeToStrForDynamoDB,
+    InitDb,
+)
+from myLibrary.Constant import TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
-from mypy_boto3_dynamodb.type_defs import BatchWriteItemOutputTypeDef
+from mypy_boto3_dynamodb.type_defs import (
+    BatchWriteItemOutputTypeDef,
+    WriteRequestTypeDef,
+)
 
 """
-LevelCapsに登録
+level_capsに登録
 """
 
-# レベルキャップのテーブル名
-TABLE_NAME: str = "LevelCaps"
 
-
-def lambda_handler(event, context):
+def lambda_handler(event: dict, context: LambdaContext):
     """
 
     メイン処理
 
     Args:
         event dict: イベント
-        context awslambdaric.lambda_context.LambdaContext: コンテキスト
+        context LambdaContext: コンテキスト
     """
 
-    seasonId: int = event["seasonId"]
-    levelCaps: list[dict[str, str]] = event["levelCaps"]
+    seasonId: int = int(event["SeasonId"])
+    levelCaps: list[dict[str, str]] = event["LevelCaps"]
 
     insertLevelCaps(levelCaps, seasonId)
 
@@ -34,39 +41,38 @@ def insertLevelCaps(
     levelCaps: "list[dict[str, str]]",
     seasonId: int,
 ):
-    """PCを挿入する
+    """レベルキャップを挿入する
 
     Args:
         levelCaps: list[dict[str, str]]: レベルキャップ
         seasonId: int: シーズンID
     """
 
-    dynamoDb: DynamoDBClient = commonFunction.InitDb()
+    dynamoDb: DynamoDBClient = InitDb()
 
-    requestItems = []
+    requestItems: list[WriteRequestTypeDef] = []
     for levelCap in levelCaps:
         # JSTをGMTに変換
         startDatetimeInJst: datetime = datetime.strptime(
-            f'{levelCap["startDatetime"]}+09:00', r"%Y/%m/%d%z"
-        )
-        startDatetimeInGmt: datetime = startDatetimeInJst.astimezone(None)
+            levelCap["startDatetime"], r"%Y/%m/%d"
+        ).replace(tzinfo=ZoneInfo("Asia/Tokyo"))
 
-        requestItem: dict = {}
-        requestItem["PutRequest"] = {}
+        requestItem: WriteRequestTypeDef = {}
+        requestItem["PutRequest"] = {"Item": {}}
         item: dict = {
-            "seasonId": seasonId,
-            "startDatetime": startDatetimeInGmt.strftime(
-                r"%Y-%m-%dT%H:%M:%S.%fZ"  # ISO 8601
-            ),
-            "maxExp": levelCap["maxExp"],
-            "minimumExp": levelCap["minimumExp"],
+            "season_id": seasonId,
+            "start_datetime" "": DateTimeToStrForDynamoDB(startDatetimeInJst),
+            "max_exp": levelCap["maxExp"],
+            "minimum_exp": levelCap["minimumExp"],
         }
-        requestItem["PutRequest"]["Item"] = commonFunction.ConvertJsonToDynamoDB(item)
+        requestItem["PutRequest"]["Item"] = ConvertJsonToDynamoDB(item)
         requestItems.append(requestItem)
 
     response: BatchWriteItemOutputTypeDef = dynamoDb.batch_write_item(
-        RequestItems={TABLE_NAME: requestItems}
+        RequestItems={TableName.LEVEL_CAPS: requestItems}
     )
 
     while response["UnprocessedItems"] != {}:
-        response = dynamoDb.batch_write_item(RequestItems=response["UnprocessedItems"])
+        response = dynamoDb.batch_write_item(
+            RequestItems=response["UnprocessedItems"]
+        )

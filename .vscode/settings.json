@@ -1,6 +1,12 @@
 {
 	"python.analysis.typeCheckingMode": "basic",
 	"cSpell.words": [
-		"rowcol"
+		"awslambdaric",
+		"boto",
+		"gspread",
+		"Meiryo",
+		"powertools",
+		"rowcol",
+		"ytsheet"
 	]
 }

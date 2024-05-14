@@ -4,12 +4,16 @@ from json import loads
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary.CommonFunction import MakeYtsheetUrl, OpenSpreadsheet
+from myLibrary.CommonFunction import (
+    ConvertToVerticalHeader,
+    MakeYtsheetUrl,
+    OpenSpreadsheet,
+)
 from myLibrary.Constant import SpreadSheet, SwordWorld
 from myLibrary.Player import Player
 
 """
-アビスカースシートを更新
+名誉点・流派シートを更新
 """
 
 
@@ -27,17 +31,14 @@ def lambda_handler(event: dict, context: LambdaContext):
     spreadsheetId: str = event["SpreadsheetId"]
     googleServiceAccount: dict = event["GoogleServiceAccount"]
     players: "list[Player]" = list(
-        map(
-            lambda x: Player(**loads(x)),
-            event["Players"],
-        )
+        map(lambda x: Player(**loads(x)), event["Players"])
     )
 
     # スプレッドシートを開く
     spreadsheet: Spreadsheet = OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
-    worksheet: Worksheet = spreadsheet.worksheet("アビスカース")
+    worksheet: Worksheet = spreadsheet.worksheet("名誉点・流派")
 
     # 更新
     UpdateSheet(worksheet, players)
@@ -60,10 +61,14 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "No.",
         "PC",
         "参加傾向",
-        "アビスカースの数",
+        "冒険者ランク",
+        "累計名誉点",
+        "2.0流派",
+        "未加入",
+        "加入数",
     ]
-    for abyssCurse in SwordWorld.ABYSS_CURSES:
-        headers.append(abyssCurse)
+    for style in SwordWorld.STYLES:
+        headers.append(style.Name)
 
     formats: "list[dict]" = []
     no: int = 0
@@ -71,33 +76,54 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         for character in player.Characters:
             row: list = []
 
-            # アビスカースの情報を取得
-            receivedCurses: list[str] = []
-            receivedCursesString: str = ""
-            for abyssCurse in SwordWorld.ABYSS_CURSES:
-                receivedCurse: str = ""
-                if abyssCurse in character.AbyssCurses:
-                    receivedCurse = SpreadSheet.TRUE_STRING
-                    receivedCursesString += abyssCurse
+            # 流派の情報を取得
+            is20: bool = False
+            learnedStyles: list[str] = []
+            for style in SwordWorld.STYLES:
+                learnedStyle: str = ""
+                if style.Name in character.Styles:
+                    # 該当する流派に入門している
+                    learnedStyle = SpreadSheet.TRUE_STRING
+                    if style.Is20:
+                        is20 = True
 
-                receivedCurses.append(receivedCurse)
+                learnedStyles.append(learnedStyle)
 
             # No.
             no += 1
             row.append(no)
 
             # PC
-            row.append(receivedCursesString + character.Name)
+            row.append(character.Name)
 
             # 参加傾向
             row.append(SpreadSheet.ENTRY_TREND[character.ActiveStatus])
 
-            # 数
-            cursesCount: int = receivedCurses.count(SpreadSheet.TRUE_STRING)
-            row.append(cursesCount)
+            # 冒険者ランク
+            row.append(character.AdventurerRank)
 
-            # 各アビスカース
-            row += receivedCurses
+            # 累計名誉点
+            row.append(character.TotalHonor)
+
+            # 2.0流派
+            is20String: str = ""
+            if is20:
+                is20String: str = SpreadSheet.TRUE_STRING
+
+            row.append(is20String)
+
+            # 未加入
+            notLearned: str = ""
+            learningCount: int = learnedStyles.count(SpreadSheet.TRUE_STRING)
+            if learningCount == 0:
+                notLearned = SpreadSheet.TRUE_STRING
+            row.append(notLearned)
+
+            # 加入数
+            row.append(learningCount)
+
+            # 各流派
+            row += learnedStyles
 
             updateData.append(row)
 
@@ -114,29 +140,49 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             )
 
     # 合計行
-    total: list = [None] * 3
+    notTotalColumnCount: int = 5
+    total: list = [None] * notTotalColumnCount
     total[-1] = "合計"
+    total.append(
+        list(map(lambda x: x[headers.index("2.0流派")], updateData)).count(
+            SpreadSheet.TRUE_STRING
+        )
+    )
+    total.append(
+        list(map(lambda x: x[headers.index("未加入")], updateData)).count(
+            SpreadSheet.TRUE_STRING
+        )
+    )
     total.append(
         sum(
             list(
                 map(
-                    lambda x: x[headers.index("アビスカースの数")],
+                    lambda x: (x[headers.index("加入数")]),
                     updateData,
                 )
             )
         )
     )
-    for abyssCurse in SwordWorld.ABYSS_CURSES:
-        total.append(
-            list(
-                map(lambda x: x[headers.index(abyssCurse)], updateData)
-            ).count(SpreadSheet.TRUE_STRING)
-        )
 
+    # 各流派
+    total += list(
+        map(
+            lambda x: list(
+                map(lambda y: y[headers.index(x.Name)], updateData)
+            ).count(SpreadSheet.TRUE_STRING),
+            SwordWorld.STYLES,
+        )
+    )
     updateData.append(total)
 
     # ヘッダーを追加
-    updateData.insert(0, headers)
+    displayHeaders: list[str] = list(
+        map(
+            lambda x: ConvertToVerticalHeader(x),
+            headers,
+        )
+    )
+    updateData.insert(0, displayHeaders)
 
     # クリア
     worksheet.clear()
@@ -161,6 +207,16 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         {
             "range": f"{startA1}:{endA1}",
             "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+        }
+    )
+
+    # 流派のヘッダー
+    startA1 = utils.rowcol_to_a1(1, notTotalColumnCount + 1)
+    endA1 = utils.rowcol_to_a1(1, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"textRotation": {"vertical": True}},
         }
     )
 
