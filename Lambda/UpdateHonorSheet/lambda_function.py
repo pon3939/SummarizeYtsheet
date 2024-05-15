@@ -4,13 +4,13 @@ from json import loads
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary.CommonFunction import (
+from MyLibrary.CommonFunction import (
     ConvertToVerticalHeader,
     MakeYtsheetUrl,
     OpenSpreadsheet,
 )
-from myLibrary.Constant import SpreadSheet, SwordWorld
-from myLibrary.Player import Player
+from MyLibrary.Constant import SpreadSheet, SwordWorld
+from MyLibrary.Player import Player
 
 """
 名誉点・流派シートを更新

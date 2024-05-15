@@ -3,7 +3,7 @@
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet
-from myLibrary.CommonFunction import OpenSpreadsheet
+from MyLibrary.CommonFunction import OpenSpreadsheet
 
 """
 シートを並び替え

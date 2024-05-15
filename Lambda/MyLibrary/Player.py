@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass, field
 
-from myLibrary.CommonFunction import StrForDynamoDBToDateTime
-from myLibrary.PlayerCharacter import PlayerCharacter
+from MyLibrary.CommonFunction import StrForDynamoDBToDateTime
+from MyLibrary.PlayerCharacter import PlayerCharacter
 
 """
 PL

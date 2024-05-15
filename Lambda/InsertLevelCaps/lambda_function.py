@@ -4,12 +4,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary.CommonFunction import (
+from MyLibrary.CommonFunction import (
     ConvertJsonToDynamoDB,
     DateTimeToStrForDynamoDB,
     InitDb,
 )
-from myLibrary.Constant import TableName
+from MyLibrary.Constant import TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,

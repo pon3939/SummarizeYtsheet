@@ -3,13 +3,13 @@
 from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary.CommonFunction import (
+from MyLibrary.CommonFunction import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
     GetCurrentDateTimeForDynamoDB,
     InitDb,
 )
-from myLibrary.Constant import IndexName, TableName
+from MyLibrary.Constant import IndexName, TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,

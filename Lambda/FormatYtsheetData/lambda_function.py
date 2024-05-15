@@ -4,13 +4,13 @@ from dataclasses import asdict
 from json import dumps
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary.CommonFunction import (
+from MyLibrary.CommonFunction import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
     InitDb,
 )
-from myLibrary.Constant import TableName
-from myLibrary.Player import Player
+from MyLibrary.Constant import TableName
+from MyLibrary.Player import Player
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import QueryOutputTypeDef
 

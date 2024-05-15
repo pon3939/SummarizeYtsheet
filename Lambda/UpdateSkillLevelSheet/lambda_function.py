@@ -4,14 +4,14 @@ from json import loads
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary.CommonFunction import (
+from MyLibrary.CommonFunction import (
     ConvertToVerticalHeader,
     MakeYtsheetUrl,
     OpenSpreadsheet,
 )
-from myLibrary.Constant import SpreadSheet, SwordWorld
-from myLibrary.ExpStatus import ExpStatus
-from myLibrary.Player import Player
+from MyLibrary.Constant import SpreadSheet, SwordWorld
+from MyLibrary.ExpStatus import ExpStatus
+from MyLibrary.Player import Player
 
 """
 技能シートを更新

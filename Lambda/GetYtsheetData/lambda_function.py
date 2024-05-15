@@ -4,14 +4,14 @@ from json import dumps, loads
 from time import sleep
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from myLibrary.CommonFunction import (
+from MyLibrary.CommonFunction import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
     GetCurrentDateTimeForDynamoDB,
     InitDb,
     MakeYtsheetUrl,
 )
-from myLibrary.Constant import TableName
+from MyLibrary.Constant import TableName
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from requests import Response, get
 

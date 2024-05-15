@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from myLibrary.ExpStatus import ExpStatus
+from MyLibrary.ExpStatus import ExpStatus
 
 """
 スプレッドシート関係の定数

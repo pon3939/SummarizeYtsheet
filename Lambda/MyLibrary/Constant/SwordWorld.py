@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from myLibrary.Style import Style
+from MyLibrary.Style import Style
 
 """
 SW2.5関係の定数

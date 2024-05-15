@@ -4,9 +4,9 @@ from json import loads
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
-from myLibrary.CommonFunction import MakeYtsheetUrl, OpenSpreadsheet
-from myLibrary.Constant import SpreadSheet, SwordWorld
-from myLibrary.Player import Player
+from MyLibrary.CommonFunction import MakeYtsheetUrl, OpenSpreadsheet
+from MyLibrary.Constant import SpreadSheet, SwordWorld
+from MyLibrary.Player import Player
 
 """
 アビスカースシートを更新

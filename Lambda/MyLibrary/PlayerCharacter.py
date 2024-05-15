@@ -7,9 +7,9 @@ from re import Match, search, sub
 from typing import Union
 from unicodedata import normalize
 
-from myLibrary.Constant import SwordWorld
-from myLibrary.ExpStatus import ExpStatus
-from myLibrary.Status import Status
+from MyLibrary.Constant import SwordWorld
+from MyLibrary.ExpStatus import ExpStatus
+from MyLibrary.Status import Status
 
 """
 PC
