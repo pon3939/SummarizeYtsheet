@@ -152,7 +152,7 @@ class PlayerCharacter:
 
     Skills: dict = field(default_factory=dict)
 
-    ActiveStatus: ExpStatus = ExpStatus.ACTIVE
+    ActiveStatus: ExpStatus = ExpStatus.INACTIVE
 
     Dexterity: Status = Status()
     Agility: Status = Status()
@@ -232,8 +232,8 @@ class PlayerCharacter:
             # 経験点の状態
             if self.Exp >= self.MaxExp:
                 self.ActiveStatus = ExpStatus.MAX
-            elif self.Exp < self.MinimumExp:
-                self.ActiveStatus = ExpStatus.INACTIVE
+            elif self.Exp >= self.MinimumExp:
+                self.ActiveStatus = ExpStatus.ACTIVE
 
             # 信仰
             self.Faith = ytsheetJson.get("faith", "なし")
