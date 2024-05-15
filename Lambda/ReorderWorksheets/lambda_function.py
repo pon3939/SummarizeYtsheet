@@ -32,6 +32,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     reorderedSheets: list[Worksheet] = []
     reorderedSheets.append(spreadsheet.worksheet("使い方"))
     reorderedSheets.append(spreadsheet.worksheet("グラフ"))
+    reorderedSheets.append(spreadsheet.worksheet("PL"))
     reorderedSheets.append(spreadsheet.worksheet("基本"))
     reorderedSheets.append(spreadsheet.worksheet("技能"))
     reorderedSheets.append(spreadsheet.worksheet("能力値"))

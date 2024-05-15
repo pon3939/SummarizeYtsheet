@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from json import loads
-from re import Match, search, sub
-from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import Spreadsheet, Worksheet, utils
@@ -11,7 +9,7 @@ from MyLibrary.Constant import SpreadSheet
 from MyLibrary.Player import Player
 
 """
-基本シートを更新
+PLシートを更新
 """
 
 
@@ -36,7 +34,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     spreadsheet: Spreadsheet = OpenSpreadsheet(
         googleServiceAccount, spreadsheetId
     )
-    worksheet: Worksheet = spreadsheet.worksheet("基本")
+    worksheet: Worksheet = spreadsheet.worksheet("PL")
 
     # 更新
     UpdateSheet(worksheet, players)
@@ -57,92 +55,89 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     # ヘッダー
     header: "list[str]" = [
         "No.",
-        "PC",
-        "参加傾向",
         "PL",
-        "種族",
-        "種族\nマイナーチェンジ除く",
-        "年齢",
-        "性別",
-        "信仰",
-        "穢れ",
+        "参加傾向",
+        "メインPC",
+        "サブPC",
         "参加",
         "GM",
         "参加+GM",
-        "死亡",
+        "更新日時",
     ]
+    subPcIndex: int = header.index("サブPC")
 
     formats: "list[dict]" = []
     no: int = 0
     for player in players:
-        for character in player.Characters:
-            row: list = []
+        row: list = []
 
-            # No.
-            no += 1
-            row.append(no)
+        # No.
+        no += 1
+        row.append(no)
 
-            # PC
-            row.append(character.Name)
+        # PL
+        row.append(player.Name)
 
-            # 参加傾向
-            row.append(SpreadSheet.ENTRY_TREND[character.ActiveStatus])
+        # 参加傾向
+        row.append(
+            SpreadSheet.ENTRY_TREND[
+                max(list(map(lambda x: x.ActiveStatus, player.Characters)))
+            ]
+        )
 
-            # PL
-            row.append(player.Name)
+        # メインPC
+        row.append(player.Characters[0].Name)
 
-            # 種族
-            minorRace: str = character.Race
-            if "ナイトメア" not in minorRace:
-                # ナイトメア以外はかっこの中身のみ表示
-                minorRaceMatch: Union[Match[str], None] = search(
-                    r"(?<=（)(.+)(?=）)", minorRace
-                )
-                if minorRaceMatch is not None:
-                    minorRace = minorRaceMatch.group()
+        # サブPC
+        subPcName: str = (
+            player.Characters[1].Name if len(player.Characters) > 1 else ""
+        )
+        row.append(subPcName)
 
-            row.append(minorRace)
+        # 参加
+        playerTimes: int = sum(
+            list(map(lambda x: x.PlayerTimes, player.Characters))
+        )
+        row.append(playerTimes)
 
-            # 種族(マイナーチェンジ除く)
-            row.append(sub(r"（.+）", "", character.Race))
+        # GM
+        gameMasterTimes: int = max(
+            list(map(lambda x: x.GameMasterTimes, player.Characters))
+        )
+        row.append(gameMasterTimes)
 
-            # 年齢
-            row.append(character.Age)
+        # 参加+GM
+        row.append(playerTimes + gameMasterTimes)
 
-            # 性別
-            row.append(character.Gender)
+        # 更新日時
+        row.append(player.UpdateTime)
 
-            # 信仰
-            row.append(character.Faith)
+        updateData.append(row)
 
-            # 穢れ
-            row.append(character.Sin)
+        # メインPC列のハイパーリンク
+        mainPcIndex: int = header.index("メインPC") + 1
+        rowIndex: int = updateData.index(row) + 1 + 1
+        mainPcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
+        mainPcTextFormat["link"] = {
+            "uri": MakeYtsheetUrl(player.Characters[0].YtsheetId)
+        }
+        formats.append(
+            {
+                "range": utils.rowcol_to_a1(rowIndex, mainPcIndex),
+                "format": {"textFormat": mainPcTextFormat},
+            }
+        )
 
-            # 参加
-            playerTimes: int = character.PlayerTimes
-            row.append(playerTimes)
-
-            # GM
-            gameMasterTimes: int = character.GameMasterTimes
-            row.append(gameMasterTimes)
-
-            # 参加+GM
-            row.append(playerTimes + gameMasterTimes)
-
-            # 死亡
-            row.append(character.DiedTimes)
-
-            updateData.append(row)
-
-            # PC列のハイパーリンク
-            pcIndex: int = header.index("PC") + 1
-            rowIndex: int = updateData.index(row) + 1 + 1
-            pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+        # サブPC列のハイパーリンク
+        if len(player.Characters) > 1:
+            subPcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
+            subPcTextFormat["link"] = {
+                "uri": MakeYtsheetUrl(player.Characters[1].YtsheetId)
+            }
             formats.append(
                 {
-                    "range": utils.rowcol_to_a1(rowIndex, pcIndex),
-                    "format": {"textFormat": pcTextFormat},
+                    "range": utils.rowcol_to_a1(rowIndex, subPcIndex + 1),
+                    "format": {"textFormat": subPcTextFormat},
                 }
             )
 
@@ -153,15 +148,11 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     total[activeCountIndex] = list(
         map(lambda x: x[activeCountIndex], updateData)
     ).count(SpreadSheet.ACTIVE_STRING)
-    headerIndex: int = header.index("死亡")
-    total[headerIndex] = sum(
-        list(
-            map(
-                lambda x: (x[headerIndex]),
-                updateData,
-            )
-        )
-    )
+
+    total[subPcIndex] = list(
+        map(lambda x: x[subPcIndex] != "", updateData)
+    ).count(True)
+
     updateData.append(total)
 
     # ヘッダーを追加
