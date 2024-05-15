@@ -97,7 +97,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             row.append(character.Name)
 
             # 参加傾向
-            row.append(SpreadSheet.ENTRY_TREND[character.ActiveStatus])
+            row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
             # 冒険者ランク
             row.append(character.AdventurerRank)

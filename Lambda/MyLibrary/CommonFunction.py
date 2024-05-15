@@ -32,6 +32,8 @@ def OpenSpreadsheet(
     Args:
         googleServiceAccount str: スプレッドシートの認証情報
         spreadsheetId str: スプレッドシートのID
+    Returns:
+        Spreadsheet: スプレッドシート
     """
 
     # サービスアカウントでスプレッドシートにログイン

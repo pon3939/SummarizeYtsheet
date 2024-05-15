@@ -90,7 +90,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             row.append(receivedCursesString + character.Name)
 
             # 参加傾向
-            row.append(SpreadSheet.ENTRY_TREND[character.ActiveStatus])
+            row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
             # 数
             cursesCount: int = receivedCurses.count(SpreadSheet.TRUE_STRING)
