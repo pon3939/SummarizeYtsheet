@@ -147,19 +147,28 @@
                         "Payload.$": "$",
                         "FunctionName": "arn:aws:lambda:ap-northeast-1:759821454976:function:GetYtsheetData:$LATEST"
                       },
-                      "Retry": [
+                      "End": true,
+                      "Catch": [
                         {
                           "ErrorEquals": [
-                            "Lambda.ServiceException",
-                            "Lambda.AWSLambdaException",
-                            "Lambda.SdkClientException",
-                            "Lambda.TooManyRequestsException"
+                            "States.ALL"
                           ],
-                          "IntervalSeconds": 2,
-                          "MaxAttempts": 6,
-                          "BackoffRate": 2
+                          "Next": "Publish General Topic",
+                          "ResultPath": "$.Error"
                         }
-                      ],
+                      ]
+                    },
+                    "Publish General Topic": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::sns:publish",
+                      "Parameters": {
+                        "TopicArn": "arn:aws:sns:ap-northeast-1:759821454976:GeneralTopic",
+                        "Message": {
+                          "Error.$": "$.Error.Error",
+                          "Cause.$": "States.StringToJson($.Error.Cause)",
+                          "Player.$": "States.ArrayGetItem($.Players, $.Index)"
+                        }
+                      },
                       "End": true
                     }
                   }
