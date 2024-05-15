@@ -80,9 +80,14 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
         # 参加傾向
         row.append(
-            SpreadSheet.ENTRY_TREND[
-                max(list(map(lambda x: x.ActiveStatus, player.Characters)))
-            ]
+            max(
+                list(
+                    map(
+                        lambda x: x.ActiveStatus.GetStrForSpreadsheet(),
+                        player.Characters,
+                    )
+                )
+            )
         )
 
         # メインPC
