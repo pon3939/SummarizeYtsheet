@@ -81,7 +81,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             learnedStyles: list[str] = []
             for style in SwordWorld.STYLES:
                 learnedStyle: str = ""
-                if style.Name in character.Styles:
+                if style in character.Styles:
                     # 該当する流派に入門している
                     learnedStyle = SpreadSheet.TRUE_STRING
                     if style.Is20:

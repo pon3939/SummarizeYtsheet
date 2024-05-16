@@ -10,6 +10,7 @@ from unicodedata import normalize
 from MyLibrary.Constant import SwordWorld
 from MyLibrary.ExpStatus import ExpStatus
 from MyLibrary.Status import Status
+from MyLibrary.Style import Style
 
 """
 PC
@@ -147,7 +148,7 @@ class PlayerCharacter:
     FumbleExp: int = 0
 
     AutoCombatFeats: list[str] = field(default_factory=list)
-    Styles: list[str] = field(default_factory=list)
+    Styles: list[Style] = field(default_factory=list)
     AbyssCurses: list[str] = field(default_factory=list)
 
     Skills: dict = field(default_factory=dict)
@@ -183,6 +184,13 @@ class PlayerCharacter:
                 self.Vitality = Status(**self.Vitality)
                 self.Intelligence = Status(**self.Intelligence)
                 self.Mental = Status(**self.Mental)
+
+            self.Styles = list(
+                map(
+                    lambda x: (Style(**x) if isinstance(x, dict) else x),
+                    self.Styles,
+                )
+            )
         else:
             ytsheetJson: dict = loads(self.Json["ytsheet_json"])
 
@@ -290,19 +298,19 @@ class PlayerCharacter:
             # 秘伝
             mysticArtsNum: int = int(ytsheetJson.get("mysticArtsNum", "0"))
             for i in range(1, mysticArtsNum + 1):
-                style: str = _FindStyleFormalName(
+                style: Union[Style, None] = _FindStyle(
                     ytsheetJson.get(f"mysticArts{i}", "")
                 )
-                if style != "" and style not in self.Styles:
+                if style is not None and style not in self.Styles:
                     self.Styles.append(style)
 
             # 名誉アイテム
             honorItemsNum: int = int(ytsheetJson.get("honorItemsNum", "0"))
             for i in range(1, honorItemsNum + 1):
-                style: str = _FindStyleFormalName(
+                style: Union[Style, None] = _FindStyle(
                     ytsheetJson.get(f"honorItem{i}", "")
                 )
-                if style != "" and style not in self.Styles:
+                if style is not None and style not in self.Styles:
                     self.Styles.append(style)
 
             # 不名誉詳細
@@ -310,10 +318,10 @@ class PlayerCharacter:
                 ytsheetJson.get("dishonorItemsNum", "0")
             )
             for i in range(1, disHonorItemsNum + 1):
-                style: str = _FindStyleFormalName(
+                style: Union[Style, None] = _FindStyle(
                     ytsheetJson.get(f"dishonorItem{i}", "")
                 )
-                if style != "" and style not in self.Styles:
+                if style is not None and style not in self.Styles:
                     self.Styles.append(style)
 
             # 武器
@@ -419,23 +427,23 @@ def _CalculateFromString(string: str) -> int:
     return eval(string)
 
 
-def _FindStyleFormalName(string: str) -> str:
+def _FindStyle(string: str) -> Union[Style, None]:
     """
 
-    引数が流派を表す文字列か調べ、流派の正式名称を返却する
+    引数が流派を表す文字列か調べ、一致する流派を返却する
 
     Args:
         string str: 確認する文字列
 
     Returns:
-        str: 引数が流派を表す文字列の場合は流派名、それ以外は空文字
+        Union[Style, None]: 存在する場合は流派、それ以外はNone
     """
 
     for style in SwordWorld.STYLES:
         if search(style.GetKeywordsRegexp(), string):
-            return style.Name
+            return style
 
-    return ""
+    return None
 
 
 def _FindAbyssCurses(string: str) -> "list[str]":

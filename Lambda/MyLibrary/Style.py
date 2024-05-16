@@ -1,35 +1,25 @@
 # -*- coding: utf-8 -*-
 
+from dataclasses import dataclass
 
 """
 流派
 """
 
 
+@dataclass
 class Style:
     """
     流派
     Attributes:
         Name str: 流派名
         Keywords list[str]: 検索キーワード
-        Is2.0 bool: 2.0流派か
+        Is20 bool: 2.0流派か
     """
 
-    def __init__(
-        self, name: str, keywords: list[str], is20: bool = False
-    ) -> None:
-        """
-
-        コンストラクタ
-
-        Args:
-            Name str: 流派名
-            Keywords list[str]: 検索キーワード
-            Is2.0 bool: 2.0流派か
-        """
-        self.Name: str = name
-        self.Keywords: list[str] = keywords
-        self.Is20: bool = is20
+    Name: str
+    Keywords: list[str]
+    Is20: bool = False
 
     def GetKeywordsRegexp(self) -> str:
         """
