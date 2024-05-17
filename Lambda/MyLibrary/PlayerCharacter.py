@@ -3,12 +3,13 @@
 from dataclasses import dataclass, field
 from itertools import chain
 from json import loads
-from re import Match, search, sub
+from re import Match, findall, search, sub
 from typing import Union
 from unicodedata import normalize
 
 from MyLibrary.Constant import SwordWorld
 from MyLibrary.ExpStatus import ExpStatus
+from MyLibrary.GeneralSkill import GeneralSkill
 from MyLibrary.Status import Status
 from MyLibrary.Style import Style
 
@@ -148,19 +149,19 @@ class PlayerCharacter:
     FumbleExp: int = 0
 
     AutoCombatFeats: list[str] = field(default_factory=list)
-    Styles: list[Style] = field(default_factory=list)
     AbyssCurses: list[str] = field(default_factory=list)
-
     Skills: dict = field(default_factory=dict)
 
     ActiveStatus: ExpStatus = ExpStatus.INACTIVE
-
     Dexterity: Status = Status()
     Agility: Status = Status()
     Strength: Status = Status()
     Vitality: Status = Status()
     Intelligence: Status = Status()
     Mental: Status = Status()
+
+    Styles: list[Style] = field(default_factory=list)
+    GeneralSkills: list[GeneralSkill] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """
@@ -189,6 +190,14 @@ class PlayerCharacter:
                 map(
                     lambda x: (Style(**x) if isinstance(x, dict) else x),
                     self.Styles,
+                )
+            )
+            self.GeneralSkills = list(
+                map(
+                    lambda x: (
+                        GeneralSkill(**x) if isinstance(x, dict) else x
+                    ),
+                    self.GeneralSkills,
                 )
             )
         else:
@@ -346,6 +355,42 @@ class PlayerCharacter:
 
             # 所持品
             self.AbyssCurses += _FindAbyssCurses(ytsheetJson.get("items", ""))
+
+            # 一般技能
+            for i in range(1, int(ytsheetJson.get("commonClassNum", "0")) + 1):
+                generalSkillName: str = ytsheetJson.get(f"commonClass{i}", "")
+
+                # 読み仮名等の装飾削除
+                generalSkillName = generalSkillName.removeprefix("|")
+                generalSkillName = generalSkillName.removeprefix(")")
+                generalSkillName = generalSkillName.removeprefix("）")
+                generalSkillName = generalSkillName.removeprefix("》")
+                if generalSkillName == "":
+                    continue
+
+                # カッコの中と外で分離
+                ytsheetGeneralSkills: list[str] = findall(
+                    r"[^(（《]+", generalSkillName
+                )
+                for ytsheetGeneralSkill in ytsheetGeneralSkills:
+                    officialGeneralSkill: Union[str, None] = next(
+                        filter(
+                            lambda x: ytsheetGeneralSkill in x,
+                            SwordWorld.OFFICIAL_GENERAL_SKILL_NAMES,
+                        ),
+                        None,
+                    )
+                    if officialGeneralSkill is not None:
+                        # 公式一般技能は定数から正式名称を取得
+                        generalSkillName = officialGeneralSkill
+                        break
+
+                self.GeneralSkills.append(
+                    GeneralSkill(
+                        generalSkillName,
+                        int(ytsheetJson.get(f"lvCommon{i}", "0")),
+                    )
+                )
 
             # セッション履歴を集計
             totalFumbleExp: int = 0

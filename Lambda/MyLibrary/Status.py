@@ -19,4 +19,10 @@ class Status:
     Additional: int = 0
 
     def GetTotalStatus(self) -> int:
+        """
+        合計能力値を返す
+
+        Returns:
+            int: 合計能力値
+        """
         return self.Base + self.Increased + self.Additional

@@ -3,6 +3,23 @@
 		{
 			"type": "aws-sam",
 			"request": "direct-invoke",
+			"name": "UpdateGeneralSkillSheet:lambda_function.lambda_handler (python3.9)",
+			"invokeTarget": {
+				"target": "code",
+				"projectRoot": "${workspaceFolder}/Lambda",
+				"lambdaHandler": "lambda_function.lambda_handler"
+			},
+			"lambda": {
+				"runtime": "python3.9",
+				"payload": {
+					"path": "Lambda/input.json"
+				},
+				"environmentVariables": {}
+			}
+		},
+		{
+			"type": "aws-sam",
+			"request": "direct-invoke",
 			"name": "InsertPlayers:lambda_function.lambda_handler (python3.9)",
 			"invokeTarget": {
 				"target": "code",
