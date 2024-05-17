@@ -2,7 +2,8 @@
 
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from gspread import Spreadsheet, Worksheet
+from gspread.spreadsheet import Spreadsheet
+from gspread.worksheet import Worksheet
 from MyLibrary.CommonFunction import OpenSpreadsheet
 
 """

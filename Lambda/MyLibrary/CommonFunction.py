@@ -7,7 +7,9 @@ from typing import Union
 
 from boto3 import client
 from google.oauth2 import service_account
-from gspread import Client, Spreadsheet, authorize
+from gspread.auth import authorize
+from gspread.client import Client
+from gspread.spreadsheet import Spreadsheet
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from pytz import timezone
 

@@ -5,7 +5,10 @@ from re import Match, search, sub
 from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from gspread import Spreadsheet, Worksheet, utils
+from gspread import utils
+from gspread.spreadsheet import Spreadsheet
+from gspread.utils import ValueInputOption
+from gspread.worksheet import CellFormat, Worksheet
 from MyLibrary.CommonFunction import MakeYtsheetUrl, OpenSpreadsheet
 from MyLibrary.Constant import SpreadSheet
 from MyLibrary.Player import Player
@@ -72,7 +75,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "死亡",
     ]
 
-    formats: "list[dict]" = []
+    formats: "list[CellFormat]" = []
     no: int = 0
     for player in players:
         for character in player.Characters:
@@ -172,7 +175,9 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     worksheet.clear_basic_filter()
 
     # 更新
-    worksheet.update(updateData, value_input_option="USER_ENTERED")
+    worksheet.update(
+        updateData, value_input_option=ValueInputOption.user_entered
+    )
 
     # 書式設定
     # 全体
