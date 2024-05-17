@@ -66,9 +66,9 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "参加傾向",
         "冒険者ランク",
         "累計名誉点",
-        "2.0流派",
-        "未加入",
         "加入数",
+        "未加入",
+        "2.0流派",
     ]
     for style in SwordWorld.STYLES:
         headers.append(style.Name)
@@ -108,22 +108,15 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             # 累計名誉点
             row.append(character.TotalHonor)
 
-            # 2.0流派
-            is20String: str = ""
-            if is20:
-                is20String: str = SpreadSheet.TRUE_STRING
-
-            row.append(is20String)
+            # 加入数
+            learningCount: int = learnedStyles.count(SpreadSheet.TRUE_STRING)
+            row.append(learningCount)
 
             # 未加入
-            notLearned: str = ""
-            learningCount: int = learnedStyles.count(SpreadSheet.TRUE_STRING)
-            if learningCount == 0:
-                notLearned = SpreadSheet.TRUE_STRING
-            row.append(notLearned)
+            row.append(SpreadSheet.TRUE_STRING if learningCount == 0 else "")
 
-            # 加入数
-            row.append(learningCount)
+            # 2.0流派
+            row.append(SpreadSheet.TRUE_STRING if is20 else "")
 
             # 各流派
             row += learnedStyles
@@ -147,8 +140,13 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     total: list = [None] * notTotalColumnCount
     total[-1] = "合計"
     total.append(
-        list(map(lambda x: x[headers.index("2.0流派")], updateData)).count(
-            SpreadSheet.TRUE_STRING
+        sum(
+            list(
+                map(
+                    lambda x: (x[headers.index("加入数")]),
+                    updateData,
+                )
+            )
         )
     )
     total.append(
@@ -157,13 +155,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         )
     )
     total.append(
-        sum(
-            list(
-                map(
-                    lambda x: (x[headers.index("加入数")]),
-                    updateData,
-                )
-            )
+        list(map(lambda x: x[headers.index("2.0流派")], updateData)).count(
+            SpreadSheet.TRUE_STRING
         )
     )
 
@@ -222,6 +215,16 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         {
             "range": f"{startA1}:{endA1}",
             "format": {"textRotation": {"vertical": True}},
+        }
+    )
+
+    # ○
+    startA1 = utils.rowcol_to_a1(2, headers.index("未加入") + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData) - 1, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 

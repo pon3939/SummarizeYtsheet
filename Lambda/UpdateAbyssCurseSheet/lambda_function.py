@@ -169,6 +169,18 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         }
     )
 
+    # ○
+    startA1 = utils.rowcol_to_a1(
+        2, len(headers) - len(SwordWorld.ABYSS_CURSES) + 1
+    )
+    endA1: str = utils.rowcol_to_a1(len(updateData) - 1, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
+        }
+    )
+
     # 部分的なフォーマットを設定
     worksheet.batch_format(formats)
 
