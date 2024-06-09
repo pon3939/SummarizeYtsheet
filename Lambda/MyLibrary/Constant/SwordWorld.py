@@ -152,6 +152,7 @@ ABYSS_CURSES: "list[str]" = [
 ]
 
 # 一般技能
+PROSTITUTE_SKILL_NAME: str = "プロスティチュート(娼婦/男娼)"
 OFFICIAL_GENERAL_SKILL_NAMES: "list[str]" = [
     "アーマラー(防具職人)",
     "インベンター(発明家)",
@@ -208,7 +209,7 @@ OFFICIAL_GENERAL_SKILL_NAMES: "list[str]" = [
     "ブラックスミス(鍛冶師)",
     "ブルワー(醸造家)",
     "プレスティディジテイター(手品師)",
-    "プロスティチュート(娼婦/男娼)",
+    PROSTITUTE_SKILL_NAME,
     "ペインター(絵師)",
     "ベガー(物乞い)",
     "ヘラルディスト(紋章学者)",

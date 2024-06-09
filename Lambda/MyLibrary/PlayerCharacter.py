@@ -362,9 +362,9 @@ class PlayerCharacter:
 
                 # 読み仮名等の装飾削除
                 generalSkillName = generalSkillName.removeprefix("|")
-                generalSkillName = generalSkillName.removeprefix(")")
-                generalSkillName = generalSkillName.removeprefix("）")
-                generalSkillName = generalSkillName.removeprefix("》")
+                generalSkillName = generalSkillName.removesuffix(")")
+                generalSkillName = generalSkillName.removesuffix("）")
+                generalSkillName = generalSkillName.removesuffix("》")
                 if generalSkillName == "":
                     continue
 
@@ -373,6 +373,11 @@ class PlayerCharacter:
                     r"[^(（《]+", generalSkillName
                 )
                 for ytsheetGeneralSkill in ytsheetGeneralSkills:
+                    if ytsheetGeneralSkill in SwordWorld.PROSTITUTE_SKILL_NAME:
+                        # 男娼と高級男娼を誤検知するので個別対応
+                        generalSkillName = SwordWorld.PROSTITUTE_SKILL_NAME
+                        break
+
                     officialGeneralSkill: Union[str, None] = next(
                         filter(
                             lambda x: ytsheetGeneralSkill in x,
