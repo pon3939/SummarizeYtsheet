@@ -47,14 +47,11 @@ def updatePlayers(seasonId: int, player: dict):
 
     updateCharacters: list = []
     for ytsheetId in player["ytsheet_ids"]:
-        ytsheetJson: dict = getYtsheetData(ytsheetId)
-
-        # 不要なデータを削除
-        ytsheetJson.pop("imageCompressed", None)
-
         character: dict = {
             "ytsheet_id": ytsheetId,
-            "ytsheet_json": dumps(ytsheetJson, ensure_ascii=False),
+            "ytsheet_json": dumps(
+                getYtsheetData(ytsheetId), ensure_ascii=False
+            ),
         }
         updateCharacters.append(character)
 
