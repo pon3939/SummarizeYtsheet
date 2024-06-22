@@ -83,14 +83,14 @@ def getYtsheetData(ytsheetId: str) -> dict:
         dict: ゆとシートから取得したデータ
     """
 
+    # 連続リクエスト抑制
+    sleep(5)
+
     # ゆとシートにアクセス
     url: str = f"{MakeYtsheetUrl(ytsheetId)}&mode=json"
     response: Response = get(url)
 
     # ステータスコード200以外は例外発生
     response.raise_for_status()
-
-    # 連続リクエスト抑制
-    sleep(5)
 
     return loads(response.text)
