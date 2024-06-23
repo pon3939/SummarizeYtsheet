@@ -457,6 +457,40 @@ class PlayerCharacter:
             self.MinimumExp = 0
             self.Json = {}
 
+    def GetMinorRace(self) -> str:
+        """
+
+        マイナー種族を返却する
+
+        Returns:
+            str: マイナー種族
+        """
+
+        if "ナイトメア" in self.Race or "ウィークリング" in self.Race:
+            # 特定種族はかっこをつけたまま返却
+            return self.Race
+
+        minorRaceMatch: Union[Match[str], None] = search(
+            r"(?<=（)(.+)(?=）)", self.Race
+        )
+        if minorRaceMatch is None:
+            # カッコなしなのでそのまま返却
+            return self.Race
+
+        # カッコの中身を返却
+        return minorRaceMatch.group()
+
+    def GetMajorRace(self) -> str:
+        """
+
+        メジャー種族を返却する
+
+        Returns:
+            str: メジャー種族
+        """
+
+        return sub(r"（.+）", "", self.Race)
+
 
 def _CalculateFromString(string: str) -> int:
     """

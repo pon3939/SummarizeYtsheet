@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from json import loads
-from re import Match, search, sub
-from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import utils
@@ -95,19 +93,10 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             row.append(player.Name)
 
             # 種族
-            minorRace: str = character.Race
-            if "ナイトメア" not in minorRace:
-                # ナイトメア以外はかっこの中身のみ表示
-                minorRaceMatch: Union[Match[str], None] = search(
-                    r"(?<=（)(.+)(?=）)", minorRace
-                )
-                if minorRaceMatch is not None:
-                    minorRace = minorRaceMatch.group()
-
-            row.append(minorRace)
+            row.append(character.GetMinorRace())
 
             # 種族(マイナーチェンジ除く)
-            row.append(sub(r"（.+）", "", character.Race))
+            row.append(character.GetMajorRace())
 
             # 年齢
             row.append(character.Age)

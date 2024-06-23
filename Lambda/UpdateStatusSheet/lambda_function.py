@@ -144,7 +144,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
             # 種族
-            row.append(character.Race)
+            row.append(character.GetMinorRace())
 
             # 器用
             row.append(
