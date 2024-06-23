@@ -40,7 +40,16 @@ RACES_STATUSES: dict = {
     "ハイマン": {"diceCount": 8, "fixedValue": 0},
     "フロウライト": {"diceCount": 11, "fixedValue": 12},
     "ダークドワーフ": {"diceCount": 9, "fixedValue": 12},
+    "ディアボロ": {"diceCount": 10, "fixedValue": 12},
+    "ドレイク": {"diceCount": 10, "fixedValue": 6},
+    "バジリスク": {"diceCount": 9, "fixedValue": 6},
+    "ダークトロール": {"diceCount": 10, "fixedValue": 6},
+    "アルボル": {"diceCount": 10, "fixedValue": 3},
+    "バーバヤガー": {"diceCount": 8, "fixedValue": 6},
     "ケンタウロス": {"diceCount": 10, "fixedValue": 6},
+    "シザースコーピオン": {"diceCount": 10, "fixedValue": 6},
+    "ドーン": {"diceCount": 10, "fixedValue": 6},
+    "コボルド": {"diceCount": 10, "fixedValue": 0},
 }
 
 
