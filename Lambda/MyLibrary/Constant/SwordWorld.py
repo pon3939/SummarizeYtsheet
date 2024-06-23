@@ -29,6 +29,7 @@ SKILLS: dict[str, str] = {
     "lvFai": "フェアリーテイマー",
     "lvDru": "ドルイド",
     "lvDem": "デーモンルーラー",
+    "lvPhy": "フィジカルマスター",
 }
 
 # 流派
