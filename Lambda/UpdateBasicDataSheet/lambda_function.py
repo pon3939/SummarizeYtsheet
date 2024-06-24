@@ -65,6 +65,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "種族\nマイナーチェンジ除く",
         "年齢",
         "性別",
+        "身長",
+        "体重",
         "信仰",
         "穢れ",
         "参加",
@@ -103,6 +105,12 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
             # 性別
             row.append(character.Gender)
+
+            # 身長
+            row.append(character.Height)
+
+            # 体重
+            row.append(character.Weight)
 
             # 信仰
             row.append(character.Faith)

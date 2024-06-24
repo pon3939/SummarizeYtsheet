@@ -129,6 +129,8 @@ class PlayerCharacter:
     Sin: str = ""
     Name: str = ""
     Faith: str = ""
+    Height: str = ""
+    Weight: str = ""
 
     Level: int = 0
     Exp: int = 0
@@ -450,6 +452,39 @@ class PlayerCharacter:
 
                 # ピンゾロ経験点は最大値を採用する(複数の書き方で書かれていた場合、重複して集計してしまうため)
                 self.FumbleExp = max(totalFumbleExp, fumbleCount * 50)
+
+            # 経歴を1行ごとに分割
+            freeNotes: list[str] = ytsheetJson.get("freeNote", "").split(
+                "&lt;br&gt;"
+            )
+
+            for freeNote in freeNotes:
+                if "身長" in freeNote:
+                    height: str = sub(
+                        r".*身長[^\d\.\|]*\|*[^\d\.\|]*([\d\.]+).*",
+                        r"\1",
+                        freeNote,
+                    )
+                    if height != freeNote:
+                        self.Height = height
+
+                if "背丈" in freeNote:
+                    height: str = sub(
+                        r".*背丈[^\d\.\|]*\|*[^\d\.\|]*([\d\.]+).*",
+                        r"\1",
+                        freeNote,
+                    )
+                    if height != freeNote:
+                        self.Height = height
+
+                if "体重" in freeNote:
+                    weight: str = sub(
+                        r".*体重[^\d\.\|]*\|*[^\d\.\|]*([\d\.]+).*",
+                        r"\1",
+                        freeNote,
+                    )
+                    if weight != freeNote:
+                        self.Weight = weight
 
             # 不要なので削除
             self.PlayerName = ""
