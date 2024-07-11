@@ -372,7 +372,7 @@ class PlayerCharacter:
 
                 # カッコの中と外で分離
                 ytsheetGeneralSkills: list[str] = findall(
-                    r"[^(（《]+", generalSkillName
+                    r"[^(（《/]+", generalSkillName
                 )
                 for ytsheetGeneralSkill in ytsheetGeneralSkills:
                     if ytsheetGeneralSkill in SwordWorld.PROSTITUTE_SKILL_NAME:
