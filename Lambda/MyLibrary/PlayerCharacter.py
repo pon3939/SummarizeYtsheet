@@ -361,18 +361,16 @@ class PlayerCharacter:
             # 一般技能
             for i in range(1, int(ytsheetJson.get("commonClassNum", "0")) + 1):
                 generalSkillName: str = ytsheetJson.get(f"commonClass{i}", "")
-
-                # 読み仮名等の装飾削除
                 generalSkillName = generalSkillName.removeprefix("|")
-                generalSkillName = generalSkillName.removesuffix(")")
-                generalSkillName = generalSkillName.removesuffix("）")
-                generalSkillName = generalSkillName.removesuffix("》")
                 if generalSkillName == "":
                     continue
 
                 # カッコの中と外で分離
                 ytsheetGeneralSkills: list[str] = findall(
-                    r"[^(（《/]+", generalSkillName
+                    r"[^(（《/]+",
+                    generalSkillName.removesuffix(")")
+                    .removesuffix("）")
+                    .removesuffix("》"),
                 )
                 for ytsheetGeneralSkill in ytsheetGeneralSkills:
                     if ytsheetGeneralSkill in SwordWorld.PROSTITUTE_SKILL_NAME:
