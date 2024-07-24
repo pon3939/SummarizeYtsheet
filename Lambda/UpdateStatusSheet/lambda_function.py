@@ -50,6 +50,9 @@ RACES_STATUSES: dict = {
     "シザースコーピオン": {"diceCount": 10, "fixedValue": 6},
     "ドーン": {"diceCount": 10, "fixedValue": 6},
     "コボルド": {"diceCount": 10, "fixedValue": 0},
+    "ドレイクブロークン": {"diceCount": 10, "fixedValue": 6},
+    "ラミア": {"diceCount": 10, "fixedValue": 0},
+    "ラルヴァ": {"diceCount": 9, "fixedValue": 6},
 }
 
 
