@@ -537,7 +537,7 @@ def _CalculateFromString(string: str) -> int:
         int: 解
     """
     notCalcRegexp: str = r"[^0-9\+\-\*\/\(\)]"
-    if search(string, notCalcRegexp):
+    if search(notCalcRegexp, string):
         # 四則演算以外の文字列が含まれる
         return 0
 
