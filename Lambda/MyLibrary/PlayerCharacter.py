@@ -142,6 +142,7 @@ class PlayerCharacter:
     SpiritResistance: int = 0
     MonsterKnowledge: int = 0
     Initiative: int = 0
+    HistoryMoneyTotal: int = 0
     Technic: int = 0
     Physical: int = 0
     Spirit: int = 0
@@ -233,6 +234,9 @@ class PlayerCharacter:
             self.SpiritResistance = int(ytsheetJson.get("mndResistTotal", "0"))
             self.MonsterKnowledge = int(ytsheetJson.get("monsterLore", "0"))
             self.Initiative = int(ytsheetJson.get("initiative", "0"))
+            self.HistoryMoneyTotal = int(
+                ytsheetJson.get("historyMoneyTotal", "0")
+            )
 
             # 特殊な変数
             self.Sin = ytsheetJson.get("sin", "0")

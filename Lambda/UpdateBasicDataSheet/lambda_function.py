@@ -72,6 +72,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "参加",
         "GM",
         "参加+GM",
+        "ガメル",
         "死亡",
     ]
 
@@ -128,6 +129,9 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
             # 参加+GM
             row.append(playerTimes + gameMasterTimes)
+
+            # ガメル
+            row.append(character.HistoryMoneyTotal)
 
             # 死亡
             row.append(character.DiedTimes)
