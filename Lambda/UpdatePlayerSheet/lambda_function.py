@@ -60,14 +60,14 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "No.",
         "PL",
         "参加傾向",
-        "メインPC",
-        "サブPC",
+        "1人目",
+        "2人目",
         "参加",
         "GM",
         "参加+GM",
         "更新日時",
     ]
-    subPcIndex: int = header.index("サブPC")
+    subPcIndex: int = header.index("2人目")
 
     formats: "list[CellFormat]" = []
     no: int = 0
@@ -93,10 +93,10 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             )
         )
 
-        # メインPC
+        # 1人目
         row.append(player.Characters[0].Name)
 
-        # サブPC
+        # 2人目
         subPcName: str = (
             player.Characters[1].Name if len(player.Characters) > 1 else ""
         )
@@ -122,8 +122,8 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
 
         updateData.append(row)
 
-        # メインPC列のハイパーリンク
-        mainPcIndex: int = header.index("メインPC") + 1
+        # 1人目列のハイパーリンク
+        mainPcIndex: int = header.index("1人目") + 1
         rowIndex: int = updateData.index(row) + 1 + 1
         mainPcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
         mainPcTextFormat["link"] = {
@@ -136,7 +136,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             }
         )
 
-        # サブPC列のハイパーリンク
+        # 2人目列のハイパーリンク
         if len(player.Characters) > 1:
             subPcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             subPcTextFormat["link"] = {
