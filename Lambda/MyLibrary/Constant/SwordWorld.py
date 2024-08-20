@@ -7,11 +7,12 @@ SW2.5関係の定数
 """
 
 # 戦闘技能
+BATTLE_DANCER_LEVEL_KEY: str = "lvBat"
 SKILLS: dict[str, str] = {
     "lvFig": "ファイター",
     "lvFen": "フェンサー",
     "lvGra": "グラップラー",
-    "lvBat": "バトルダンサー",
+    BATTLE_DANCER_LEVEL_KEY: "バトルダンサー",
     "lvSho": "シューター",
     "lvSco": "スカウト",
     "lvRan": "レンジャー",
@@ -243,4 +244,19 @@ OFFICIAL_GENERAL_SKILL_NAMES: "list[str]" = [
     "ピアインスペクター(橋脚点検士)",
     "プロスペクター(山師)",
     "マリンアニマルトレーナー(海獣調教師)",
+]
+
+# ヴァグランツ戦闘特技
+VAGRANTS_COMBAT_SKILLS: "list[str]" = [
+    "追い打ち",
+    "抵抗強化",
+    "カニングキャスト",
+    "クイックキャスト",
+    "シールドバッシュ",
+    "シャドウステップ",
+    "捨て身攻撃",
+    "露払い",
+    "乱撃",
+    "クルードテイク",
+    "掠め取り",
 ]

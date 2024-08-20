@@ -528,6 +528,115 @@ class PlayerCharacter:
 
         return sub(r"（.+）", "", self.Race)
 
+    def IsVagrants(self) -> bool:
+        """
+
+        ヴァグランツかどうか
+
+        Returns:
+            bool: True ヴァグランツ
+        """
+
+        if self.Skills.get(SwordWorld.BATTLE_DANCER_LEVEL_KEY, 0) > 0 and any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv1bat.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv1.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if self.Level < 3:
+            return False
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv3.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if self.Level < 5:
+            return False
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv5.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if self.Level < 7:
+            return False
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv7.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if self.Level < 9:
+            return False
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv9.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if self.Level < 11:
+            return False
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv11.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        if self.Level < 13:
+            return False
+
+        if any(
+            list(
+                map(
+                    lambda x: self.CombatFeatsLv13.startswith(x),
+                    SwordWorld.VAGRANTS_COMBAT_SKILLS,
+                )
+            )
+        ):
+            return True
+
+        return False
+
 
 def _CalculateFromString(string: str) -> int:
     """

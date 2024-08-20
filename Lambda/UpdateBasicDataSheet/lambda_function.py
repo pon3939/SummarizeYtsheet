@@ -68,6 +68,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         "身長",
         "体重",
         "信仰",
+        "ヴァグランツ",
         "穢れ",
         "参加",
         "GM",
@@ -116,6 +117,11 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
             # 信仰
             row.append(character.Faith)
 
+            # ヴァグランツ
+            row.append(
+                SpreadSheet.TRUE_STRING if character.IsVagrants() else ""
+            )
+
             # 穢れ
             row.append(character.Sin)
 
@@ -157,11 +163,17 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
     total[activeCountIndex] = list(
         map(lambda x: x[activeCountIndex], updateData)
     ).count(SpreadSheet.ACTIVE_STRING)
-    headerIndex: int = header.index("死亡")
-    total[headerIndex] = sum(
+
+    VagrantsIndex: int = header.index("ヴァグランツ")
+    total[VagrantsIndex] = list(
+        map(lambda x: x[VagrantsIndex], updateData)
+    ).count(SpreadSheet.TRUE_STRING)
+
+    diedIndex: int = header.index("死亡")
+    total[diedIndex] = sum(
         list(
             map(
-                lambda x: (x[headerIndex]),
+                lambda x: (x[diedIndex]),
                 updateData,
             )
         )
