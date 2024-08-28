@@ -25,6 +25,8 @@ class Player:
     # DBから取得したJSON
     CharacterJsons: list[dict]
 
+    GameMasterTimes: int = 0
+
     Characters: list[PlayerCharacter] = field(default_factory=list)
 
     def __post_init__(self) -> None:
@@ -47,7 +49,7 @@ class Player:
                 self.UpdateTime
             ).strftime("%Y/%m/%d %H:%M:%S")
 
-            self.Characters = list(
+            characters: list[PlayerCharacter] = list(
                 map(
                     lambda x: PlayerCharacter(
                         Json=x,
@@ -58,6 +60,17 @@ class Player:
                     self.CharacterJsons,
                 )
             )
+
+            gameMasterScenarioKeys: list[str] = []
+            for character in characters:
+                gameMasterScenarioKeys.extend(character.GameMasterScenarioKeys)
+
+                # 不要なので削除
+                character.GameMasterScenarioKeys = []
+
+            # 同一シナリオの重複を排除してGM回数を集計
+            self.GameMasterTimes = len(set(gameMasterScenarioKeys))
+            self.Characters = characters
 
             # 不要なので削除
             self.MaxExp = 0

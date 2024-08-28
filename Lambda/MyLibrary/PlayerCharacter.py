@@ -153,6 +153,7 @@ class PlayerCharacter:
 
     AutoCombatFeats: list[str] = field(default_factory=list)
     AbyssCurses: list[str] = field(default_factory=list)
+    GameMasterScenarioKeys: list[str] = field(default_factory=list)
     Skills: dict = field(default_factory=dict)
 
     ActiveStatus: ExpStatus = ExpStatus.INACTIVE
@@ -407,14 +408,12 @@ class PlayerCharacter:
             historyNum: int = int(ytsheetJson.get("historyNum", "0"))
             for i in range(1, historyNum + 1):
                 gameMaster: str = ytsheetJson.get(f"history{i}Gm", "")
+                scenarioTitle: str = ytsheetJson.get(f"history{i}Title", "")
+                date: str = ytsheetJson.get(f"history{i}Date", "")
                 if gameMaster == "":
                     # GM名未記載の履歴からピンゾロのみのセッション履歴を探す
-                    normalizedTitle: str = _NormalizeString(
-                        ytsheetJson.get(f"history{i}Title", "")
-                    )
-                    normalizedDate: str = _NormalizeString(
-                        ytsheetJson.get(f"history{i}Date", "")
-                    )
+                    normalizedTitle: str = _NormalizeString(scenarioTitle)
+                    normalizedDate: str = _NormalizeString(date)
                     normalizedMember: str = _NormalizeString(
                         ytsheetJson.get(f"history{i}Member", "")
                     )
@@ -432,7 +431,11 @@ class PlayerCharacter:
                         gameMaster == self.PlayerName
                         or gameMaster in _SELF_GAME_MASTER_NAMES
                     ):
-                        self.GameMasterTimes += 1
+                        # 複数PC所持PLのGM回数集計のため、シナリオごとに一意のキーを作成
+                        members: str = ytsheetJson.get(f"history{i}Member", "")
+                        self.GameMasterScenarioKeys.append(
+                            f"{date}_{scenarioTitle}_{members}"
+                        )
                     else:
                         self.PlayerTimes += 1
 
@@ -454,6 +457,8 @@ class PlayerCharacter:
 
                 # ピンゾロ経験点は最大値を採用する(複数の書き方で書かれていた場合、重複して集計してしまうため)
                 self.FumbleExp = max(totalFumbleExp, fumbleCount * 50)
+
+            self.GameMasterTimes = len(self.GameMasterScenarioKeys)
 
             # 経歴を1行ごとに分割
             freeNotes: list[str] = ytsheetJson.get("freeNote", "").split(

@@ -109,9 +109,7 @@ def UpdateSheet(worksheet: Worksheet, players: "list[Player]"):
         row.append(playerTimes)
 
         # GM
-        gameMasterTimes: int = max(
-            list(map(lambda x: x.GameMasterTimes, player.Characters))
-        )
+        gameMasterTimes: int = player.GameMasterTimes
         row.append(gameMasterTimes)
 
         # 参加+GM
