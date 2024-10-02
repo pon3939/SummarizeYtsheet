@@ -25,25 +25,9 @@ pip install -r requirements.txt -t python
 
 AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要なデータのみ集計しているよ
 
-### ReorderWorksheets
+### UpdateYtsheetSpreadSheet
 
-ワークシートのタブを並び替えるよ
-
-### updateBasicDataSheet
-
-基本シートを更新するよ
-
-### updateSkillLeveSheet
-
-技能シートを更新するよ
-
-### updateStatusSheet
-
-能力値シートを更新するよ
-
-### updateCombatSkillSheet
-
-能力値シートを更新するよ
+スプレッドシートを更新するよ
 
 ### InsertPlayerCharacters
 

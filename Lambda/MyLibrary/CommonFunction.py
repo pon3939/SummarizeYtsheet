@@ -6,10 +6,6 @@ from functools import singledispatch
 from typing import Union
 
 from boto3 import client
-from google.oauth2 import service_account
-from gspread.auth import authorize
-from gspread.client import Client
-from gspread.spreadsheet import Spreadsheet
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from pytz import timezone
 
@@ -22,29 +18,6 @@ def InitDb() -> DynamoDBClient:
     """DBに接続する"""
 
     return client("dynamodb", region_name="ap-northeast-1")
-
-
-def OpenSpreadsheet(
-    googleServiceAccount: dict, spreadsheetId: str
-) -> Spreadsheet:
-    """
-
-    スプレッドシートを開く
-
-    Args:
-        googleServiceAccount str: スプレッドシートの認証情報
-        spreadsheetId str: スプレッドシートのID
-    Returns:
-        Spreadsheet: スプレッドシート
-    """
-
-    # サービスアカウントでスプレッドシートにログイン
-    credentials = service_account.Credentials.from_service_account_info(
-        googleServiceAccount,
-        scopes=["https://www.googleapis.com/auth/spreadsheets"],
-    )
-    client: Client = authorize(credentials)
-    return client.open_by_key(spreadsheetId)
 
 
 def ConvertToVerticalHeader(horizontalHeader: str) -> str:

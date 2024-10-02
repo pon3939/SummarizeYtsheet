@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from MyLibrary.CommonFunction import StrForDynamoDBToDateTime
 from MyLibrary.PlayerCharacter import PlayerCharacter
@@ -17,62 +17,41 @@ class Player:
     PL
     """
 
-    Name: str
-    UpdateTime: str
-    MaxExp: int
-    MinimumExp: int
-
-    # DBから取得したJSON
-    CharacterJsons: list[dict]
-
-    GameMasterTimes: int = 0
-
-    Characters: list[PlayerCharacter] = field(default_factory=list)
-
-    def __post_init__(self) -> None:
+    def __init__(
+        self,
+        name: str,
+        strUpdateTime: str,
+        maxExp: int,
+        minimumExp: int,
+        characterJsons: list[dict],
+    ):
         """
-        コンストラクタの後の処理
+        コンストラクタ
+
+        name str: PL名
+        strUpdateTime str: 最終更新日時
+        maxExp int: 最大経験点
+        minimumExp int: 最小経験点
+        characterJsons list[dict]: PC情報
         """
-        if len(self.CharacterJsons) == 0:
-            # JSONからデコードされた場合
-            self.Characters = list(
-                map(
-                    lambda x: (
-                        PlayerCharacter(**x) if isinstance(x, dict) else x
-                    ),
-                    self.Characters,
-                )
+
+        self.Name: str = name
+
+        # 更新日時をスプレッドシートが理解できる形式に変換
+        self.UpdateTime: str = StrForDynamoDBToDateTime(
+            strUpdateTime
+        ).strftime("%Y/%m/%d %H:%M:%S")
+
+        self.Characters: list[PlayerCharacter] = list(
+            map(
+                lambda x: PlayerCharacter(x, self.Name, maxExp, minimumExp),
+                characterJsons,
             )
-        else:
-            # 更新日時をスプレッドシートが理解できる形式に変換
-            self.UpdateTime = StrForDynamoDBToDateTime(
-                self.UpdateTime
-            ).strftime("%Y/%m/%d %H:%M:%S")
+        )
 
-            characters: list[PlayerCharacter] = list(
-                map(
-                    lambda x: PlayerCharacter(
-                        Json=x,
-                        PlayerName=self.Name,
-                        MaxExp=self.MaxExp,
-                        MinimumExp=self.MinimumExp,
-                    ),
-                    self.CharacterJsons,
-                )
-            )
+        gameMasterScenarioKeys: list[str] = []
+        for character in self.Characters:
+            gameMasterScenarioKeys.extend(character.GameMasterScenarioKeys)
 
-            gameMasterScenarioKeys: list[str] = []
-            for character in characters:
-                gameMasterScenarioKeys.extend(character.GameMasterScenarioKeys)
-
-                # 不要なので削除
-                character.GameMasterScenarioKeys = []
-
-            # 同一シナリオの重複を排除してGM回数を集計
-            self.GameMasterTimes = len(set(gameMasterScenarioKeys))
-            self.Characters = characters
-
-            # 不要なので削除
-            self.MaxExp = 0
-            self.MinimumExp = 0
-            self.CharacterJsons = []
+        # 同一シナリオの重複を排除してGM回数を集計
+        self.GameMasterTimes: int = len(set(gameMasterScenarioKeys))
