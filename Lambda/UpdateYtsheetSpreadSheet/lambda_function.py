@@ -257,19 +257,25 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     worksheet: Worksheet = spreadsheet.worksheet("PL")
     updateData: list[list] = []
 
+    maxPcCount: int = max(list(map(lambda x: len(x.Characters), players)))
+
     # ヘッダー
     header: list[str] = [
         "No.",
         "PL",
         "参加傾向",
-        "1人目",
-        "2人目",
-        "参加",
-        "GM",
-        "参加+GM",
-        "更新日時",
     ]
-    subPcIndex: int = header.index("2人目")
+    for i in range(maxPcCount):
+        header.append(f"{i + 1}人目")
+
+    header.extend(
+        [
+            "参加",
+            "GM",
+            "参加+GM",
+            "更新日時",
+        ]
+    )
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -295,14 +301,25 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             )
         )
 
-        # 1人目
-        row.append(player.Characters[0].Name)
+        # PC名
+        for i in range(maxPcCount):
+            if len(player.Characters) <= i:
+                # PCなし
+                row.append("")
+                continue
 
-        # 2人目
-        subPcName: str = (
-            player.Characters[1].Name if len(player.Characters) > 1 else ""
-        )
-        row.append(subPcName)
+            row.append(player.Characters[i].Name)
+            pcIndex: int = header.index(f"{i + 1}人目") + 1
+            pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
+            pcTextFormat["link"] = {
+                "uri": MakeYtsheetUrl(player.Characters[i].YtsheetId)
+            }
+            formats.append(
+                {
+                    "range": utils.rowcol_to_a1(no + 1, pcIndex),
+                    "format": {"textFormat": pcTextFormat},
+                }
+            )
 
         # 参加
         playerTimes: int = sum(
@@ -322,33 +339,6 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
         updateData.append(row)
 
-        # 1人目列のハイパーリンク
-        mainPcIndex: int = header.index("1人目") + 1
-        rowIndex: int = updateData.index(row) + 1 + 1
-        mainPcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-        mainPcTextFormat["link"] = {
-            "uri": MakeYtsheetUrl(player.Characters[0].YtsheetId)
-        }
-        formats.append(
-            {
-                "range": utils.rowcol_to_a1(rowIndex, mainPcIndex),
-                "format": {"textFormat": mainPcTextFormat},
-            }
-        )
-
-        # 2人目列のハイパーリンク
-        if len(player.Characters) > 1:
-            subPcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            subPcTextFormat["link"] = {
-                "uri": MakeYtsheetUrl(player.Characters[1].YtsheetId)
-            }
-            formats.append(
-                {
-                    "range": utils.rowcol_to_a1(rowIndex, subPcIndex + 1),
-                    "format": {"textFormat": subPcTextFormat},
-                }
-            )
-
     # 合計行
     total: list = [None] * len(header)
     activeCountIndex: int = header.index("参加傾向")
@@ -357,9 +347,11 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         map(lambda x: x[activeCountIndex], updateData)
     ).count(SpreadSheet.ACTIVE_STRING)
 
-    total[subPcIndex] = list(
-        map(lambda x: x[subPcIndex] != "", updateData)
-    ).count(True)
+    for i in range(1, maxPcCount):
+        pcIndex: int = header.index(f"{i + 1}人目")
+        total[pcIndex] = list(
+            map(lambda x: x[pcIndex] != "", updateData)
+        ).count(True)
 
     updateData.append(total)
 
