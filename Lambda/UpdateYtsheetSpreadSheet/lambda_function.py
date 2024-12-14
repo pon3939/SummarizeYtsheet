@@ -814,30 +814,22 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             row.append(character.GetMinorRace())
 
             # 器用
-            row.append(
-                character.Technic + character.Dexterity.GetTotalStatus()
-            )
+            row.append(character.Dexterity.GetTotalStatus())
 
             # 敏捷
-            row.append(character.Technic + character.Agility.GetTotalStatus())
+            row.append(character.Agility.GetTotalStatus())
 
             # 筋力
-            row.append(
-                character.Physical + character.Strength.GetTotalStatus()
-            )
+            row.append(character.Strength.GetTotalStatus())
 
             # 生命
-            row.append(
-                character.Physical + character.Vitality.GetTotalStatus()
-            )
+            row.append(character.Vitality.GetTotalStatus())
 
             # 知力
-            row.append(
-                character.Spirit + character.Intelligence.GetTotalStatus()
-            )
+            row.append(character.Intelligence.GetTotalStatus())
 
             # 精神
-            row.append(character.Spirit + character.Mental.GetTotalStatus())
+            row.append(character.Mental.GetTotalStatus())
 
             # 成長
             row.append(character.GrowthTimes)

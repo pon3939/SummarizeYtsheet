@@ -193,39 +193,41 @@ class PlayerCharacter:
                 self.Skills[skill] = skillLevel
 
         # 各能力値
-        self.Technic: int = int(ytsheetJson.get("sttBaseTec", "0"))
-        self.Physical: int = int(ytsheetJson.get("sttBasePhy", "0"))
-        self.Spirit: int = int(ytsheetJson.get("sttBaseSpi", "0"))
-
         self.Dexterity: Status = Status(
             int(ytsheetJson.get("sttBaseA", "0")),
-            int(ytsheetJson.get("sttGrowA", "0")),
+            int(ytsheetJson.get("sttDex", "0")),
             int(ytsheetJson.get("sttAddA", "0")),
+            int(ytsheetJson.get("sttEquipA", "0")),
         )
         self.Agility: Status = Status(
             int(ytsheetJson.get("sttBaseB", "0")),
-            int(ytsheetJson.get("sttGrowB", "0")),
+            int(ytsheetJson.get("sttAgi", "0")),
             int(ytsheetJson.get("sttAddB", "0")),
+            int(ytsheetJson.get("sttEquipB", "0")),
         )
         self.Strength: Status = Status(
             int(ytsheetJson.get("sttBaseC", "0")),
-            int(ytsheetJson.get("sttGrowC", "0")),
+            int(ytsheetJson.get("sttStr", "0")),
             int(ytsheetJson.get("sttAddC", "0")),
+            int(ytsheetJson.get("sttEquipC", "0")),
         )
         self.Vitality: Status = Status(
             int(ytsheetJson.get("sttBaseD", "0")),
-            int(ytsheetJson.get("sttGrowD", "0")),
+            int(ytsheetJson.get("sttVit", "0")),
             int(ytsheetJson.get("sttAddD", "0")),
+            int(ytsheetJson.get("sttEquipD", "0")),
         )
         self.Intelligence: Status = Status(
             int(ytsheetJson.get("sttBaseE", "0")),
-            int(ytsheetJson.get("sttGrowE", "0")),
+            int(ytsheetJson.get("sttInt", "0")),
             int(ytsheetJson.get("sttAddE", "0")),
+            int(ytsheetJson.get("sttEquipE", "0")),
         )
         self.Mental: Status = Status(
             int(ytsheetJson.get("sttBaseF", "0")),
-            int(ytsheetJson.get("sttGrowF", "0")),
+            int(ytsheetJson.get("sttMnd", "0")),
             int(ytsheetJson.get("sttAddF", "0")),
+            int(ytsheetJson.get("sttEquipF", "0")),
         )
 
         # 秘伝
