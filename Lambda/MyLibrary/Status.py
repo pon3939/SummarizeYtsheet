@@ -14,9 +14,12 @@ class Status:
     能力値
     """
 
-    Base: int = 0
-    Increased: int = 0
-    Additional: int = 0
+    Base: int
+
+    # 装備の増強を除く合計値
+    Point: int
+    Additional: int
+    Equipment: int
 
     def GetTotalStatus(self) -> int:
         """
@@ -25,4 +28,4 @@ class Status:
         Returns:
             int: 合計能力値
         """
-        return self.Base + self.Increased + self.Additional
+        return self.Point + self.Additional + self.Equipment
