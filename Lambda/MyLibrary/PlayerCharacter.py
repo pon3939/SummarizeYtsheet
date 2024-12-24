@@ -133,7 +133,6 @@ class PlayerCharacter:
         self.CombatFeatsLv9: str = ytsheetJson.get("combatFeatsLv9", "")
         self.CombatFeatsLv11: str = ytsheetJson.get("combatFeatsLv11", "")
         self.CombatFeatsLv13: str = ytsheetJson.get("combatFeatsLv13", "")
-        self.CombatFeatsLv15: str = ytsheetJson.get("combatFeatsLv15", "")
         self.CombatFeatsLv1bat: str = ytsheetJson.get("combatFeatsLv1bat", "")
         self.AdventurerRank: str = ytsheetJson.get("rank", "")
 
