@@ -10,19 +10,10 @@ SW2.5関係の定数
 BATTLE_DANCER_LEVEL_KEY: str = "lvBat"
 SKILLS: dict[str, str] = {
     "lvFig": "ファイター",
-    "lvFen": "フェンサー",
     "lvGra": "グラップラー",
     BATTLE_DANCER_LEVEL_KEY: "バトルダンサー",
+    "lvFen": "フェンサー",
     "lvSho": "シューター",
-    "lvSco": "スカウト",
-    "lvRan": "レンジャー",
-    "lvSag": "セージ",
-    "lvEnh": "エンハンサー",
-    "lvBar": "バード",
-    "lvAlc": "アルケミスト",
-    "lvRid": "ライダー",
-    "lvGeo": "ジオマンサー",
-    "lvWar": "ウォーリーダー",
     "lvSor": "ソーサラー",
     "lvCon": "コンジャラー",
     "lvPri": "プリースト",
@@ -30,7 +21,15 @@ SKILLS: dict[str, str] = {
     "lvFai": "フェアリーテイマー",
     "lvDru": "ドルイド",
     "lvDem": "デーモンルーラー",
-    "lvPhy": "フィジカルマスター",
+    "lvSco": "スカウト",
+    "lvRan": "レンジャー",
+    "lvSag": "セージ",
+    "lvEnh": "エンハンサー",
+    "lvBar": "バード",
+    "lvRid": "ライダー",
+    "lvAlc": "アルケミスト",
+    "lvGeo": "ジオマンサー",
+    "lvWar": "ウォーリーダー",
 }
 
 # 流派
