@@ -11,12 +11,14 @@ DEFAULT_TEXT_FORMAT: dict = {
 
 # スプレッドシート全体に適用する書式
 DEFAULT_FORMAT: dict = {
+    "verticalAlignment": "MIDDLE",
     "textFormat": DEFAULT_TEXT_FORMAT,
 }
 
 # ヘッダーに適用する書式
-HEADER_DEFAULT_FORMAT: dict = {
+DEFAULT_HEADER_FORMAT: dict = {
     "horizontalAlignment": "CENTER",
+    "verticalAlignment": "BOTTOM",
     "textRotation": {"vertical": False},
 }
 

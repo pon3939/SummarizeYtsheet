@@ -30,6 +30,10 @@ from mypy_boto3_dynamodb.type_defs import QueryOutputTypeDef
 """
 スプレッドシートを更新
 """
+
+# ヘッダーに出力する文字列
+PC_HEADER_TEXT: str = "PC"
+
 # 初期作成時に振るダイスの数と能力増加分
 RACES_STATUSES: dict = {
     "人間": {"diceCount": 12, "fixedValue": 0},
@@ -382,7 +386,7 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -412,7 +416,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # ヘッダー
     header: "list[str]" = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "PL",
         "種族",
@@ -499,7 +503,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             updateData.append(row)
 
             # PC列のハイパーリンク
-            pcIndex: int = header.index("PC") + 1
+            pcIndex: int = header.index(PC_HEADER_TEXT) + 1
             rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
@@ -561,7 +565,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -593,7 +597,7 @@ def UpdateCombatSkillSheet(
     # ヘッダー
     headers: list[str] = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "信仰",
         "Lv",
@@ -665,7 +669,7 @@ def UpdateCombatSkillSheet(
                 )
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index("PC") + 1
+            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
@@ -722,7 +726,7 @@ def UpdateCombatSkillSheet(
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -762,7 +766,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # ヘッダー
     header: list[str] = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "種族",
         "器用",
@@ -865,7 +869,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             rowIndex: int = updateData.index(row) + 1 + 1
 
             # PC列のハイパーリンク
-            pcIndex: int = header.index("PC") + 1
+            pcIndex: int = header.index(PC_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
@@ -920,7 +924,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -963,7 +967,7 @@ def UpdateAbilitySheet(
     # ヘッダー
     headers: list[str] = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "バトルダンサー",
         "Lv.1",
@@ -1026,7 +1030,7 @@ def UpdateAbilitySheet(
             rowIndex: int = updateData.index(row) + 1 + 1
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index("PC") + 1
+            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
             formats.append(
@@ -1102,7 +1106,7 @@ def UpdateAbilitySheet(
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -1132,7 +1136,7 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # ヘッダー
     headers: "list[str]" = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "冒険者ランク",
         "累計名誉点",
@@ -1194,7 +1198,7 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             updateData.append(row)
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index("PC") + 1
+            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
@@ -1274,7 +1278,7 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -1326,7 +1330,7 @@ def UpdateAbyssCurseSheet(
     # ヘッダー
     headers: "list[str]" = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "アビスカースの数",
     ]
@@ -1370,7 +1374,7 @@ def UpdateAbyssCurseSheet(
             updateData.append(row)
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index("PC") + 1
+            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
@@ -1417,31 +1421,47 @@ def UpdateAbyssCurseSheet(
 
     # 書式設定
     # 全体
-    startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(len(updateData), len(headers))
+    generalFormatStartA1: str = utils.rowcol_to_a1(1, 1)
+    generalFormatEndA1: str = utils.rowcol_to_a1(len(updateData), len(headers))
     worksheet.format(
-        f"{startA1}:{endA1}",
+        f"{generalFormatStartA1}:{generalFormatEndA1}",
         SpreadSheet.DEFAULT_FORMAT,
     )
 
     # ヘッダー
-    startA1 = utils.rowcol_to_a1(1, 1)
-    endA1 = utils.rowcol_to_a1(1, len(headers))
+    headerFormatStartA1: str = utils.rowcol_to_a1(1, 1)
+    headerFormatEndA1: str = utils.rowcol_to_a1(1, len(headers))
     formats.append(
         {
-            "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "range": f"{headerFormatStartA1}:{headerFormatEndA1}",
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
+        }
+    )
+
+    # PC名
+    pcFormatStartA1: str = utils.rowcol_to_a1(
+        2, headers.index(PC_HEADER_TEXT) + 1
+    )
+    pcFormatEndA1: str = utils.rowcol_to_a1(
+        len(updateData) - 1, headers.index(PC_HEADER_TEXT) + 1
+    )
+    formats.append(
+        {
+            "range": f"{pcFormatStartA1}:{pcFormatEndA1}",
+            "format": {"wrapStrategy": "WRAP"},
         }
     )
 
     # ○
-    startA1 = utils.rowcol_to_a1(
+    markFormatStartA1: str = utils.rowcol_to_a1(
         2, len(headers) - len(SwordWorld.ABYSS_CURSES) + 1
     )
-    endA1: str = utils.rowcol_to_a1(len(updateData) - 1, len(headers))
+    markFormatEndA1: str = utils.rowcol_to_a1(
+        len(updateData) - 1, len(headers)
+    )
     formats.append(
         {
-            "range": f"{startA1}:{endA1}",
+            "range": f"{markFormatStartA1}:{markFormatEndA1}",
             "format": {"horizontalAlignment": "CENTER"},
         }
     )
@@ -1474,7 +1494,7 @@ def UpdateGeneralSkillSheet(
     # ヘッダー
     headers: "list[str]" = [
         "No.",
-        "PC",
+        PC_HEADER_TEXT,
         "参加傾向",
         "公式技能",
         "オリジナル技能",
@@ -1548,7 +1568,8 @@ def UpdateGeneralSkillSheet(
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(
-                        updateData.index(row) + 1 + 1, headers.index("PC") + 1
+                        updateData.index(row) + 1 + 1,
+                        headers.index(PC_HEADER_TEXT) + 1,
                     ),
                     "format": {"textFormat": pcTextFormat},
                 }
@@ -1606,7 +1627,7 @@ def UpdateGeneralSkillSheet(
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": SpreadSheet.HEADER_DEFAULT_FORMAT,
+            "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
         }
     )
 
@@ -1617,16 +1638,6 @@ def UpdateGeneralSkillSheet(
         {
             "range": f"{startA1}:{endA1}",
             "format": {"textRotation": {"vertical": True}},
-        }
-    )
-
-    # ヘッダー以外
-    startA1 = utils.rowcol_to_a1(2, 1)
-    endA1: str = utils.rowcol_to_a1(len(updateData), len(headers))
-    formats.append(
-        {
-            "range": f"{startA1}:{endA1}",
-            "format": {"verticalAlignment": "MIDDLE"},
         }
     )
 
