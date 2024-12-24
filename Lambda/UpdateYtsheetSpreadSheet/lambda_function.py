@@ -973,7 +973,6 @@ def UpdateAbilitySheet(
         "Lv.9",
         "Lv.11",
         "Lv.13",
-        "Lv.15",
         "自動取得",
     ]
 
@@ -1017,9 +1016,6 @@ def UpdateAbilitySheet(
             # Lv.13
             row.append(character.CombatFeatsLv13)
 
-            # Lv.15
-            row.append(character.CombatFeatsLv15)
-
             # 自動取得
             for autoCombatFeat in character.AutoCombatFeats:
                 row.append(autoCombatFeat)
@@ -1048,7 +1044,7 @@ def UpdateAbilitySheet(
                     break
 
             if grayOutStartIndex is not None:
-                grayOutEndIndex: int = headers.index("Lv.15") + 1
+                grayOutEndIndex: int = headers.index("Lv.13") + 1
                 grayOutTextFormat: dict = (
                     SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
                 )

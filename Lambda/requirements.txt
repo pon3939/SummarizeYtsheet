@@ -1,8 +1,8 @@
-aws-lambda-powertools==3.3.0
-boto3==1.35.81
-boto3-stubs==1.35.81
-botocore==1.35.81
-botocore-stubs==1.35.81
+aws-lambda-powertools==3.4.0
+boto3==1.35.87
+boto3-stubs==1.35.87
+botocore==1.35.87
+botocore-stubs==1.35.87
 cachetools==5.5.0
 certifi==2024.12.14
 charset-normalizer==3.4.0
@@ -24,7 +24,7 @@ requests-oauthlib==2.0.0
 rsa==4.9
 s3transfer==0.10.4
 six==1.17.0
-types-awscrt==0.23.4
+types-awscrt==0.23.6
 types-s3transfer==0.10.4
 typing_extensions==4.12.2
 urllib3==1.26.18
