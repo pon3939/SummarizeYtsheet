@@ -790,6 +790,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     updateData: list[list] = []
 
     # ヘッダー
+    adventurerBirthHeader: str = "冒険者\n生まれ"
     headers: list[str] = [
         "No.",
         PLAYER_CHARACTER_NAME_HEADER_TEXT,
@@ -809,7 +810,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         "魔物知識",
         "先制",
         "ダイス平均",
-        "備考",
+        adventurerBirthHeader,
     ]
     updateData.append(headers)
 
@@ -886,9 +887,9 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             # ダイス平均
             row.append(diceAverage)
 
-            # 備考
+            # 冒険者生まれ
             if character.Birth == "冒険者":
-                row.append("※冒険者")
+                row.append(SpreadSheet.TRUE_STRING)
 
             updateData.append(row)
 
@@ -971,6 +972,17 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         {
             "range": f"{startA1}:{endA1}",
             "format": {"numberFormat": {"type": "NUMBER", "pattern": "0.00"}},
+        }
+    )
+
+    # アクティブ
+    adventurerBirthIndex: int = headers.index(adventurerBirthHeader)
+    startA1 = utils.rowcol_to_a1(2, adventurerBirthIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), adventurerBirthIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 
