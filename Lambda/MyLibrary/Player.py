@@ -55,3 +55,25 @@ class Player:
 
         # 同一シナリオの重複を排除してGM回数を集計
         self.GameMasterTimes: int = len(set(gameMasterScenarioKeys))
+
+    def CountActivePlayerCharacters(self) -> int:
+        """
+
+        アクティブなPC数を返却する
+
+        Returns:
+            int: アクティブなPC数
+        """
+
+        return len([x for x in self.Characters if x.ActiveStatus.IsActive()])
+
+    def CountVagrantsPlayerCharacters(self) -> int:
+        """
+
+        ヴァグランツのPC数を返却する
+
+        Returns:
+            int: ヴァグランツのPC数
+        """
+
+        return len([x for x in self.Characters if x.IsVagrants()])

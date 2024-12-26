@@ -29,7 +29,17 @@ class ExpStatus(IntEnum):
         Returns:
             str: 表示用文字列
         """
-        if self >= ExpStatus.ACTIVE:
-            return SpreadSheet.ACTIVE_STRING
+        if self.IsActive():
+            return SpreadSheet.TRUE_STRING
 
         return ""
+
+    def IsActive(self) -> bool:
+        """
+
+            アクティブかどうかを返す
+
+        Returns:
+            bool: True アクティブ、False それ以外
+        """
+        return self >= ExpStatus.ACTIVE

@@ -24,6 +24,3 @@ DEFAULT_HEADER_FORMAT: dict = {
 
 # Trueのときに表示する文字列
 TRUE_STRING: str = "○"
-
-# アクティブのときに表示する文字列
-ACTIVE_STRING: str = "アクティブ"
