@@ -31,8 +31,12 @@ from mypy_boto3_dynamodb.type_defs import QueryOutputTypeDef
 """
 
 # ヘッダーに出力する文字列
-PC_HEADER_TEXT: str = "PC"
+PLAYER_CHARACTER_NAME_HEADER_TEXT: str = "PC名"
+PLAYER_NAME_HEADER_TEXT: str = "PL名"
 ACTIVE_HEADER_TEXT: str = "ｱｸﾃｨﾌﾞ"
+PLAYER_COUNT_HEADER_TEXT: str = "PL"
+GAME_MASTER_COUNT_HEADER_TEXT: str = "GM"
+TOTAL_GAME_COUNT_HEADER_TEXT: str = "総卓数"
 
 # 初期作成時に振るダイスの数と能力増加分
 RACES_STATUSES: dict = {
@@ -266,7 +270,7 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # ヘッダー
     header: list[str] = [
         "No.",
-        "PL",
+        PLAYER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
     ]
     for i in range(maxPcCount):
@@ -274,9 +278,9 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
     header.extend(
         [
-            "参加",
-            "GM",
-            "参加+GM",
+            PLAYER_COUNT_HEADER_TEXT,
+            GAME_MASTER_COUNT_HEADER_TEXT,
+            TOTAL_GAME_COUNT_HEADER_TEXT,
             "更新日時",
         ]
     )
@@ -423,11 +427,12 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     updateData: list[list] = []
 
     # ヘッダー
+    vagrantsHeaderText: str = "ｳﾞｧｸﾞﾗﾝﾂ"
     header: "list[str]" = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
-        "PL",
+        PLAYER_NAME_HEADER_TEXT,
         "種族",
         "種族\nマイナーチェンジ除く",
         "年齢",
@@ -435,12 +440,12 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         "身長",
         "体重",
         "信仰",
-        "ヴァグランツ",
+        vagrantsHeaderText,
         "穢れ",
-        "参加",
-        "GM",
-        "参加+GM",
-        "ガメル",
+        PLAYER_COUNT_HEADER_TEXT,
+        GAME_MASTER_COUNT_HEADER_TEXT,
+        TOTAL_GAME_COUNT_HEADER_TEXT,
+        "累計ガメル",
         "死亡",
     ]
     updateData.append(header)
@@ -518,7 +523,8 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(
-                        no + 1, header.index(PC_HEADER_TEXT) + 1
+                        no + 1,
+                        header.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1,
                     ),
                     "format": {"textFormat": pcTextFormat},
                 }
@@ -535,7 +541,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     )
 
     # ヴァグランツ
-    total[header.index("ヴァグランツ")] = sum(
+    total[header.index(vagrantsHeaderText)] = sum(
         x.CountVagrantsPlayerCharacters() for x in players
     )
 
@@ -611,10 +617,10 @@ def UpdateCombatSkillSheet(
     # ヘッダー
     headers: list[str] = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
         "信仰",
-        "Lv",
+        "Lv.",
         "経験点\nピンゾロ含む",
         "ピンゾロ",
     ]
@@ -686,7 +692,7 @@ def UpdateCombatSkillSheet(
                 )
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
+            pcIndex: int = headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
@@ -786,7 +792,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # ヘッダー
     headers: list[str] = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
         "種族",
         "器用",
@@ -798,10 +804,10 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         "成長",
         "HP",
         "MP",
-        "生命抵抗力",
-        "精神抵抗力",
+        "生命抵抗",
+        "精神抵抗",
         "魔物知識",
-        "先制力",
+        "先制",
         "ダイス平均",
         "備考",
     ]
@@ -890,7 +896,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             rowIndex: int = no + 1
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
+            pcIndex: int = headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
@@ -996,7 +1002,7 @@ def UpdateAbilitySheet(
     # ヘッダー
     headers: list[str] = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
         "バトルダンサー",
         "Lv.1",
@@ -1060,7 +1066,7 @@ def UpdateAbilitySheet(
             rowIndex: int = no + 1
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
+            pcIndex: int = headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
@@ -1174,11 +1180,11 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # ヘッダー
     headers: "list[str]" = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
         "冒険者ランク",
         "累計名誉点",
-        "加入数",
+        "入門数",
         "2.0流派",
     ]
     for style in SwordWorld.STYLES:
@@ -1233,7 +1239,7 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             updateData.append(row)
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
+            pcIndex: int = headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1
             rowIndex: int = no + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
@@ -1356,9 +1362,9 @@ def UpdateAbyssCurseSheet(
     # ヘッダー
     headers: "list[str]" = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
-        "アビスカースの数",
+        "数",
     ]
     for abyssCurse in SwordWorld.ABYSS_CURSES:
         headers.append(abyssCurse)
@@ -1402,7 +1408,7 @@ def UpdateAbyssCurseSheet(
             updateData.append(row)
 
             # PC列のハイパーリンク
-            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
+            pcIndex: int = headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1
             rowIndex: int = no + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
@@ -1518,7 +1524,7 @@ def UpdateGeneralSkillSheet(
     # ヘッダー
     headers: "list[str]" = [
         "No.",
-        PC_HEADER_TEXT,
+        PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
         "公式技能",
         "オリジナル技能",
@@ -1595,7 +1601,7 @@ def UpdateGeneralSkillSheet(
                 {
                     "range": utils.rowcol_to_a1(
                         no + 1,
-                        headers.index(PC_HEADER_TEXT) + 1,
+                        headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1,
                     ),
                     "format": {"textFormat": pcTextFormat},
                 }
