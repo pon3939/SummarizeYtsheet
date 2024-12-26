@@ -7,6 +7,7 @@ from re import Match, findall, search, sub
 from typing import Union
 from unicodedata import normalize
 
+from MyLibrary.CommonFunction import MakeYtsheetUrl
 from MyLibrary.Constant import SwordWorld
 from MyLibrary.ExpStatus import ExpStatus
 from MyLibrary.GeneralSkill import GeneralSkill
@@ -281,6 +282,9 @@ class PlayerCharacter:
 
         # 所持品
         self.AbyssCurses += _FindAbyssCurses(ytsheetJson.get("items", ""))
+
+        # 重複を削除
+        self.AbyssCurses = list(set(self.AbyssCurses))
 
         # 一般技能
         self.GeneralSkills: list[GeneralSkill] = []
@@ -561,6 +565,30 @@ class PlayerCharacter:
             return True
 
         return False
+
+    def GetYtsheetUrl(self) -> str:
+        """
+
+        ゆとシートのURLを作成
+
+        Args:
+            id str: ゆとシートのID
+        Returns:
+            str: URL
+        """
+        return MakeYtsheetUrl(self.YtsheetId)
+
+    def GetSkillLevel(self, key: str) -> int:
+        """
+
+        冒険者技能のレベルを返却
+
+        Args:
+            key str: 冒険者技能のキー
+        Returns:
+            int: 技能レベル
+        """
+        return self.Skills.get(key, 0)
 
 
 def _CalculateFromString(string: str) -> int:

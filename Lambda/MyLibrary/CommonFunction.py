@@ -20,21 +20,24 @@ def InitDb() -> DynamoDBClient:
     return client("dynamodb", region_name="ap-northeast-1")
 
 
-def ConvertToVerticalHeader(horizontalHeader: str) -> str:
+def ConvertToVerticalHeaders(horizontalHeaders: list[str]) -> list[str]:
     """
 
     ヘッダーを縦書き用の文字に変換する
 
     Args:
-        horizontalHeader str: 横書きヘッダー
+        horizontalHeader list[str]: 横書きヘッダー
     Returns:
-        str: 縦書きヘッダー
+        list[str]: 縦書きヘッダー
     """
 
-    return (
-        horizontalHeader.replace("ー", "｜")
-        .replace("(", "︵")
-        .replace(")", "︶")
+    return list(
+        map(
+            lambda x: x.replace("ー", "｜")
+            .replace("(", "︵")
+            .replace(")", "︶"),
+            horizontalHeaders,
+        )
     )
 
 

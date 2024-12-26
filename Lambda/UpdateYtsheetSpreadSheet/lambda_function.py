@@ -16,9 +16,8 @@ from gspread.worksheet import CellFormat, Worksheet
 from MyLibrary.CommonFunction import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
-    ConvertToVerticalHeader,
+    ConvertToVerticalHeaders,
     InitDb,
-    MakeYtsheetUrl,
 )
 from MyLibrary.Constant import SpreadSheet, SwordWorld, TableName
 from MyLibrary.ExpStatus import ExpStatus
@@ -33,6 +32,7 @@ from mypy_boto3_dynamodb.type_defs import QueryOutputTypeDef
 
 # ヘッダーに出力する文字列
 PC_HEADER_TEXT: str = "PC"
+ACTIVE_HEADER_TEXT: str = "ｱｸﾃｨﾌﾞ"
 
 # 初期作成時に振るダイスの数と能力増加分
 RACES_STATUSES: dict = {
@@ -267,7 +267,7 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     header: list[str] = [
         "No.",
         "PL",
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
     ]
     for i in range(maxPcCount):
         header.append(f"{i + 1}人目")
@@ -280,6 +280,7 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             "更新日時",
         ]
     )
+    updateData.append(header)
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -316,7 +317,7 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             pcIndex: int = header.index(f"{i + 1}人目") + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             pcTextFormat["link"] = {
-                "uri": MakeYtsheetUrl(player.Characters[i].YtsheetId)
+                "uri": player.Characters[i].GetYtsheetUrl()
             }
             formats.append(
                 {
@@ -345,22 +346,20 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
     # 合計行
     total: list = [None] * len(header)
-    activeCountIndex: int = header.index("参加傾向")
+    activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
     total[activeCountIndex - 1] = "合計"
-    total[activeCountIndex] = list(
-        map(lambda x: x[activeCountIndex], updateData)
-    ).count(SpreadSheet.ACTIVE_STRING)
 
+    # アクティブ
+    total[activeCountIndex] = sum(
+        x.CountActivePlayerCharacters() for x in players
+    )
+
+    # サブキャラ以降
     for i in range(1, maxPcCount):
         pcIndex: int = header.index(f"{i + 1}人目")
-        total[pcIndex] = list(
-            map(lambda x: x[pcIndex] != "", updateData)
-        ).count(True)
+        total[pcIndex] = len([x for x in players if len(x.Characters) > i])
 
     updateData.append(total)
-
-    # ヘッダーを追加
-    updateData.insert(0, header)
 
     # クリア
     worksheet.clear()
@@ -387,6 +386,16 @@ def UpdatePlayerSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         {
             "range": f"{startA1}:{endA1}",
             "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
+        }
+    )
+
+    # アクティブ
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 
@@ -417,7 +426,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     header: "list[str]" = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "PL",
         "種族",
         "種族\nマイナーチェンジ除く",
@@ -434,6 +443,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         "ガメル",
         "死亡",
     ]
+    updateData.append(header)
 
     formats: "list[CellFormat]" = []
     no: int = 0
@@ -503,43 +513,37 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             updateData.append(row)
 
             # PC列のハイパーリンク
-            pcIndex: int = header.index(PC_HEADER_TEXT) + 1
-            rowIndex: int = updateData.index(row) + 1 + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
-                    "range": utils.rowcol_to_a1(rowIndex, pcIndex),
+                    "range": utils.rowcol_to_a1(
+                        no + 1, header.index(PC_HEADER_TEXT) + 1
+                    ),
                     "format": {"textFormat": pcTextFormat},
                 }
             )
 
     # 合計行
     total: list = [None] * len(header)
-    activeCountIndex: int = header.index("参加傾向")
+    activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
     total[activeCountIndex - 1] = "合計"
-    total[activeCountIndex] = list(
-        map(lambda x: x[activeCountIndex], updateData)
-    ).count(SpreadSheet.ACTIVE_STRING)
 
-    VagrantsIndex: int = header.index("ヴァグランツ")
-    total[VagrantsIndex] = list(
-        map(lambda x: x[VagrantsIndex], updateData)
-    ).count(SpreadSheet.TRUE_STRING)
+    # アクティブ
+    total[activeCountIndex] = sum(
+        x.CountActivePlayerCharacters() for x in players
+    )
 
-    diedIndex: int = header.index("死亡")
-    total[diedIndex] = sum(
-        list(
-            map(
-                lambda x: (x[diedIndex]),
-                updateData,
-            )
-        )
+    # ヴァグランツ
+    total[header.index("ヴァグランツ")] = sum(
+        x.CountVagrantsPlayerCharacters() for x in players
+    )
+
+    # 死亡回数
+    total[header.index("死亡")] = sum(
+        sum(y.DiedTimes for y in x.Characters) for x in players
     )
     updateData.append(total)
-
-    # ヘッダーを追加
-    updateData.insert(0, header)
 
     # クリア
     worksheet.clear()
@@ -566,6 +570,16 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         {
             "range": f"{startA1}:{endA1}",
             "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
+        }
+    )
+
+    # アクティブ
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 
@@ -598,7 +612,7 @@ def UpdateCombatSkillSheet(
     headers: list[str] = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "信仰",
         "Lv",
         "経験点\nピンゾロ含む",
@@ -606,6 +620,9 @@ def UpdateCombatSkillSheet(
     ]
     for skill in SwordWorld.SKILLS.values():
         headers.append(skill)
+
+    # ヘッダーを縦書き用に変換
+    updateData.append(ConvertToVerticalHeaders(headers))
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -642,7 +659,7 @@ def UpdateCombatSkillSheet(
             updateData.append(row)
 
             # 書式設定
-            rowIndex: int = updateData.index(row) + 1 + 1
+            rowIndex: int = no + 1
 
             # 経験点の文字色
             expIndex: int = headers.index("経験点\nピンゾロ含む") + 1
@@ -671,7 +688,7 @@ def UpdateCombatSkillSheet(
             # PC列のハイパーリンク
             pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),
@@ -685,22 +702,14 @@ def UpdateCombatSkillSheet(
     total[-1] = "合計"
     total += list(
         map(
-            lambda x: list(
-                map(lambda y: y[headers.index(x)] != "", updateData)
-            ).count(True),
-            SwordWorld.SKILLS.values(),
+            lambda x: sum(
+                len([z for z in y.Characters if z.GetSkillLevel(x) > 0])
+                for y in players
+            ),
+            SwordWorld.SKILLS.keys(),
         )
     )
     updateData.append(total)
-
-    # ヘッダーを縦書き用に変換
-    displayHeader: list[str] = list(
-        map(
-            lambda x: ConvertToVerticalHeader(x),
-            headers,
-        )
-    )
-    updateData.insert(0, displayHeader)
 
     # クリア
     worksheet.clear()
@@ -740,6 +749,17 @@ def UpdateCombatSkillSheet(
         }
     )
 
+    # アクティブ
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
+        }
+    )
+
     # 部分的なフォーマットを設定
     worksheet.batch_format(formats)
 
@@ -764,10 +784,10 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     updateData: list[list] = []
 
     # ヘッダー
-    header: list[str] = [
+    headers: list[str] = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "種族",
         "器用",
         "敏捷",
@@ -785,6 +805,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         "ダイス平均",
         "備考",
     ]
+    updateData.append(headers)
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -866,12 +887,12 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             updateData.append(row)
 
             # 書式設定
-            rowIndex: int = updateData.index(row) + 1 + 1
+            rowIndex: int = no + 1
 
             # PC列のハイパーリンク
-            pcIndex: int = header.index(PC_HEADER_TEXT) + 1
+            pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),
@@ -881,7 +902,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
             # ダイス平均4.5を超える場合は赤文字
             if diceAverage > 4.5:
-                diceAverageIndex: int = header.index("ダイス平均") + 1
+                diceAverageIndex: int = headers.index("ダイス平均") + 1
                 diceAverageTextFormat: dict = (
                     SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
                 )
@@ -897,9 +918,6 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
                     }
                 )
 
-    # ヘッダーを追加
-    updateData.insert(0, header)
-
     # クリア
     worksheet.clear()
     worksheet.clear_basic_filter()
@@ -912,7 +930,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     # 書式設定
     # 全体
     startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(len(updateData), len(header))
+    endA1: str = utils.rowcol_to_a1(len(updateData), len(headers))
     worksheet.format(
         f"{startA1}:{endA1}",
         SpreadSheet.DEFAULT_FORMAT,
@@ -920,7 +938,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
     # ヘッダー
     startA1: str = utils.rowcol_to_a1(1, 1)
-    endA1: str = utils.rowcol_to_a1(1, len(header))
+    endA1: str = utils.rowcol_to_a1(1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
@@ -928,8 +946,19 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         }
     )
 
+    # アクティブ
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
+        }
+    )
+
     # ダイス平均
-    diceAverageIndex: int = header.index("ダイス平均") + 1
+    diceAverageIndex: int = headers.index("ダイス平均") + 1
     startA1: str = utils.rowcol_to_a1(1, diceAverageIndex)
     endA1: str = utils.rowcol_to_a1(len(updateData), diceAverageIndex)
     formats.append(
@@ -947,7 +976,7 @@ def UpdateStatusSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
     # フィルター
     worksheet.set_basic_filter(
-        1, 1, len(updateData), len(header)  # type: ignore
+        1, 1, len(updateData), len(headers)  # type: ignore
     )
 
 
@@ -968,7 +997,7 @@ def UpdateAbilitySheet(
     headers: list[str] = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "バトルダンサー",
         "Lv.1",
         "Lv.3",
@@ -979,6 +1008,7 @@ def UpdateAbilitySheet(
         "Lv.13",
         "自動取得",
     ]
+    updateData.append(headers)
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -1027,12 +1057,12 @@ def UpdateAbilitySheet(
             updateData.append(row)
 
             # 書式設定
-            rowIndex: int = updateData.index(row) + 1 + 1
+            rowIndex: int = no + 1
 
             # PC列のハイパーリンク
             pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),
@@ -1079,9 +1109,6 @@ def UpdateAbilitySheet(
                         }
                     )
 
-    # ヘッダーを追加
-    updateData.insert(0, headers)
-
     # クリア
     worksheet.clear()
     worksheet.clear_basic_filter()
@@ -1107,6 +1134,17 @@ def UpdateAbilitySheet(
         {
             "range": f"{startA1}:{endA1}",
             "format": SpreadSheet.DEFAULT_HEADER_FORMAT,
+        }
+    )
+
+    # アクティブ
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 
@@ -1137,15 +1175,16 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
     headers: "list[str]" = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "冒険者ランク",
         "累計名誉点",
         "加入数",
-        "未加入",
         "2.0流派",
     ]
     for style in SwordWorld.STYLES:
         headers.append(style.Name)
+
+    updateData.append(ConvertToVerticalHeaders(headers))
 
     formats: "list[CellFormat]" = []
     no: int = 0
@@ -1183,11 +1222,7 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             row.append(character.TotalHonor)
 
             # 加入数
-            learningCount: int = learnedStyles.count(SpreadSheet.TRUE_STRING)
-            row.append(learningCount)
-
-            # 未加入
-            row.append(SpreadSheet.TRUE_STRING if learningCount == 0 else "")
+            row.append(len(character.Styles))
 
             # 2.0流派
             row.append(SpreadSheet.TRUE_STRING if is20 else "")
@@ -1199,9 +1234,9 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
 
             # PC列のハイパーリンク
             pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
-            rowIndex: int = updateData.index(row) + 1 + 1
+            rowIndex: int = no + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),
@@ -1210,49 +1245,29 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             )
 
     # 合計行
-    notTotalColumnCount: int = 5
+    notTotalColumnCount: int = 6
     total: list = [None] * notTotalColumnCount
     total[-1] = "合計"
+
+    # 2.0流派所持
     total.append(
         sum(
-            list(
-                map(
-                    lambda x: (x[headers.index("加入数")]),
-                    updateData,
-                )
-            )
-        )
-    )
-    total.append(
-        list(map(lambda x: x[headers.index("未加入")], updateData)).count(
-            SpreadSheet.TRUE_STRING
-        )
-    )
-    total.append(
-        list(map(lambda x: x[headers.index("2.0流派")], updateData)).count(
-            SpreadSheet.TRUE_STRING
+            len([y for y in x.Characters if any(z.Is20 for z in y.Styles)])
+            for x in players
         )
     )
 
     # 各流派
     total += list(
         map(
-            lambda x: list(
-                map(lambda y: y[headers.index(x.Name)], updateData)
-            ).count(SpreadSheet.TRUE_STRING),
+            lambda x: sum(
+                len([z for z in y.Characters if x in z.Styles])
+                for y in players
+            ),
             SwordWorld.STYLES,
         )
     )
     updateData.append(total)
-
-    # ヘッダーを追加
-    displayHeaders: list[str] = list(
-        map(
-            lambda x: ConvertToVerticalHeader(x),
-            headers,
-        )
-    )
-    updateData.insert(0, displayHeaders)
 
     # クリア
     worksheet.clear()
@@ -1292,8 +1307,19 @@ def UpdateHonorSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
         }
     )
 
+    # アクティブ
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
+        }
+    )
+
     # ○
-    startA1 = utils.rowcol_to_a1(2, headers.index("未加入") + 1)
+    startA1 = utils.rowcol_to_a1(2, notTotalColumnCount + 1)
     endA1: str = utils.rowcol_to_a1(len(updateData) - 1, len(headers))
     formats.append(
         {
@@ -1331,11 +1357,14 @@ def UpdateAbyssCurseSheet(
     headers: "list[str]" = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "アビスカースの数",
     ]
     for abyssCurse in SwordWorld.ABYSS_CURSES:
         headers.append(abyssCurse)
+
+    # ヘッダーを追加
+    updateData.append(headers)
 
     formats: "list[CellFormat]" = []
     no: int = 0
@@ -1365,8 +1394,7 @@ def UpdateAbyssCurseSheet(
             row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
             # 数
-            cursesCount: int = receivedCurses.count(SpreadSheet.TRUE_STRING)
-            row.append(cursesCount)
+            row.append(len(character.AbyssCurses))
 
             # 各アビスカース
             row += receivedCurses
@@ -1375,40 +1403,39 @@ def UpdateAbyssCurseSheet(
 
             # PC列のハイパーリンク
             pcIndex: int = headers.index(PC_HEADER_TEXT) + 1
-            rowIndex: int = updateData.index(row) + 1 + 1
+            rowIndex: int = no + 1
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(rowIndex, pcIndex),
-                    "format": {"textFormat": pcTextFormat},
+                    "format": {
+                        "wrapStrategy": "WRAP",
+                        "textFormat": pcTextFormat,
+                    },
                 }
             )
 
     # 合計行
     total: list = [None] * 3
     total[-1] = "合計"
+
+    # アビスカースの数
     total.append(
-        sum(
-            list(
-                map(
-                    lambda x: x[headers.index("アビスカースの数")],
-                    updateData,
-                )
-            )
+        sum(sum(len(y.AbyssCurses) for y in x.Characters) for x in players)
+    )
+
+    # 各カースの数
+    total += list(
+        map(
+            lambda x: sum(
+                len([z for z in y.Characters if x in z.AbyssCurses])
+                for y in players
+            ),
+            SwordWorld.ABYSS_CURSES,
         )
     )
-    for abyssCurse in SwordWorld.ABYSS_CURSES:
-        total.append(
-            list(
-                map(lambda x: x[headers.index(abyssCurse)], updateData)
-            ).count(SpreadSheet.TRUE_STRING)
-        )
-
     updateData.append(total)
-
-    # ヘッダーを追加
-    updateData.insert(0, headers)
 
     # クリア
     worksheet.clear()
@@ -1438,17 +1465,14 @@ def UpdateAbyssCurseSheet(
         }
     )
 
-    # PC名
-    pcFormatStartA1: str = utils.rowcol_to_a1(
-        2, headers.index(PC_HEADER_TEXT) + 1
-    )
-    pcFormatEndA1: str = utils.rowcol_to_a1(
-        len(updateData) - 1, headers.index(PC_HEADER_TEXT) + 1
-    )
+    # アクティブ
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
     formats.append(
         {
-            "range": f"{pcFormatStartA1}:{pcFormatEndA1}",
-            "format": {"wrapStrategy": "WRAP"},
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 
@@ -1495,12 +1519,14 @@ def UpdateGeneralSkillSheet(
     headers: "list[str]" = [
         "No.",
         PC_HEADER_TEXT,
-        "参加傾向",
+        ACTIVE_HEADER_TEXT,
         "公式技能",
         "オリジナル技能",
     ]
     for officialGeneralSkillName in SwordWorld.OFFICIAL_GENERAL_SKILL_NAMES:
         headers.append(officialGeneralSkillName)
+
+    updateData.append(ConvertToVerticalHeaders(headers))
 
     formats: "list[CellFormat]" = []
     no: int = 0
@@ -1564,11 +1590,11 @@ def UpdateGeneralSkillSheet(
 
             # PC列のハイパーリンク
             pcTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
-            pcTextFormat["link"] = {"uri": MakeYtsheetUrl(character.YtsheetId)}
+            pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
                     "range": utils.rowcol_to_a1(
-                        updateData.index(row) + 1 + 1,
+                        no + 1,
                         headers.index(PC_HEADER_TEXT) + 1,
                     ),
                     "format": {"textFormat": pcTextFormat},
@@ -1583,25 +1609,22 @@ def UpdateGeneralSkillSheet(
     total[-1] = "合計"
     for officialGeneralSkillName in SwordWorld.OFFICIAL_GENERAL_SKILL_NAMES:
         total.append(
-            list(
-                map(
-                    lambda x: x[headers.index(officialGeneralSkillName)]
-                    is not None,
-                    updateData,
+            sum(
+                len(
+                    [
+                        y
+                        for y in x.Characters
+                        if any(
+                            z.Name == officialGeneralSkillName
+                            for z in y.GeneralSkills
+                        )
+                    ]
                 )
-            ).count(True)
+                for x in players
+            )
         )
 
     updateData.append(total)
-
-    # ヘッダーを追加
-    displayHeaders: list[str] = list(
-        map(
-            lambda x: ConvertToVerticalHeader(x),
-            headers,
-        )
-    )
-    updateData.insert(0, displayHeaders)
 
     # クリア
     worksheet.clear()
@@ -1638,6 +1661,17 @@ def UpdateGeneralSkillSheet(
         {
             "range": f"{startA1}:{endA1}",
             "format": {"textRotation": {"vertical": True}},
+        }
+    )
+
+    # アクティブ
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"horizontalAlignment": "CENTER"},
         }
     )
 
