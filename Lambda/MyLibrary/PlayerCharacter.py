@@ -240,6 +240,15 @@ class PlayerCharacter:
             if style is not None and style not in self.Styles:
                 self.Styles.append(style)
 
+        # 秘伝魔法
+        mysticMagicNum: int = int(ytsheetJson.get("mysticMagicNum", "0"))
+        for i in range(1, mysticMagicNum + 1):
+            style: Union[Style, None] = _FindStyle(
+                ytsheetJson.get(f"mysticMagic{i}", "")
+            )
+            if style is not None and style not in self.Styles:
+                self.Styles.append(style)
+
         # 名誉アイテム
         honorItemsNum: int = int(ytsheetJson.get("honorItemsNum", "0"))
         for i in range(1, honorItemsNum + 1):
