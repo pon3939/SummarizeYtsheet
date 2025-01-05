@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-from itertools import chain
 from json import loads
 from re import Match, findall, search, sub
 from typing import Union
-from unicodedata import normalize
 
 from MyLibrary.CommonFunction import MakeYtsheetUrl
 from MyLibrary.Constant import SwordWorld
@@ -27,75 +25,6 @@ _SELF_GAME_MASTER_NAMES: "list[str]" = [
 
 # 死亡時の備考
 _DIED_REGEXP: str = "死亡"
-
-# ピンゾロの表記ゆれ対応
-_FUMBLE_TITLES: "list[str]" = [
-    "ファンブル",
-    "50点",
-    "ゾロ",
-]
-
-# 備考欄のピンゾロ回数表記ゆれ対応
-_FUMBLE_COUNT_PREFIXES: "list[str]" = list(
-    chain.from_iterable(
-        map(
-            lambda x: map(
-                lambda y: x + y,
-                [
-                    "",
-                    r"\(",
-                    ":",
-                    r"\*",
-                    r"\+",
-                ],
-            ),
-            _FUMBLE_TITLES,
-        )
-    )
-)
-
-
-def _NormalizeString(string: str) -> str:
-    """
-
-    文字列を正規化
-
-    Args:
-        string str: 正規化する文字列
-
-    Returns:
-        str: 正規化した文字列
-    """
-    result: str = string.translate(
-        str.maketrans(
-            {
-                "一": "1",
-                "二": "2",
-                "三": "3",
-                "四": "4",
-                "五": "5",
-                "六": "6",
-                "七": "7",
-                "八": "8",
-                "九": "9",
-                "十": "10",
-            }
-        )
-    )
-    result: str = normalize("NFKC", result)
-    return result
-
-
-# ピンゾロの合計行の正規表現
-_TotalFumbleRegexp: str = "|".join(list(map(_NormalizeString, _FUMBLE_TITLES)))
-
-# ピンゾロの明細行の正規表現
-_FumbleCountRegexps: "list[str]" = list(
-    map(
-        lambda x: rf"(?<={x})\d+",
-        map(_NormalizeString, _FUMBLE_COUNT_PREFIXES),
-    )
-)
 
 
 @dataclass
@@ -336,64 +265,34 @@ class PlayerCharacter:
             )
 
         # セッション履歴を集計
-        totalFumbleExp: int = 0
-        fumbleCount: int = 0
         self.GameMasterScenarioKeys: list[str] = []
         self.PlayerTimes: int = 0
         self.DiedTimes: int = 0
-        self.FumbleExp: int = 0
         historyNum: int = int(ytsheetJson.get("historyNum", "0"))
         for i in range(1, historyNum + 1):
             gameMaster: str = ytsheetJson.get(f"history{i}Gm", "")
-            scenarioTitle: str = ytsheetJson.get(f"history{i}Title", "")
-            date: str = ytsheetJson.get(f"history{i}Date", "")
             if gameMaster == "":
-                # GM名未記載の履歴からピンゾロのみのセッション履歴を探す
-                normalizedTitle: str = _NormalizeString(scenarioTitle)
-                normalizedDate: str = _NormalizeString(date)
-                normalizedMember: str = _NormalizeString(
-                    ytsheetJson.get(f"history{i}Member", "")
+                continue
+
+            # 参加、GM回数を集計
+            if (
+                gameMaster == playerName
+                or gameMaster in _SELF_GAME_MASTER_NAMES
+            ):
+                # 複数PC所持PLのGM回数集計のため、シナリオごとに一意のキーを作成
+                date: str = ytsheetJson.get(f"history{i}Date", "")
+                scenarioTitle: str = ytsheetJson.get(f"history{i}Title", "")
+                members: str = ytsheetJson.get(f"history{i}Member", "")
+                self.GameMasterScenarioKeys.append(
+                    f"{date}_{scenarioTitle}_{members}"
                 )
-                if (
-                    search(_TotalFumbleRegexp, normalizedTitle)
-                    or search(_TotalFumbleRegexp, normalizedDate)
-                    or search(_TotalFumbleRegexp, normalizedMember)
-                ):
-                    totalFumbleExp += _CalculateFromString(
-                        ytsheetJson.get(f"history{i}Exp", "0")
-                    )
             else:
-                # 参加、GM回数を集計
-                if (
-                    gameMaster == playerName
-                    or gameMaster in _SELF_GAME_MASTER_NAMES
-                ):
-                    # 複数PC所持PLのGM回数集計のため、シナリオごとに一意のキーを作成
-                    members: str = ytsheetJson.get(f"history{i}Member", "")
-                    self.GameMasterScenarioKeys.append(
-                        f"{date}_{scenarioTitle}_{members}"
-                    )
-                else:
-                    self.PlayerTimes += 1
+                self.PlayerTimes += 1
 
-                # 備考
-                note: str = ytsheetJson.get(f"history{i}Note", "")
-                if search(_DIED_REGEXP, note):
-                    # 死亡回数を集計
-                    self.DiedTimes += 1
-
-                # ピンゾロ回数を集計
-                normalizedNote: str = _NormalizeString(note)
-                for fumbleCountRegexp in _FumbleCountRegexps:
-                    fumbleCountMatch: Union[Match[str], None] = search(
-                        fumbleCountRegexp, normalizedNote
-                    )
-                    if fumbleCountMatch is not None:
-                        fumbleCount += int(fumbleCountMatch.group(0))
-                        break
-
-            # ピンゾロ経験点は最大値を採用する(複数の書き方で書かれていた場合、重複して集計してしまうため)
-            self.FumbleExp = max(totalFumbleExp, fumbleCount * 50)
+            # 備考
+            if search(_DIED_REGEXP, ytsheetJson.get(f"history{i}Note", "")):
+                # 死亡回数を集計
+                self.DiedTimes += 1
 
         self.GameMasterTimes: int = len(self.GameMasterScenarioKeys)
 
@@ -598,25 +497,6 @@ class PlayerCharacter:
             int: 技能レベル
         """
         return self.Skills.get(key, 0)
-
-
-def _CalculateFromString(string: str) -> int:
-    """
-
-    四則演算の文字列から解を求める
-
-    Args:
-        string str: 計算する文字列
-
-    Returns:
-        int: 解
-    """
-    notCalcRegexp: str = r"[^0-9\+\-\*\/\(\)]"
-    if search(notCalcRegexp, string):
-        # 四則演算以外の文字列が含まれる
-        return 0
-
-    return eval(string)
 
 
 def _FindStyle(string: str) -> Union[Style, None]:

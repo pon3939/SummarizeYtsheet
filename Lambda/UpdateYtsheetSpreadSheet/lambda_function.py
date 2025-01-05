@@ -37,6 +37,7 @@ ACTIVE_HEADER_TEXT: str = "ｱｸﾃｨﾌﾞ"
 PLAYER_COUNT_HEADER_TEXT: str = "PL"
 GAME_MASTER_COUNT_HEADER_TEXT: str = "GM"
 TOTAL_GAME_COUNT_HEADER_TEXT: str = "総卓数"
+EXP_HEADER_TEXT: str = "経験点"
 
 # 初期作成時に振るダイスの数と能力増加分
 RACES_STATUSES: dict = {
@@ -621,8 +622,7 @@ def UpdateCombatSkillSheet(
         ACTIVE_HEADER_TEXT,
         "信仰",
         "Lv.",
-        "経験点\nピンゾロ含む",
-        "ピンゾロ",
+        EXP_HEADER_TEXT,
     ]
     for skill in SwordWorld.SKILLS.values():
         headers.append(skill)
@@ -655,9 +655,6 @@ def UpdateCombatSkillSheet(
             # 経験点
             row.append(character.Exp)
 
-            # ピンゾロ
-            row.append(character.FumbleExp)
-
             # 技能レベル
             for skill in SwordWorld.SKILLS:
                 row.append(character.Skills.get(skill, ""))
@@ -668,7 +665,7 @@ def UpdateCombatSkillSheet(
             rowIndex: int = no + 1
 
             # 経験点の文字色
-            expIndex: int = headers.index("経験点\nピンゾロ含む") + 1
+            expIndex: int = headers.index(EXP_HEADER_TEXT) + 1
             expTextFormat: dict = SpreadSheet.DEFAULT_TEXT_FORMAT.copy()
             if character.ActiveStatus == ExpStatus.MAX:
                 expTextFormat["foregroundColorStyle"] = {
