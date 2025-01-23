@@ -281,11 +281,16 @@ class PlayerCharacter:
             ):
                 # 複数PC所持PLのGM回数集計のため、シナリオごとに一意のキーを作成
                 date: str = ytsheetJson.get(f"history{i}Date", "")
-                scenarioTitle: str = ytsheetJson.get(f"history{i}Title", "")
-                members: str = ytsheetJson.get(f"history{i}Member", "")
-                self.GameMasterScenarioKeys.append(
-                    f"{date}_{scenarioTitle}_{members}"
+                count: int = len(
+                    [
+                        x
+                        for x in self.GameMasterScenarioKeys
+                        if x.startswith(date)
+                    ]
                 )
+
+                # 重複を避けるため、同一日の場合は連番を付与
+                self.GameMasterScenarioKeys.append(f"{date}_{count}")
             else:
                 self.PlayerTimes += 1
 
@@ -293,8 +298,6 @@ class PlayerCharacter:
             if search(_DIED_REGEXP, ytsheetJson.get(f"history{i}Note", "")):
                 # 死亡回数を集計
                 self.DiedTimes += 1
-
-        self.GameMasterTimes: int = len(self.GameMasterScenarioKeys)
 
         # 経歴を1行ごとに分割
         freeNotes: list[str] = ytsheetJson.get("freeNote", "").split(
