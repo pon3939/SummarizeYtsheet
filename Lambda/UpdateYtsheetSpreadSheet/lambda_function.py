@@ -504,7 +504,7 @@ def UpdateBasicSheet(spreadsheet: Spreadsheet, players: list[Player]) -> None:
             row.append(playerTimes)
 
             # GM
-            gameMasterTimes: int = character.GameMasterTimes
+            gameMasterTimes: int = len(character.GameMasterScenarioKeys)
             row.append(gameMasterTimes)
 
             # 参加+GM
