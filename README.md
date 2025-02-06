@@ -1,8 +1,10 @@
 # SummarizeYtsheet
 
-ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ
+[AWS SAM に移行済み](https://github.com/pon3939/SummarizeCharacterSheets)
 
-実行環境にはAWS Step Functionsを使用しているよ
+ゆとシートからデータを集計して Google スプレッドシートを更新するよ
+
+実行環境には AWS Step Functions を使用しているよ
 
 ## Lambda
 
@@ -23,7 +25,7 @@ pip install -r requirements.txt -t python
 
 ゆとシートから取得したデータをフォーマットするよ
 
-AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要なデータのみ集計しているよ
+AWS Step Functions の State 間の Payload サイズが最大 256KB だから必要なデータのみ集計しているよ
 
 ### UpdateYtsheetSpreadSheet
 
@@ -31,19 +33,19 @@ AWS Step FunctionsのState間のPayloadサイズが最大256KBだから必要な
 
 ### InsertPlayerCharacters
 
-PlayerCharactersテーブルを登録するよ
+PlayerCharacters テーブルを登録するよ
 
 ### InsertLevelCaps
 
-LevelCapsテーブルを登録するよ
+LevelCaps テーブルを登録するよ
 
 ## StepFunctions
 
 ### SummarizeYtsheet
 
-ゆとシートからデータを集計してGoogleスプレッドシートを更新するよ  
-Googleスプレッドシートの更新はUpdateYtsheetSpreadSheetを呼んでいるよ
+ゆとシートからデータを集計して Google スプレッドシートを更新するよ
+Google スプレッドシートの更新は UpdateYtsheetSpreadSheet を呼んでいるよ
 
 ### UpdateYtsheetSpreadSheet
 
-Googleスプレッドシートを更新するよ
+Google スプレッドシートを更新するよ
